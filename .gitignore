@@ -127,7 +127,7 @@ dmypy.json
 .idea/runConfigurations
 
 # dependencies
-frontend/node_modules
+node_modules
 /.pnp
 .pnp.js
 

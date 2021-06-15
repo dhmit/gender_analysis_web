@@ -17,21 +17,7 @@ Including another URL configuration
 from django.contrib import admin
 from django.urls import path
 
-from app.common import render_react_view
-from app.views import (
-    example,
-)
-
-
-def react_view_path(route, component_name):
-    """ Convenience function for React views """
-    return path(
-        route,
-        render_react_view,
-        {
-            'component_name': component_name,
-        },
-    )
+from app import views
 
 
 urlpatterns = [
@@ -39,9 +25,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # API endpoints
-    path('api/example/<int:example_id>', example),
+    path('api/example/<int:example_id>', views.example),
 
     # View paths
-    react_view_path('', 'IndexView'),
-    react_view_path('example/<int:exampleId>', 'ExampleView'),
+    path('', views.index, name='index'),
+    path('example', views.example, name='example'),
+    path('example/<int:example_id>', views.example_id, name='example_id'),
 ]

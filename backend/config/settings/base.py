@@ -153,7 +153,7 @@ CORS_ORIGIN_WHITELIST = [
 # Django webpack loader settings
 WEBPACK_LOADER = {
     'DEFAULT': {
-        'BUNDLE_DIR_NAME': 'bundles/',
+        'BUNDLE_DIR_NAME': './assets/bundles/',
         'STATS_FILE': os.path.join(PROJECT_ROOT, 'webpack-stats.json'),
     }
 }

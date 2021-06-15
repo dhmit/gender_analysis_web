@@ -1,14 +1,14 @@
 {
+    "parser": "babel-eslint",
+
     "env": {
         "browser": true
     },
 
     "extends": [
-        "airbnb-base",
         "plugin:react/recommended"
     ],
 
-    "parser": "babel-eslint",
 
     "plugins": [
         "react"
@@ -40,6 +40,7 @@
         "prefer-destructuring": ["off"],
         "prefer-template": ["off"],
         "quote-props": ["error", "consistent"],
+        "quotes": ["warn"],
         "radix": ["off"],
         "react/no-unescaped-entities": [ "error", { "forbid": [">", "}"] }],
         "semi": ["error", "always"]
@@ -58,4 +59,3 @@
         }
     ]
 }
-
