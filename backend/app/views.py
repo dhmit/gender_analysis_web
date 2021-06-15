@@ -57,10 +57,10 @@ def example_id(request, example_id):
         'page_metadata': {
             'title': 'Example ID page'
         },
-        'app_data': {
+        'component_props': {
             'id': example_id
         },
-        'app_component': 'ExampleId'
+        'component_name': 'ExampleId'
     }
 
     return render(request, 'index.html', context)
