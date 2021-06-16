@@ -27,7 +27,7 @@ from django.shortcuts import render
 
 
 @api_view(['GET'])
-def example(request, example_id):
+def get_example(request, example_id):
     """
     API example endpoint.
     """
