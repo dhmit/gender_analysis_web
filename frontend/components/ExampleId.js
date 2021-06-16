@@ -15,7 +15,7 @@ const ExampleId = ({id}) => {
             <h1>This is the Example ID page.</h1>
             <p>
                 This page demonstrates passing view parameters from Django to React
-                and a very simple state.
+                and very simple state management.
             </p>
             <p>View params:</p>
             <ul className={STYLES.list}>

@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./scss/index.scss";
 import Base from "./components/global/Base";
-import ErrorNotFound from "./components/ErrorNotFound";
+import ErrorNotFoundComponent from "./components/ErrorNotFoundComponent";
 import ExampleId from "./components/ExampleId";
 
 const COMPONENT_PROPS_RAW = document.getElementById("component_props").text;
@@ -11,11 +11,11 @@ const COMPONENT_PROPS = JSON.parse(COMPONENT_PROPS_RAW);
 const COMPONENT_NAME = JSON.parse(COMPONENT_NAME_RAW);
 
 const COMPONENTS = {
-    ErrorNotFound,
+    ErrorNotFoundComponent,
     ExampleId
 };
 
-const PreselectedComponent = COMPONENTS[COMPONENT_NAME || "ErrorNotFound"];
+const PreselectedComponent = COMPONENTS[COMPONENT_NAME || "ErrorNotFoundComponent"];
 
 ReactDOM.render(
     <Base>
