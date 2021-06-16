@@ -4,11 +4,13 @@ Models for the ***** app.
 from django.db import models
 
 
-class PronounSeries:
+class PronounSeries(models.Model):
     """
     A class that allows users to define a custom series of pronouns to be used in
     `gender_analysis` functions
     """
+
+    identifier = models.CharField(max_length=40)
 
     def __init__(self, identifier, pronouns, subj, obj):
         """
@@ -110,10 +112,12 @@ class PronounSeries:
         )
 
 
-class Gender:
+class Gender(models.Model):
     """
-    Defines a gender that will be operated on in analysis functions
+    This model defines a gender that will be operated on in analysis functions.
     """
+
+    label = models.CharField(max_length=60)
 
     def __init__(self, label, pronoun_series, names=None):
         """
