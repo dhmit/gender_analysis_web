@@ -1,8 +1,11 @@
 """
-This file controls the administrative interface for lang_learn app
+This file controls the administrative interface for gender analysis web app
 """
 
-# from django.contrib import admin
-# from .models import ADD ME!
+from django.contrib import admin
+from . import models
 
-# admin.site.register( ADD ME! )
+#defining models 
+modelsToRegister = [models.PronounSeries, models.Gender]
+
+admin.site.register(models)
