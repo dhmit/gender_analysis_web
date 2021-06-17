@@ -8,6 +8,7 @@ from collections import Counter
 
 # no models yet -- write me!
 
+
 class Document(models.Model):
     """
     This model will hold the full text and
@@ -28,8 +29,8 @@ class Document(models.Model):
         Scans through the text and replaces all of the smart quotes and apostrophes with their
         "normal" ASCII variants
 
-        :param text: The string to reformat
-        :return: A string that is idential to `text`, except with its smart quotes exchanged
+        :param self: The Document to reformat
+        :return: A string that is identical to `text`, except with its smart quotes exchanged
         """
 
         # Define the quotes that will be swapped out
@@ -47,7 +48,6 @@ class Document(models.Model):
         self.text = output_text
         self.save()
         return self.text
-
 
     def get_tokenized_text(self):
         """
