@@ -70,3 +70,17 @@ def get_tokenized_text(document_obj):
 
     else:
         return document_obj.tokenized_text
+
+def get_wordcount_counter(document_obj):
+    """
+    Returns a counter object of all of the words in the text.
+
+    If this is your first time running this method, this can be slow.
+
+    :return: Python Counter object
+    """
+
+    # If word_counts were not previously initialized, do it now and store it for the future.
+    if not document_obj._word_counts_counter:
+        document_obj._word_counts_counter = Counter(get_tokenized_text(document_obj))
+    return document_obj._word_counts_counter
