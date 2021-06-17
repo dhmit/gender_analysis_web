@@ -50,3 +50,9 @@ class MainTests(TestCase):
         doc_1.save()
         cleaned_1 = 'This is a "smart" phrase'
         self.assertEqual(doc_1._clean_quotes(), cleaned_1)
+
+    def test_find_quoted_text(self):
+        doc_1 = Document(text='"This is a quote." There is more. "This is my quote."')
+        doc_1.save()
+        quoted_text_1 = ['"This is a quote."', '"This is my quote."']
+        self.assertEqual(doc_1.find_quoted_text(), quoted_text_1)
