@@ -2,30 +2,7 @@
 Models for the gender analysis web app.
 """
 from django.db import models
-# from django.utils.translation import gettext_lazy
-
-
-class LowercaseCharField(models.CharField):
-    """
-    A subclass of models.CharField that converts the string to lowercase
-    when saving the model instance to the database.
-    """
-
-    # WORK IN PROGRESS!
-    # @property
-    # def description(self):
-    #     return gettext_lazy(f"String (up to {self.max_length}) \
-    #         converted to lowercase upon saving the model instance to the database.")
-
-    def pre_save(self, model_instance, add):
-        """
-        Preprocesses field data before saving a model instance to the database.
-        In this case, converts the data described by the CharField to lowercase.
-        """
-        chars = getattr(model_instance, self.attname)
-        setattr(model_instance, self.attname, chars.lower())
-
-        return super().pre_save(model_instance, add)
+from .fields import LowercaseCharField
 
 
 class PronounSeries(models.Model):
@@ -35,8 +12,8 @@ class PronounSeries(models.Model):
     """
 
     identifier = models.CharField(max_length=60)
-    subj = models.LowercaseCharField(max_length=40)
-    obj = models.LowercaseCharField(max_length=40)
+    subj = LowercaseCharField(max_length=40)
+    obj = LowercaseCharField(max_length=40)
 
     def __init__(self, identifier, pronouns, subj, obj):
         """
