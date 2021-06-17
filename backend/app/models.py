@@ -1,5 +1,5 @@
 """
-Models for the ***** app.
+Models for the gender analysis web app.
 """
 from django.db import models
 
@@ -11,6 +11,8 @@ class PronounSeries(models.Model):
     """
 
     identifier = models.CharField(max_length=40)
+    subj = models.CharField(max_length=100)
+    obj = models.CharField(max_length=100)
 
     def __init__(self, identifier, pronouns, subj, obj):
         """
