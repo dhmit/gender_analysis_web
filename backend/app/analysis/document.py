@@ -4,6 +4,7 @@ from collections import Counter
 
 import nltk
 
+
 def word_count(document_obj):
     """
     Lazy-loading for **Document.word_count** attribute.
@@ -48,6 +49,7 @@ def _clean_quotes(text):
 
     return output_text
 
+
 def get_tokenized_text(document_obj):
     """
     Tokenizes the text and returns it as a list of tokens, while removing all punctuation.
@@ -58,13 +60,13 @@ def get_tokenized_text(document_obj):
     """
 
     # Excluded characters: !"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~
-    if document_obj._tokenized_text is None:
+    if document_obj.tokenized_text is None:
         tokens = nltk.word_tokenize(document_obj.text)
         excluded_characters = set(string.punctuation)
         tokenized_text = [word.lower() for word in tokens if word not in excluded_characters]
-        document_obj._tokenized_text = tokenized_text
+        document_obj.tokenized_text = tokenized_text
         document_obj.save()
         return tokenized_text
 
     else:
-        return document_obj._tokenized_text
+        return document_obj.tokenized_text
