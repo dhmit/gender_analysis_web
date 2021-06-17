@@ -2,9 +2,8 @@
 Custom fields for the gender analysis web app.
 """
 from django.db import models
-
-
 # from django.utils.translation import gettext_lazy
+
 
 class LowercaseCharField(models.CharField):
     """
