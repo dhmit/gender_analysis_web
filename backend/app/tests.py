@@ -56,3 +56,75 @@ class MainTests(TestCase):
         doc_1.save()
         quoted_text_1 = ['"This is a quote."', '"This is my quote."']
         self.assertEqual(doc_1.find_quoted_text(), quoted_text_1)
+
+    def test_get_count_of_word(self):
+        doc_1 = Document(text='Do you like ice cream as much as I do?')
+        doc_1.save()
+        self.assertEqual(doc_1.get_count_of_word('do'), 2)
+        self.assertEqual(doc_1.get_count_of_word('ThisWordIsNotThere'), 0)
+
+    def test_get_count_of_words(self):
+        doc_1 = Document(text='Do you like ice cream as much as I do?')
+        doc_1.save()
+        self.assertEqual(doc_1.get_count_of_words(['do', 'as', 'you']), Counter({'do': 2, 'as': 2, 'you': 1}))
+        self.assertEqual(doc_1.get_count_of_words(['ThisWordIsNotThere', 'well']), Counter({'ThisWordIsNotThere': 0, 'well': 0}))
+
+    def test_words_associated(self):
+        doc_1 = Document(text="""She took a lighter out of her purse and handed it over to him. 
+                                 He lit his cigarette and took a deep drag from it, and then 
+                                 began his speech which ended in a proposal. Her tears drowned the ring. 
+                                 TBH i know nothing about this story.""")
+        doc_1.save()
+        self.assertEqual(doc_1.words_associated('his'), Counter({'cigarette': 1, 'speech': 1}))
+
+    def test_get_word_windows(self):
+        doc_1 = Document(text="""She took a lighter out of her purse and handed it over to him. 
+                                 He lit his cigarette and took a deep drag from it, and then began 
+                                 his speech which ended in a proposal. Her tears drowned the ring.""")
+        doc_1.save()
+        windows_1 = Counter({'he': 1, 'lit': 1, 'cigarette': 1, 'and': 1, 'then': 1, 'began': 1, 'speech': 1, 'which': 1})
+        windows_2 = Counter({'her': 2, 'of': 1, 'and': 1, 'handed': 1, 'proposal': 1, 'drowned': 1, 'the': 1})
+        self.assertEqual(doc_1.get_word_windows('his', window_size=2), windows_1)
+        self.assertEqual(doc_1.get_word_windows(['purse', 'tears']), windows_2)
+
+    def test_get_word_freq(self):
+        doc_1 = Document(text="""Hester was convicted of adultery. which made her very sad, 
+                                 and then Arthur was also sad, and everybody was sad and then 
+                                 Arthur died and it was very sad.  Sadness.""")
+        doc_1.save()
+        self.assertEqual(doc_1.get_word_freq('sad'), 0.13333333333333333)
+
+    def test_get_word_frequencies(self):
+        doc_1 = Document(text="""Jane was convicted of adultery. she was a beautiful gal, 
+                                 and everyone thought that she was very beautiful, and everybody 
+                                 was sad and then she died. Everyone agreed that she was a beautiful 
+                                 corpse that deserved peace.""")
+        doc_1.save()
+        word_freqs = {'peace': 0.02702702702702703, 'died': 0.02702702702702703, 'foobar': 0.0}
+        self.assertEqual(doc_1.get_word_frequencies(['peace', 'died', 'foobar']), word_freqs)
+
+    def test_get_part_of_speech_tags(self):
+        doc_1 = Document(text='They refuse to permit us to obtain the refuse permit.')
+        doc_1.save()
+        tags_1 = [('They', 'PRP'), ('refuse', 'VBP'), ('to', 'TO'), ('permit', 'VB')]
+        tags_2 = [('the', 'DT'), ('refuse', 'NN'), ('permit', 'NN'), ('.', '.')]
+        self.assertEqual(doc_1.get_part_of_speech_tags()[:4], tags_1)
+        self.assertEqual(doc_1.get_part_of_speech_tags()[-4:], tags_2)
+
+    def test_part_of_speech_words(self):
+        doc_1 = Document(text="""Jane was convicted of adultery. she was a beautiful gal, 
+                                         and everyone thought that she was very beautiful, and everybody 
+                                         was sad and then she died. Everyone agreed that she was a beautiful 
+                                         corpse that deserved peace.""")
+        doc_1.save()
+        words = {'JJ': Counter({'beautiful': 3}), 'VBD': Counter({'died': 1}), 'NN': Counter({'peace': 1})}
+        self.assertEqual(doc_1.get_part_of_speech_words(['peace', 'died', 'beautiful', 'foobar']), words)
+
+    def test_update_metadata(self):
+        doc_1 = Document(date=2098)
+        doc_1.save()
+        doc_1.update_metadata({'date': '1903'})
+        new_attribute = {'cookies': 'chocolate chip'}
+        doc_1.update_metadata(new_attribute)
+        self.assertEqual(doc_1.date, 1903)
+        self.assertEqual(doc_1.cookies, 'chocolate chip')
