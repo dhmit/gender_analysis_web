@@ -15,8 +15,8 @@ class Document(models.Model):
     date = models.IntegerField(null=True, blank=True)
     text = models.TextField(blank=True)
     label = models.CharField(max_length=255, blank=True)
+    word_count = models.PositiveIntegerField(blank=True, null=True, default=None)
+    _tokenized_text = models.JSONField(null=True, blank=True, default=None)
     _word_counts_counter = models.JSONField(null=True, blank=True, default=dict)
-    _word_count = models.PositiveIntegerField(blank=True, null=True, default=None)
-    _tokenized_text = models.JSONField(null=True, blank=True, default=list)
     _part_of_speech_tags = models.JSONField(null=True, blank=True, default=list)
 
