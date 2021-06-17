@@ -6,8 +6,6 @@ import nltk
 import string
 from collections import Counter
 
-# no models yet -- write me!
-
 
 class Document(models.Model):
     """
@@ -95,3 +93,33 @@ class Document(models.Model):
         if not self._word_counts_counter:
             self._word_counts_counter = Counter(self.get_tokenized_text())
         return self._word_counts_counter
+
+    def find_quoted_text(self):
+        """
+        Finds all of the quoted statements in the document text.
+
+        :return: List of strings enclosed in double-quotations
+        """
+        text_list = self.text.split()
+        quotes = []
+        current_quote = []
+        quote_in_progress = False
+        quote_is_paused = False
+
+        for word in text_list:
+            if word[0] == "\"":
+                quote_in_progress = True
+                quote_is_paused = False
+                current_quote.append(word)
+            elif quote_in_progress:
+                if not quote_is_paused:
+                    current_quote.append(word)
+                if word[-1] == "\"":
+                    if word[-2] != ',':
+                        quote_in_progress = False
+                        quote_is_paused = False
+                        quotes.append(' '.join(current_quote))
+                        current_quote = []
+                    else:
+                        quote_is_paused = True
+        return quotes
