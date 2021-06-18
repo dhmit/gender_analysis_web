@@ -2,7 +2,7 @@
 Custom fields for the gender analysis web app.
 """
 from django.db import models
-# from django.utils.translation import gettext_lazy
+from django.utils.translation import gettext_lazy
 
 
 class LowercaseCharField(models.CharField):
@@ -12,10 +12,8 @@ class LowercaseCharField(models.CharField):
     """
 
     # WORK IN PROGRESS!
-    # @property
-    # def description(self):
-    #     return gettext_lazy(f"String (up to {self.max_length}) \
-    #         converted to lowercase upon saving the model instance to the database.")
+    description = gettext_lazy(f"String (up to {super().max_length}) \
+            converted to lowercase upon saving the model instance to the database.")
 
     def pre_save(self, model_instance, add):
         """
