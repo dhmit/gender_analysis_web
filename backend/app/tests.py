@@ -3,12 +3,29 @@ Tests for the main app.
 """
 
 from django.test import TestCase
+from .models import (
+    Pronoun,
+)
+
+
+class PronounTestCase(TestCase):
+    """
+    TestCase for the Pronoun model
+    """
+
+    def setUp(self):
+        he = Pronoun(pronoun='he', pronoun_type='subj')
+        him = Pronoun(pronoun='him', pronoun_type='obj')
+        his = Pronoun(pronoun='his', pronoun_type='pos_det')
+        his_2 = Pronoun(pronoun='his', pronoun_type='pos_pro')
+        himself = Pronoun(pronoun='himself', pronoun_type='reflex')
 
 
 class MainTests(TestCase):
     """
     Backend TestCase
     """
+
     # def setUp(self):
     #     super().setUp()
     #     do any setup here
