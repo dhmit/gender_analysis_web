@@ -38,6 +38,11 @@ class Pronoun(models.Model):
             Type: {pronoun_type_str}'
         )
 
+    # Ideally, __eq__ should only be called after a Model instance is saved to the database;
+    # how do we ensure this?
+    def __eq__(self, other):
+        return self.pronoun == other.pronoun and self.pronoun_type == other.pronoun_type
+
 
 class PronounSeries(models.Model):
     """
