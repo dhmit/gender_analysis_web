@@ -23,6 +23,7 @@ class LowercaseCharField(models.CharField):
         In this case, converts the data described by the CharField to lowercase.
         """
         chars = getattr(model_instance, self.attname)
-        setattr(model_instance, self.attname, chars.lower())
+        chars_lower = chars.lower()
+        setattr(model_instance, self.attname, chars_lower)
 
-        return super().pre_save(model_instance, add)
+        return chars_lower
