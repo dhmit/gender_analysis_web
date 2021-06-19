@@ -14,14 +14,15 @@ class Document(models.Model):
     metadata (author, title, publication date, etc.) of a document
     """
     author = models.CharField(max_length=255, blank=True)
-    title = models.CharField(max_length=255, blank=True)
     date = models.IntegerField(null=True, blank=True)
-    text = models.TextField(blank=True)
     label = models.CharField(max_length=255, blank=True)
+    other = models.JSONField(null=True, blank=True, default=dict)
+    text = models.TextField(blank=True)
+    title = models.CharField(max_length=255, blank=True)
     word_count = models.PositiveIntegerField(blank=True, null=True, default=None)
     tokenized_text = models.JSONField(null=True, blank=True, default=None)
-    _word_counts_counter = models.JSONField(null=True, blank=True, default=dict)
-    _part_of_speech_tags = models.JSONField(null=True, blank=True, default=list)
+    word_counts_counter = models.JSONField(null=True, blank=True, default=dict)
+    part_of_speech_tags = models.JSONField(null=True, blank=True, default=list)
 
     def _clean_quotes(self):
         """
@@ -79,8 +80,8 @@ class Document(models.Model):
         """
 
         # If word_counts were not previously initialized, do it now and store it for the future.
-        self.get_wordcount_counter()
-        return self._word_counts_counter[word]
+        self.getwordcount_counter()
+        return self.word_counts_counter[word]
 
     def get_count_of_words(self, words):
         """
@@ -117,9 +118,9 @@ class Document(models.Model):
         """
 
         # If word_counts were not previously initialized, do it now and store it for the future.
-        if not self._word_counts_counter:
-            self._word_counts_counter = Counter(self.get_tokenized_text())
-        return self._word_counts_counter
+        if not self.word_counts_counter:
+            self.word_counts_counter = Counter(self.get_tokenized_text())
+        return self.word_counts_counter
 
     def find_quoted_text(self):
         """
@@ -245,13 +246,13 @@ class Document(models.Model):
         :return: List of tuples (term, speech_tag)
         """
 
-        if not self._part_of_speech_tags:
+        if not self.part_of_speech_tags:
             text = nltk.word_tokenize(self.text)
             pos_tags = nltk.pos_tag(text)
 
-            self._part_of_speech_tags = pos_tags
+            self.part_of_speech_tags = pos_tags
             self.save()
-        return self._part_of_speech_tags
+        return self.part_of_speech_tags
 
     def get_part_of_speech_words(self, words, remove_swords=True):
         """
@@ -289,16 +290,10 @@ class Document(models.Model):
         :param new_metadata: dict of new metadata to apply to the document
         :return: None
         """
-
+        default_fields = [field.name for field in self._meta.get_fields()]
         if not isinstance(new_metadata, dict):
             raise ValueError(
                 f'new_metadata must be a dictionary of metadata keys, not type {type(new_metadata)}'
-            )
-        if 'filename' in new_metadata and new_metadata['filename'] != self.filename:
-            raise KeyError(
-                'You cannot update the filename of a document; '
-                f'consider removing {str(self)} from the Corpus object '
-                'and adding the document again with the updated filename'
             )
 
         for key in new_metadata:
@@ -310,5 +305,8 @@ class Document(models.Model):
                         f"the metadata field 'date' must be a number for document {self.filename},"
                         f" not '{new_metadata['date']}'"
                     ) from err
-            setattr(self, key, new_metadata[key])
+            if key not in default_fields:
+                self.other[key] = new_metadata[key]
+            else:
+                setattr(self, key, new_metadata[key])
         self.save()
