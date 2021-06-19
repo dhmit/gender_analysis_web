@@ -302,7 +302,7 @@ class Document(models.Model):
                     new_metadata[key] = int(new_metadata[key])
                 except ValueError as err:
                     raise ValueError(
-                        f"the metadata field 'date' must be a number for document {self.filename},"
+                        f"the metadata field 'date' must be a number for the document,"
                         f" not '{new_metadata['date']}'"
                     ) from err
             if key not in default_fields:
