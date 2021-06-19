@@ -309,4 +309,18 @@ class Document(models.Model):
                 self.other[key] = new_metadata[key]
             else:
                 setattr(self, key, new_metadata[key])
+
+        if 'text' in new_metadata or not self.tokenized_text:
+            self.text = self._clean_quotes()
+            self.word_count = None
+            self.tokenized_text = None
+            self.word_counts_counter = dict()
+            self.part_of_speech_tags = list()
+            self.save()
+            # get_word_count() will call get_tokenized_text() and update both
+            # self.word_count and self.tokenized_text
+            self.get_word_count()
+            self.get_wordcount_counter()
+            self.get_part_of_speech_tags()
+
         self.save()

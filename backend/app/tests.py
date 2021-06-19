@@ -126,5 +126,8 @@ class MainTests(TestCase):
         doc_1.update_metadata({'date': '1903'})
         new_attribute = {'cookies': 'chocolate chip'}
         doc_1.update_metadata(new_attribute)
+        new_attribute_2 = {'text': 'The quick brown fox jumped over the lazy dog.'}
+        doc_1.update_metadata(new_attribute_2)
         self.assertEqual(doc_1.date, 1903)
         self.assertEqual(doc_1.other['cookies'], 'chocolate chip')
+        self.assertEqual(doc_1.word_count, 9)
