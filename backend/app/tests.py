@@ -127,4 +127,4 @@ class MainTests(TestCase):
         new_attribute = {'cookies': 'chocolate chip'}
         doc_1.update_metadata(new_attribute)
         self.assertEqual(doc_1.date, 1903)
-        self.assertEqual(doc_1.cookies, 'chocolate chip')
+        self.assertEqual(doc_1.other['cookies'], 'chocolate chip')
