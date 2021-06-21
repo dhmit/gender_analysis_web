@@ -15,8 +15,7 @@ class Document(models.Model):
     """
     author = models.CharField(max_length=255, blank=True)
     date = models.IntegerField(null=True, blank=True)
-    label = models.CharField(max_length=255, blank=True)
-    other = models.JSONField(null=True, blank=True, default=dict)
+    new_attributes = models.JSONField(null=True, blank=True, default=dict)
     text = models.TextField(blank=True)
     title = models.CharField(max_length=255, blank=True)
     word_count = models.PositiveIntegerField(blank=True, null=True, default=None)
@@ -306,7 +305,7 @@ class Document(models.Model):
                         f" not '{new_metadata['date']}'"
                     ) from err
             if key not in default_fields:
-                self.other[key] = new_metadata[key]
+                self.new_attributes[key] = new_metadata[key]
             else:
                 setattr(self, key, new_metadata[key])
 
