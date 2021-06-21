@@ -57,8 +57,6 @@ class PronounSeries(models.Model):
 
     identifier = models.CharField(max_length=60)
     pronouns = models.ManyToManyField(Pronoun)
-    # subj = LowercaseCharField(max_length=40)
-    # obj = LowercaseCharField(max_length=40)
 
     def __contains__(self, pronoun):
         """
@@ -149,8 +147,6 @@ class Gender(models.Model):
     """
 
     label = models.CharField(max_length=60)
-
-    #Many to many relationship with Pronoun Series model, but there will be only one pronoun series. This can potentially allow us to integrate multiple pronouns from the pronoun series model.
     pronoun_series = models.ManyToManyField(PronounSeries)
 
     def __repr__(self):
@@ -211,7 +207,7 @@ class Gender(models.Model):
 
         return (
                 self.label == other.label
-                and list(self.pronoun_series.all())[0] == other.pronoun_series.all()
+                and list(self.pronoun_series.all()) == list(other.pronoun_series.all())
         )
 
     @property
@@ -245,7 +241,7 @@ class Gender(models.Model):
         >>> female.identifiers == {'she', 'her', 'hers', 'Sarah', 'Marigold', 'Annabeth'}
         True
         """
-        # names need to be taken care of
+        # names work in progress
         return self.pronouns
 
     @property
