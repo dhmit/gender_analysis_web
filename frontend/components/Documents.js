@@ -52,9 +52,21 @@ const Documents = () => {
 	    }));
     };
 
-
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
+        const requestOptions = {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                title: newDocData.title,
+                date: newDocData.date,
+                author: newDocData.author,
+                text: newDocData.text
+            })
+        };
+        fetch("api/add_text", requestOptions)
+            .then(response => response.json())
+            .then(data => setDocData(docData => [...docData, data]));
     };
 
     return (
