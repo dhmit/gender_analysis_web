@@ -7,6 +7,10 @@ from .models import (
     Pronoun,
 )
 
+from .fields import (
+    LowercaseCharField,
+)
+
 
 class PronounTestCase(TestCase):
     """
@@ -14,17 +18,25 @@ class PronounTestCase(TestCase):
     """
 
     def setUp(self):
-        he = Pronoun(pronoun='he', pronoun_type='subj')
-        him = Pronoun(pronoun='him', pronoun_type='obj')
-        his = Pronoun(pronoun='his', pronoun_type='pos_det')
-        his_2 = Pronoun(pronoun='his', pronoun_type='pos_pro')
-        himself = Pronoun(pronoun='himself', pronoun_type='reflex')
+        Pronoun.objects.create(pronoun='he', pronoun_type='subj')
+        Pronoun.objects.create(pronoun='him', pronoun_type='obj')
+        Pronoun.objects.create(pronoun='his', pronoun_type='pos_det')
+        Pronoun.objects.create(pronoun='his', pronoun_type='pos_pro')
+        Pronoun.objects.create(pronoun='himself', pronoun_type='reflex')
+
+    def test_models_save(self):
+        he = Pronoun.objects.get(pronoun='he')
+        he.save()
 
 
-class LowercaseCharFieldTestCase(TestCase):
-    """
-    TestCase for the LowercaseCharField field.
-    """
+
+# class LowercaseCharFieldTestCase(TestCase):
+#     """
+#     TestCase for the LowercaseCharField field.
+#     """
+#
+#     def setUp(self):
+#         foo = LowercaseCharField()
 
 
 class MainTests(TestCase):
