@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 // import * as PropTypes from "prop-types";
 // import STYLES from "./Documents.module.scss";
+import { getCookie } from '../common';
 
 const Documents = () => {
 
@@ -8,7 +9,7 @@ const Documents = () => {
     const [newDocData, setNewDocData] = useState({
         "author": "",
         "title":"",
-        "data": null,
+        "date": null,
         "text": ""
     });
 
@@ -54,12 +55,16 @@ const Documents = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        const csrftoken = getCookie('csrftoken');
         const requestOptions = {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: {
+                "Content-Type": "application/json",
+                'X-CSRFToken': csrftoken,
+            },
             body: JSON.stringify({
                 title: newDocData.title,
-                date: parseInt(newDocData.date),
+                date: newDocData.date,
                 author: newDocData.author,
                 text: newDocData.text
             })
@@ -71,7 +76,7 @@ const Documents = () => {
                 setNewDocData({
                     "author": "",
                     "title":"",
-                    "data": null,
+                    "date": "",
                     "text": ""
                 });
             });
@@ -100,7 +105,7 @@ const Documents = () => {
                     </div>
                     <div className="form-group">
                         <label htmlFor="date">Date</label>
-                        <input type="text" className="form-control"
+                        <input type="number" className="form-control"
                             id="date" value={newDocData.date}
                             onChange={handleDateInputChange}/>
                     </div>
