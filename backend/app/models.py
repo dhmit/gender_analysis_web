@@ -73,6 +73,7 @@ class PronounSeries(models.Model):
             if pronoun.lower() == each_pronoun.identifier:
                 return True
         return False
+
     def __iter__(self):
         """
         Allows the user to iterate over all of the pronouns in this group. Pronouns
@@ -83,7 +84,11 @@ class PronounSeries(models.Model):
         >>> sorted(pronoun_group)
         ['her', 'hers', 'herself', 'she']
         """
-        yield from list(self.pronouns)
+
+        all_pronouns = set()
+        for each_pronoun in list(self.pronouns):
+            all_pronouns.add(each_pronoun.identifier)
+        return all_pronouns
 
     def __repr__(self):
         """
@@ -139,6 +144,8 @@ class Gender(models.Model):
     """
 
     label = models.CharField(max_length=60)
+
+    #Many to many relationship with Pronoun Series model, but there will be only one pronoun series. This can potentially allow us to integrate multiple pronouns from the pronoun series model.
     pronoun_series = models.ManyToManyField(PronounSeries)
 
     def __repr__(self):
@@ -215,12 +222,11 @@ class Gender(models.Model):
         True
         """
 
-        pronouns = set()
+        all_pronouns = set()
         for series in list(self.pronoun_series):
-            for pronoun in series:
-                pronouns.add(pronoun)
-
-        return pronouns
+            for pronoun in list(series.pronouns):
+                all_pronouns.add(pronoun)
+        return all_pronouns
 
     @property
     def identifiers(self):
@@ -235,7 +241,7 @@ class Gender(models.Model):
         True
         """
         # names need to be taken care of
-        return list(self.pronouns)
+        return self.pronouns()
 
     @property
     def subj(self):
@@ -252,8 +258,9 @@ class Gender(models.Model):
 
         subject_pronouns = set()
         for series in list(self.pronoun_series):
-            subject_pronouns.add(series.subj)
-
+            for each_pronoun in list(series.pronouns):
+                if each_pronoun.type == 'subj':
+                    subject_pronouns.add(each_pronoun)
         return subject_pronouns
 
     @property
@@ -269,8 +276,9 @@ class Gender(models.Model):
         True
         """
 
-        object_pronouns = set()
-        for series in self.pronoun_series:
-            object_pronouns.add(series.obj)
-
-        return object_pronouns
+        subject_pronouns = set()
+        for series in list(self.pronoun_series):
+            for each_pronoun in list(series.pronouns):
+                if each_pronoun.type == 'obj':
+                    subject_pronouns.add(each_pronoun)
+        return subject_pronouns
