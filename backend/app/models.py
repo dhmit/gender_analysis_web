@@ -27,3 +27,6 @@ class Pronoun(models.Model):
 
     def __str__(self):
         return f'Pronoun: {self.identifier}\nType: {self.get_type_display()}'
+
+    def __eq__(self, other):
+        return self.identifier == other.identifier
