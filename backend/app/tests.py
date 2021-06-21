@@ -21,6 +21,12 @@ class PronounTestCase(TestCase):
         himself = Pronoun(pronoun='himself', pronoun_type='reflex')
 
 
+class LowercaseCharFieldTestCase(TestCase):
+    """
+    TestCase for the LowercaseCharField field.
+    """
+
+
 class MainTests(TestCase):
     """
     Backend TestCase
