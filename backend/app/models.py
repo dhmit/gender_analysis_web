@@ -37,11 +37,16 @@ class Pronoun(models.Model):
             f'Pronoun: {self.identifier}\nType: {pronoun_type_str}'
         )
 
+    def __hash__(self):
+        """
+        Makes the `Pronoun` model hashable
+        """
+        return self.identifier.__hash__()
+
     # Ideally, __eq__ should only be called after a Model instance is saved to the database;
     # how do we ensure this?
     def __eq__(self, other):
-        return self.identifier == other.pronoun and self.type == other.type
-
+        return self.identifier == other.identifier and self.type == other.type
 
 class PronounSeries(models.Model):
     """
@@ -69,7 +74,7 @@ class PronounSeries(models.Model):
         :return: true if the pronoun is in the group, false otherwise
         """
 
-        for each_pronoun in list(self.pronouns):
+        for each_pronoun in list(self.pronouns.all()):
             if pronoun.lower() == each_pronoun.identifier:
                 return True
         return False
@@ -85,10 +90,10 @@ class PronounSeries(models.Model):
         ['her', 'hers', 'herself', 'she']
         """
 
-        all_pronouns = set()
-        for each_pronoun in list(self.pronouns):
-            all_pronouns.add(each_pronoun.identifier)
-        return all_pronouns
+        all_pronouns = []
+        for each_pronoun in list(self.pronouns.all()):
+            all_pronouns.append(each_pronoun.identifier)
+        yield from all_pronouns
 
     def __repr__(self):
         """
@@ -98,7 +103,7 @@ class PronounSeries(models.Model):
         :return: A console-friendly representation of the pronoun series
         """
 
-        return f'<{self.identifier}: {sorted(list(self.pronouns))}>'
+        return f'{self.identifier}: {list(self.pronouns.all())}'
 
     def __str__(self):
         """
@@ -135,7 +140,7 @@ class PronounSeries(models.Model):
 
         return (
                 self.identifier == other.identifier
-                and set(self.pronouns) == set(other.pronouns)
+                and set(self.pronouns.all()) == set(other.pronouns.all())
         )
 
 class Gender(models.Model):
@@ -206,7 +211,7 @@ class Gender(models.Model):
 
         return (
                 self.label == other.label
-                and list(self.pronoun_series)[0] == other.pronoun_series
+                and list(self.pronoun_series.all())[0] == other.pronoun_series.all()
         )
 
     @property
@@ -223,8 +228,8 @@ class Gender(models.Model):
         """
 
         all_pronouns = set()
-        for series in list(self.pronoun_series):
-            for pronoun in list(series.pronouns):
+        for series in list(self.pronoun_series.all()):
+            for pronoun in list(series.pronouns.all()):
                 all_pronouns.add(pronoun)
         return all_pronouns
 
@@ -257,8 +262,8 @@ class Gender(models.Model):
         """
 
         subject_pronouns = set()
-        for series in list(self.pronoun_series):
-            for each_pronoun in list(series.pronouns):
+        for series in list(self.pronoun_series.all()):
+            for each_pronoun in list(series.pronouns.all()):
                 if each_pronoun.type == 'subj':
                     subject_pronouns.add(each_pronoun)
         return subject_pronouns
@@ -277,8 +282,8 @@ class Gender(models.Model):
         """
 
         subject_pronouns = set()
-        for series in list(self.pronoun_series):
-            for each_pronoun in list(series.pronouns):
+        for series in list(self.pronoun_series.all()):
+            for each_pronoun in list(series.pronouns.all()):
                 if each_pronoun.type == 'obj':
                     subject_pronouns.add(each_pronoun)
         return subject_pronouns
