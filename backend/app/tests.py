@@ -26,6 +26,7 @@ class PronounTestCase(TestCase):
 
     def test_models_save(self):
         he = Pronoun.objects.get(identifier='he')
+        self.assertEqual(str(he), 'Pronoun: he\nType: Subject')
         he.save()
 
 

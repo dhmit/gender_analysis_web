@@ -26,13 +26,4 @@ class Pronoun(models.Model):
         return f'Pronoun({self.identifier, self.type})'
 
     def __str__(self):
-        pronoun_type_str = ''
-
-        for PRONOUN_TYPE in Pronoun.PRONOUN_TYPES:
-            if PRONOUN_TYPE[0] == self.type:
-                pronoun_type_str = PRONOUN_TYPE[1]
-                break
-
-        return (
-            f'Pronoun: {self.identifier}\nType: {pronoun_type_str}'
-        )
+        return f'Pronoun: {self.identifier}\nType: {self.get_type_display()}'
