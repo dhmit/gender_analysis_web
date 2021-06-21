@@ -11,9 +11,11 @@ class LowercaseCharField(models.CharField):
     when saving the model instance to the database.
     """
 
-    # WORK IN PROGRESS!
-    description = gettext_lazy(f"String (up to {super().max_length}) \
-            converted to lowercase upon saving the model instance to the database.")
+    def _description(self):
+        return gettext_lazy(f"String (up to {self.max_length}) converted to lowercase upon saving the model instance "
+                            f"to the database.")
+
+    description = property(_description)
 
     def pre_save(self, model_instance, add):
         """
