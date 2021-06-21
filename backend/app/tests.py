@@ -21,11 +21,9 @@ class PronounTestCase(TestCase):
     def setUp(self):
         Pronoun.objects.create(identifier='he', type='subj')
         Pronoun.objects.create(identifier='him', type='obj')
-        Pronoun.objects.create(identifier='his', type='pos_det')
+        Pronoun.objects.create(identifier='HIS', type='pos_det')
         Pronoun.objects.create(identifier='his', type='pos_pro')
         Pronoun.objects.create(identifier='himself', type='reflex')
-
-        Pronoun.objects.create(identifier='Hiis', type='pos_pro')
 
     def test_models_save(self):
         he = Pronoun.objects.get(identifier='he')
@@ -34,24 +32,15 @@ class PronounTestCase(TestCase):
         he.save()
 
         with self.assertRaises(ObjectDoesNotExist):
-            # This raises as expected
-            should_be_lowercase = Pronoun.objects.get(identifier='Hiis')
-
-            # This does not!
-            should_be_lowercase = Pronoun(identifier='Hiis', type='pos_pro')
-
-        # These should be equal (i.e. both identifiers converted to lowercase) but are not!
-        # The identifier is not converted to lowercase if creating an object using a regular Python constructor
-        self.assertEqual(Pronoun.objects.get(identifier='hiis'), Pronoun(identifier='Hiis', type='pos_pro'))
+            was_converted_to_lowercase = Pronoun.objects.get(identifier='HIS')
 
         his = Pronoun.objects.get(identifier='his', type='pos_det')
-        his_2 = Pronoun.objects.get(identifier='his', type='pos_pro')
-        self.assertEqual(his, his_2)
+        his_caps_until_saving = Pronoun(identifier='HIS', type='pos_pro')
+        self.assertNotEqual(his, his_caps_until_saving)
+
         his.save()
-        his_2.save()
-
-
-
+        his_caps_until_saving.save()
+        self.assertEqual(his, his_caps_until_saving)
 
 
 # class LowercaseCharFieldTestCase(TestCase):
