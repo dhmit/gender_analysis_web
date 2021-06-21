@@ -20,6 +20,7 @@ context = {
     'component_name': 'ExampleId'
 }
 """
+import json
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -37,7 +38,6 @@ def get_example(request, example_id):
         'id': example_id,
     }
     return Response(data)
-
 
 def index(request):
     """
@@ -83,3 +83,36 @@ def example_id(request, example_id):
     }
 
     return render(request, 'index.html', context)
+
+
+@api_view(['GET'])
+def all_documents(request):
+    doc_objs = Document.objects.all()
+    serializer = DocumentSerializer(doc_objs, many=True)
+    return Response(serializer.data)
+
+def documents(request):
+    """
+    All Documents page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Documents'
+        },
+        'component_name': 'Documents'
+    }
+
+    return render(request, 'index.html', context)
+
+@api_view(['POST'])
+def add_text(request):
+    """
+    API endpoint for adding a piece of text
+    """
+    body = json.loads(request.body.decode('utf-8'))
+    new_text_obj = Document()
+    new_text_obj.save()
+    Document.update_metadata(body)
+    serializer = DocumentSerializer(new_text_obj)
+    return Response(serializer.data)
