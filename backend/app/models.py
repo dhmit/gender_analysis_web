@@ -40,7 +40,7 @@ class Pronoun(models.Model):
     # Ideally, __eq__ should only be called after a Model instance is saved to the database;
     # how do we ensure this?
     def __eq__(self, other):
-        return self.pronoun == other.pronoun and self.pronoun_type == other.pronoun_type
+        return self.identifier == other.pronoun and self.type == other.type
 
 
 class PronounSeries(models.Model):
@@ -49,30 +49,11 @@ class PronounSeries(models.Model):
     `gender_analysis` functions
     """
 
+
     identifier = models.CharField(max_length=60)
-    subj = LowercaseCharField(max_length=40)
-    obj = LowercaseCharField(max_length=40)
-
-    def __init__(self, identifier, pronouns, subj, obj):
-        """
-        Creates a new series of pronouns, designated by the given identifier. Pronouns
-        are any collection of strings that can be used to identify someone.
-        `subj` and `obj` will be considered part of the pronoun series regardless of whether
-        they are listed in `pronouns`.
-        Note that pronouns are case-insensitive.
-        :param identifier: String used to identify what the particular series represents
-        :param pronouns: Iterable of Strings that are to be used as pronouns for this group
-        :param subj: String used as the "subject" pronoun of the series
-        :param obj: String used as the "object" pronoun of the series
-        """
-
-        self.identifier = identifier
-        self.subj = subj.lower()
-        self.obj = obj.lower()
-
-        self.pronouns = {self.subj, self.obj}
-        for pronoun in pronouns:
-            self.pronouns.add(pronoun.lower())
+    pronouns = models.ManyToManyField(Pronoun)
+    # subj = LowercaseCharField(max_length=40)
+    # obj = LowercaseCharField(max_length=40)
 
     def __contains__(self, pronoun):
         """
@@ -88,7 +69,7 @@ class PronounSeries(models.Model):
         :return: true if the pronoun is in the group, false otherwise
         """
 
-        return pronoun.lower() in self.pronouns
+        return pronoun.lower() in list(self.pronouns)
 
     def __iter__(self):
         """
@@ -100,7 +81,7 @@ class PronounSeries(models.Model):
         >>> sorted(pronoun_group)
         ['her', 'hers', 'herself', 'she']
         """
-        yield from self.pronouns
+        yield from list(self.pronouns)
 
     def __repr__(self):
         """
@@ -110,7 +91,7 @@ class PronounSeries(models.Model):
         :return: A console-friendly representation of the pronoun series
         """
 
-        return f'<{self.identifier}: {sorted(self.pronouns)}>'
+        return f'<{self.identifier}: {sorted(list(self.pronouns))}>'
 
     def __str__(self):
         """
@@ -147,11 +128,8 @@ class PronounSeries(models.Model):
 
         return (
                 self.identifier == other.identifier
-                and self.pronouns == other.pronouns
-                and self.obj == other.obj
-                and self.subj == other.subj
+                and set(self.pronouns) == set(other.pronouns)
         )
-
 
 class Gender(models.Model):
     """
