@@ -69,8 +69,10 @@ class PronounSeries(models.Model):
         :return: true if the pronoun is in the group, false otherwise
         """
 
-        return pronoun.lower() in list(self.pronouns)
-
+        for each_pronoun in list(self.pronouns):
+            if pronoun.lower() == each_pronoun.identifier:
+                return True
+        return False
     def __iter__(self):
         """
         Allows the user to iterate over all of the pronouns in this group. Pronouns
@@ -137,38 +139,7 @@ class Gender(models.Model):
     """
 
     label = models.CharField(max_length=60)
-
-    def __init__(self, label, pronoun_series, names=None):
-        """
-        Initializes a Gender object that can be used for comparing and contrasting in the
-        analysis functions.
-        The gender accepts one or more `PronounSeries` that will be used to identify the gender.
-        # >>> from gender_analysis import PronounSeries
-        # >>> from gender_analysis import Gender
-        >>> he_series = PronounSeries('Masc', {'he', 'him', 'his'}, subj='he', obj='him')
-        >>> masc_names = ['Andrew', 'Richard', 'Robert']
-        >>> male = Gender('Male', he_series, names=masc_names)
-        >>> 'Richard' in male.names
-        True
-        >>> 'robert' in male.names
-        False
-        >>> 'his' in male.pronouns
-        True
-        :param label: String name of the gender
-        :param pronoun_series: `PronounSeries` or collection of `PronounSeries` that the gender uses
-        :param names: A collection of names (as strings) that will be associated with the gender.
-            Note that the provided names are case-sensitive.
-        """
-
-        self.label = label
-
-        # Allow the user to input a single PronounSeries if only one applies
-        if isinstance(pronoun_series, PronounSeries):
-            self.pronoun_series = {pronoun_series}
-        else:
-            self.pronoun_series = set(pronoun_series)
-
-        self.names = set(names) if names is not None else set()
+    pronoun_series = models.ManyToManyField(PronounSeries)
 
     def __repr__(self):
         """
@@ -228,8 +199,7 @@ class Gender(models.Model):
 
         return (
                 self.label == other.label
-                and self.pronoun_series == other.pronoun_series
-                and self.names == other.names
+                and list(self.pronoun_series)[0] == other.pronoun_series
         )
 
     @property
@@ -246,7 +216,7 @@ class Gender(models.Model):
         """
 
         pronouns = set()
-        for series in self.pronoun_series:
+        for series in list(self.pronoun_series):
             for pronoun in series:
                 pronouns.add(pronoun)
 
@@ -264,8 +234,8 @@ class Gender(models.Model):
         >>> female.identifiers == {'she', 'her', 'hers', 'Sarah', 'Marigold', 'Annabeth'}
         True
         """
-
-        return self.names | self.pronouns
+        # names need to be taken care of
+        return list(self.pronouns)
 
     @property
     def subj(self):
@@ -281,7 +251,7 @@ class Gender(models.Model):
         """
 
         subject_pronouns = set()
-        for series in self.pronoun_series:
+        for series in list(self.pronoun_series):
             subject_pronouns.add(series.subj)
 
         return subject_pronouns
