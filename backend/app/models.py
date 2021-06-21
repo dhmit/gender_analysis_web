@@ -54,7 +54,6 @@ class PronounSeries(models.Model):
     `gender_analysis` functions
     """
 
-
     identifier = models.CharField(max_length=60)
     pronouns = models.ManyToManyField(Pronoun)
 
@@ -141,6 +140,72 @@ class PronounSeries(models.Model):
                 and sorted(self) == sorted(other)
         )
 
+class Name(models.Model):
+    """
+    A model that allows users to define an individual name that will be associated with a Gender after being converted to lowercase.
+    """
+
+    identifier = LowercaseCharField(max_length=40)
+
+    def __repr__(self):
+        return f'Name({self.identifier})'
+
+    def __str__(self):
+        return self.identifier
+
+    def __hash__(self):
+        """
+        Makes the `Name` model hashable
+        """
+        return self.identifier.__hash__()
+
+    def __eq__(self, other):
+        return self.identifier == other.identifier
+
+class NameSeries(models.Model):
+    """
+    A class that allows users to define a custom series of names to be used for a Gender
+    """
+
+    identifier = models.CharField(max_length=60)
+    names = models.ManyToManyField(Name)
+
+    def __contains__(self, name):
+        """
+        Allows users to see if a particular name is in their name series
+        """
+        for each_name in list(self.names.all()):
+            if name.lower() == each_name.identifier:
+                return True
+        return False
+
+    def __iter__(self):
+        """
+        Allows the user to iterate over all of the names in this group
+        """
+        all_names = []
+        for each_name in list(self.names.all()):
+            all_names.append(each_name.identifier)
+        yield from all_names
+
+    def __repr__(self):
+        return f'{self.identifier}: {list(self.names.all())}'
+
+    def __str__(self):
+        return self.identifier + '-series'
+
+    def __hash__(self):
+        """
+        Makes the `NameSeries` model hashable
+        """
+        return self.identifier.__hash__()
+
+    def __eq__(self, other):
+        return (
+                self.identifier == other.identifier
+                and sorted(self) == sorted(other)
+        )
+
 class Gender(models.Model):
     """
     This model defines a gender that will be operated on in analysis functions.
@@ -148,6 +213,7 @@ class Gender(models.Model):
 
     label = models.CharField(max_length=60)
     pronoun_series = models.ManyToManyField(PronounSeries)
+    names_series = models.ManyToManyField(NameSeries)
 
     def __repr__(self):
         """
@@ -208,6 +274,7 @@ class Gender(models.Model):
         return (
                 self.label == other.label
                 and list(self.pronoun_series.all()) == list(other.pronoun_series.all())
+                and list(self.names_series.all()) == list(other.names_series.all())
         )
 
     @property
@@ -230,6 +297,15 @@ class Gender(models.Model):
         return all_pronouns
 
     @property
+    def names(self):
+
+        all_names = set()
+        for series in list(self.names_series.all()):
+            for name in list(series.names.all()):
+                all_names.add(name)
+        return all_names
+
+    @property
     def identifiers(self):
         """
         :return: Set of all words (i.e. pronouns and names) that are used to identify the gender
@@ -241,8 +317,8 @@ class Gender(models.Model):
         >>> female.identifiers == {'she', 'her', 'hers', 'Sarah', 'Marigold', 'Annabeth'}
         True
         """
-        # names work in progress
-        return self.pronouns
+
+        return self.pronouns | self.names
 
     @property
     def subj(self):
