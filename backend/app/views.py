@@ -119,7 +119,8 @@ def add_text(request):
     body = json.loads(request.body.decode('utf-8'))
     new_text_obj = Document()
     new_text_obj.save()
-    Document.update_metadata(body)
+    print(body)
+    new_text_obj.update_metadata(body)
     serializer = DocumentSerializer(new_text_obj)
     return Response(serializer.data)
 
