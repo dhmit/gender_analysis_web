@@ -34,6 +34,5 @@ class Pronoun(models.Model):
                 break
 
         return (
-            f'Pronoun: {self.pronoun}\n\
-            Type: {pronoun_type_str}'
+            f'Pronoun: {self.pronoun}\nType: {pronoun_type_str}'
         )
