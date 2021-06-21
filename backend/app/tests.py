@@ -18,14 +18,14 @@ class PronounTestCase(TestCase):
     """
 
     def setUp(self):
-        Pronoun.objects.create(pronoun='he', pronoun_type='subj')
-        Pronoun.objects.create(pronoun='him', pronoun_type='obj')
-        Pronoun.objects.create(pronoun='his', pronoun_type='pos_det')
-        Pronoun.objects.create(pronoun='his', pronoun_type='pos_pro')
-        Pronoun.objects.create(pronoun='himself', pronoun_type='reflex')
+        Pronoun.objects.create(identifier='he', type='subj')
+        Pronoun.objects.create(identifier='him', type='obj')
+        Pronoun.objects.create(identifier='his', type='pos_det')
+        Pronoun.objects.create(identifier='his', type='pos_pro')
+        Pronoun.objects.create(identifier='himself', type='reflex')
 
     def test_models_save(self):
-        he = Pronoun.objects.get(pronoun='he')
+        he = Pronoun.objects.get(identifier='he')
         he.save()
 
 
