@@ -140,7 +140,7 @@ class PronounSeries(models.Model):
 
         return (
                 self.identifier == other.identifier
-                and set(self.pronouns.all()) == set(other.pronouns.all())
+                and sorted(self) == sorted(other)
         )
 
 class Gender(models.Model):
@@ -246,7 +246,7 @@ class Gender(models.Model):
         True
         """
         # names need to be taken care of
-        return self.pronouns()
+        return self.pronouns
 
     @property
     def subj(self):
