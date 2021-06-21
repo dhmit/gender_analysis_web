@@ -17,7 +17,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('identifier', app.fields.LowercaseCharField(max_length=40)),
-                ('type', models.CharField(choices=[('subj', 'Subject'), ('obj', 'Object'), ('pos_det', 'Possessive determiner'), ('pos_pro', 'Possessive pronoun'), ('reflex', 'Reflexive')], max_length=7)),
+                ('type', models.CharField(choices=[
+                        ('subj', 'Subject'),
+                        ('obj', 'Object'),
+                        ('pos_det', 'Possessive determiner'),
+                        ('pos_pro', 'Possessive pronoun'),
+                        ('reflex', 'Reflexive')
+                    ], max_length=7)),
             ],
         ),
     ]
