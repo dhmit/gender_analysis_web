@@ -19,23 +19,22 @@ class Pronoun(models.Model):
         ('reflex', 'Reflexive'),
     ]
 
-    pronoun = LowercaseCharField(max_length=40)
-    pronoun_type = models.CharField(max_length=7, choices=PRONOUN_TYPES)
+    identifier = LowercaseCharField(max_length=40)
+    type = models.CharField(max_length=7, choices=PRONOUN_TYPES)
 
     def __repr__(self):
-        return f'Pronoun({self.pronoun, self.pronoun_type})'
+        return f'Pronoun({self.identifier, self.type})'
 
     def __str__(self):
         pronoun_type_str = ''
 
         for PRONOUN_TYPE in Pronoun.PRONOUN_TYPES:
-            if PRONOUN_TYPE[0] == self.pronoun_type:
+            if PRONOUN_TYPE[0] == self.type:
                 pronoun_type_str = PRONOUN_TYPE[1]
                 break
 
         return (
-            f'Pronoun: {self.pronoun}\n\
-            Type: {pronoun_type_str}'
+            f'Pronoun: {self.identifier}\nType: {pronoun_type_str}'
         )
 
     # Ideally, __eq__ should only be called after a Model instance is saved to the database;
