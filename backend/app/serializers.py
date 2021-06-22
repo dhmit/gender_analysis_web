@@ -7,6 +7,7 @@ allow the frontend to suggest changes to the backend/database.
 from rest_framework import serializers
 from .models import (
     Pronoun,
+    Document,
 )
 
 
@@ -14,3 +15,12 @@ class PronounSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pronoun
         fields = ['id', 'identifier', 'type']
+
+
+class DocumentSerializer(serializers.ModelSerializer):
+    """
+    Serializes a Document object
+    """
+    class Meta:
+        model = Document
+        fields = ['id', 'author', 'title', 'date', 'text', 'word_count']

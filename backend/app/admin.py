@@ -7,6 +7,7 @@ from . import models
 
 models_to_register = [
     models.Pronoun,
+    models.Document,
 ]
 
 for model in models_to_register:
