@@ -72,7 +72,6 @@ class Document(models.Model):
         :return: A string that is identical to `text`, except with its smart quotes exchanged
         """
 
-        # Define the quotes that will be swapped out
         smart_quotes = {
             '“': '"',
             '”': '"',
@@ -80,7 +79,6 @@ class Document(models.Model):
             "’": "'",
         }
 
-        # Replace all entries one by one
         output_text = self.text
         for quote in smart_quotes:
             output_text = output_text.replace(quote, smart_quotes[quote])
@@ -97,7 +95,6 @@ class Document(models.Model):
         :return: List of each word in the Document
         """
 
-        # Excluded characters: !"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~
         if self.tokenized_text is None:
             self._clean_quotes()
             tokens = nltk.word_tokenize(self.text)
@@ -111,13 +108,11 @@ class Document(models.Model):
         """
         Returns the number of instances of a word in the text.
 
-        If this is your first time running this method, this can be slow.
+        Note: This method is not case sensitive
 
         :param word: word to be counted in text
         :return: Number of occurrences of the word, as an int
         """
-
-        # If word_counts were not previously initialized, do it now and store it for the future.
         self.get_word_count_counter()
         return self.word_count_counter[word.lower()]
 
@@ -125,6 +120,8 @@ class Document(models.Model):
         """
         A helper method for retrieving the number of occurrences of a given set of words within
         a Document.
+
+        Note: The method is not case sensitive.
 
         :param words: a list of strings.
         :return: a Counter with each word in words keyed to its number of occurrences.
@@ -149,14 +146,10 @@ class Document(models.Model):
 
     def get_word_count_counter(self):
         """
-        Returns a counter object of all of the words in the text.
-
-        If this is your first time running this method, this can be slow.
+        Returns a Counter object of all of the words in the text.
 
         :return: Python Counter object
         """
-
-        # If word_counts were not previously initialized, do it now and store it for the future.
         if not self.word_count_counter:
             self.word_count_counter = Counter(self.get_tokenized_text())
         return self.word_count_counter
@@ -193,14 +186,12 @@ class Document(models.Model):
 
     def words_associated(self, target_word):
         """
-        .. _words-associated:
-
         Returns a Counter of the words found after a given word.
 
         In the case of double/repeated words, the counter would include the word itself and the next
         new word.
 
-        Note: words always return lowercase.
+        Note: the method is not case sensitive and words always return lowercase.
 
         :param target_word: Single word to search for in the document's text
         :return: a Python Counter() object with {associated_word: occurrences}
@@ -218,11 +209,8 @@ class Document(models.Model):
                 check = True
         return word_count
 
-    # pylint: disable=line-too-long
     def get_word_windows(self, search_terms, window_size=2):
         """
-        .. _get-word-windows:
-
         Finds all instances of `word` and returns a counter of the words around it.
         window_size is the number of words before and after to return, so the total window is
         2*window_size + 1.
@@ -251,13 +239,11 @@ class Document(models.Model):
 
     def get_word_freq(self, word):
         """
-
         Returns the frequency of appearance of a word in the document
 
         :param word: str to search for in document
         :return: float representing the portion of words in the text that are the parameter word
         """
-
         word_frequency = self.get_count_of_word(word) / self.get_word_count()
         return word_frequency
 
@@ -269,13 +255,10 @@ class Document(models.Model):
         :return: a dictionary of words keyed to float frequencies.
         """
         word_frequencies = {word: self.get_count_of_word(word) / self.get_word_count() for word in words}
-
         return word_frequencies
 
     def get_part_of_speech_tags(self):
         """
-        .. _get-pos:
-
         Returns the part of speech tags as a list of tuples. The first part of each tuple is the
         term, the second one the part of speech tag.
 
@@ -285,8 +268,7 @@ class Document(models.Model):
         """
 
         if not self.part_of_speech_tags:
-            text = nltk.word_tokenize(self.text)
-            pos_tags = nltk.pos_tag(text)
+            pos_tags = nltk.pos_tag(nltk.word_tokenize(self.text))
 
             self.part_of_speech_tags = pos_tags
             self.save()
@@ -322,8 +304,6 @@ class Document(models.Model):
         """
         Updates the metadata of the document without requiring a complete reloading
         of the text and other properties.
-
-        'filename' cannot be updated with this method.
 
         :param new_metadata: dict of new metadata to apply to the document
         :return: None
