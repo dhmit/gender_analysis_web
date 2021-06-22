@@ -85,33 +85,12 @@ def example_id(request, example_id):
     return render(request, 'index.html', context)
 
 
-@api_view(['GET'])
-def all_documents(request):
-    doc_objs = Document.objects.all()
-    serializer = DocumentSerializer(doc_objs, many=True)
-    return Response(serializer.data)
-
-def documents(request):
-    """
-    All Documents page
-    """
-
-    context = {
-        'page_metadata': {
-            'title': 'Documents'
-        },
-        'component_name': 'Documents'
-    }
-
-    return render(request, 'index.html', context)
-
 @api_view(['POST'])
 def add_text(request):
     """
     API endpoint for adding a piece of text
     """
-    new_text_obj = Document()
+    new_text_obj = Document(request.data)
     new_text_obj.save()
-    new_text_obj.update_metadata(request.data)
     serializer = DocumentSerializer(new_text_obj)
     return Response(serializer.data)
