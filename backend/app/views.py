@@ -25,6 +25,12 @@ import json
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import render
+from .models import (
+    Document
+)
+from .serializers import (
+    DocumentSerializer
+)
 
 
 @api_view(['GET'])
@@ -84,7 +90,6 @@ def example_id(request, example_id):
 
     return render(request, 'index.html', context)
 
-
 @api_view(['POST'])
 def add_text(request):
     """
@@ -94,3 +99,23 @@ def add_text(request):
     new_text_obj.save()
     serializer = DocumentSerializer(new_text_obj)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def all_documents(request):
+    doc_objs = Document.objects.all()
+    serializer = DocumentSerializer(doc_objs, many=True)
+    return Response(serializer.data)
+
+def documents(request):
+    """
+    All Documents page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Documents'
+        },
+        'component_name': 'Documents'
+    }
+
+    return render(request, 'index.html', context)

@@ -33,4 +33,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('example', views.example, name='example'),
     path('example/<int:example_id>', views.example_id, name='example_id'),
+    path('documents', views.documents, name='documents'),
 ]

@@ -12,12 +12,14 @@ const Documents = () => {
         "date": null,
         "text": ""
     });
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch("/api/all_documents")
             .then(response => response.json())
             .then(data => {
                 setDocData(data);
+                setLoading(false);
             });
     }, []);
 
@@ -82,60 +84,38 @@ const Documents = () => {
             });
     };
 
+    const docInfo = (doc, i) => {
+        return (
+            <ul> Document {i}
+                {Object.keys(doc).map((attribute, i) => (
+                    <li key={i}>{attribute}: {doc[attribute]}</li>
+                ))}
+            </ul>
+        );
+    };
+
+    const docList = () => {
+        return (
+            <ul>
+                {docData.map((doc, i) => (
+                    <li key={i}> {docInfo(doc, i)} </li>
+                ))}
+            </ul>
+        );
+
     return (
         <div>
             <h1>This is the Documents page.</h1>
             <p>
                 This page displays all the documents stored in backend.
             </p>
-
-            <div>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="author">Author</label>
-                        <input type="text" className="form-control"
-                            id="author" value={newDocData.author}
-                            onChange={handleAuthorInputChange}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="title">Title</label>
-                        <input type="text" className="form-control"
-                            id="title" value={newDocData.title}
-                            onChange={handleTitleInputChange}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="date">Date</label>
-                        <input type="number" className="form-control"
-                            id="date" value={newDocData.date}
-                            onChange={handleDateInputChange}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="text">Text</label>
-                        <textarea className="form-control" id="text"
-                            rows="8" value={newDocData.text}
-                            onChange={handleTextInputChange}></textarea>
-                    </div>
-                    <button type="submit">Add</button>
-                </form>
-            </div>
             {
-                docData
-                    ? <div>Documents:
-                        {docData.map((doc, i) => {
-                            return (<>
-                                <p>Document {i}</p>
-                                <ul key={i}>
-                                    {Object.keys(doc).map((key, i) => {
-                                        return (
-                                            <li key={i}>{key}: {doc[key]}</li>
-                                        );
-                                    })}
-                                </ul>
-                            </>
-                            );
-                        })}
+                loading
+                    ? <p>Currently Loading Documents...</p>
+                    : <div>
+                        Documents:
+                        {docList()}
                     </div>
-                    : <p>Currently Loading Documents...</p>
             }
         </div>
     );
