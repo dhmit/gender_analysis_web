@@ -45,7 +45,12 @@ class PronounSeries(models.Model):
     """
 
     identifier = models.CharField(max_length=60)
-    pronouns = models.ManyToManyField(Pronoun)
+
+    subj = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'subj'})
+    obj = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'obj'})
+    pos_det = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'pos_det'})
+    pos_pro = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'pos_pro'})
+    reflex = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'reflex'})
 
     def __contains__(self, pronoun):
         """
@@ -84,7 +89,6 @@ class PronounSeries(models.Model):
 
     def __repr__(self):
         """
-        # >>> from gender_analysis import PronounSeries
         >>> PronounSeries('Masc', {'he', 'himself', 'his'}, subj='he', obj='him')
         <Masc: ['he', 'him', 'himself', 'his']>
         :return: A console-friendly representation of the pronoun series
@@ -133,7 +137,8 @@ class PronounSeries(models.Model):
 
 class Name(models.Model):
     """
-    A model that allows users to define an individual name that will be associated with a Gender after being converted to lowercase.
+    A model that allows users to define an individual name that will be associated with a Gender
+    after being converted to lowercase.
     """
 
     identifier = LowercaseCharField(max_length=40)
@@ -201,7 +206,7 @@ class NameSeries(models.Model):
 
 class Gender(models.Model):
     """
-    This model defines a gender that will be operated on in analysis functions.
+    This model defines a gender that analysis functions will use to operate.
     """
 
     label = models.CharField(max_length=60)
