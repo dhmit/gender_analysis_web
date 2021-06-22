@@ -46,11 +46,31 @@ class PronounSeries(models.Model):
 
     identifier = models.CharField(max_length=60)
 
-    subj = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'subj'})
-    obj = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'obj'})
-    pos_det = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'pos_det'})
-    pos_pro = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'pos_pro'})
-    reflex = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'reflex'})
+    subj = models.ForeignKey(
+        Pronoun,
+        on_delete=models.RESTRICT,
+        limit_choices_to={'type': 'subj'},
+    )
+    obj = models.ForeignKey(
+        Pronoun,
+        on_delete=models.RESTRICT,
+        limit_choices_to={'type': 'obj'}
+    )
+    pos_det = models.ForeignKey(
+        Pronoun,
+        on_delete=models.RESTRICT,
+        limit_choices_to={'type': 'pos_det'}
+    )
+    pos_pro = models.ForeignKey(
+        Pronoun,
+        on_delete=models.RESTRICT,
+        limit_choices_to={'type': 'pos_pro'}
+    )
+    reflex = models.ForeignKey(
+        Pronoun,
+        on_delete=models.RESTRICT,
+        limit_choices_to={'type': 'reflex'}
+    )
 
     def get_all_pronouns(self):
         """
@@ -393,6 +413,7 @@ class Gender(models.Model):
                 if each_pronoun.type == 'obj':
                     subject_pronouns.add(each_pronoun)
         return subject_pronouns
+
 
 class Document(models.Model):
     """
