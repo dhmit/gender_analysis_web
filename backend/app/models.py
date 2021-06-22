@@ -37,10 +37,6 @@ class Pronoun(models.Model):
         """
         return self.identifier.__hash__()
 
-    # Ideally, __eq__ should only be called after a Model instance is saved to the database;
-    # how do we ensure this?
-    def __eq__(self, other):
-        return self.identifier == other.identifier and self.type == other.type
 
 class PronounSeries(models.Model):
     """
@@ -134,6 +130,7 @@ class PronounSeries(models.Model):
                 and sorted(self) == sorted(other)
         )
 
+
 class Name(models.Model):
     """
     A model that allows users to define an individual name that will be associated with a Gender after being converted to lowercase.
@@ -155,6 +152,7 @@ class Name(models.Model):
 
     def __eq__(self, other):
         return self.identifier == other.identifier
+
 
 class NameSeries(models.Model):
     """
@@ -199,6 +197,7 @@ class NameSeries(models.Model):
                 self.identifier == other.identifier
                 and sorted(self) == sorted(other)
         )
+
 
 class Gender(models.Model):
     """
