@@ -95,7 +95,7 @@ def add_text(request):
     """
     API endpoint for adding a piece of text
     """
-    new_text_obj = Document(request.data)
+    new_text_obj = Document(**request.data)
     new_text_obj.save()
     serializer = DocumentSerializer(new_text_obj)
     return Response(serializer.data)
