@@ -110,35 +110,33 @@ const Documents = () => {
             <p>
                 This page displays all the documents stored in backend.
             </p>
-            <div>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="author">Author</label>
-                        <input type="text" className="form-control"
-                            id="author" value={newDocData.author}
-                            onChange={handleAuthorInputChange}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="title">Title</label>
-                        <input type="text" className="form-control"
-                            id="title" value={newDocData.title}
-                            onChange={handleTitleInputChange}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="date">Date</label>
-                        <input type="number" className="form-control"
-                            id="date" value={newDocData.date}
-                            onChange={handleDateInputChange}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="text">Text</label>
-                        <textarea className="form-control" id="text"
-                            rows="8" value={newDocData.text}
-                            onChange={handleTextInputChange}></textarea>
-                    </div>
-                    <button type="submit">Add</button>
-                </form>
-            </div>
+            <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label htmlFor="author">Author</label>
+                    <input type="text" className="form-control"
+                        id="author" value={newDocData.author}
+                        onChange={handleAuthorInputChange}/>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="title">Title</label>
+                    <input type="text" className="form-control"
+                        id="title" value={newDocData.title}
+                        onChange={handleTitleInputChange}/>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="date">Date</label>
+                    <input type="number" className="form-control"
+                        id="date" value={newDocData.date}
+                        onChange={handleDateInputChange}/>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="text">Text</label>
+                    <textarea className="form-control" id="text"
+                        rows="8" value={newDocData.text}
+                        onChange={handleTextInputChange}></textarea>
+                </div>
+                <button type="submit">Add</button>
+            </form>
             {
                 loading
                     ? <p>Currently Loading Documents...</p>
