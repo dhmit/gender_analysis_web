@@ -124,7 +124,7 @@ class DocumentTestCase(TestCase):
     def test_get_word_frequencies(self):
         doc = Document.objects.get(title='doc8')
         word_freqs = {'peace': 0.02702702702702703, 'died': 0.02702702702702703, 'foobar': 0.0}
-        self.assertEqual(doc.get_word_frequencies(['peace', 'died', 'foobar']), word_freqs)
+        self.assertEqual(doc.get_word_freqs(['peace', 'died', 'foobar']), word_freqs)
 
     def test_get_part_of_speech_tags(self):
         doc = Document.objects.get(title='doc9')

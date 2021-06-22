@@ -157,9 +157,9 @@ class Document(models.Model):
         """
 
         # If word_counts were not previously initialized, do it now and store it for the future.
-        if not self.word_counts_counter:
-            self.word_counts_counter = Counter(self.get_tokenized_text())
-        return self.word_counts_counter
+        if not self.word_count_counter:
+            self.word_count_counter = Counter(self.get_tokenized_text())
+        return self.word_count_counter
 
     def find_quoted_text(self):
         """
@@ -352,7 +352,7 @@ class Document(models.Model):
             self.text = self._clean_quotes()
             self.word_count = None
             self.tokenized_text = None
-            self.word_counts_counter = dict()
+            self.word_count_counter = dict()
             self.part_of_speech_tags = list()
             self.get_tokenized_text()
             self.get_word_count()
