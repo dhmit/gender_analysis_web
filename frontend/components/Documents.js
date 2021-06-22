@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 // import * as PropTypes from "prop-types";
 // import STYLES from "./Documents.module.scss";
-import { getCookie } from '../common';
+import {getCookie} from "../common";
 
 const Documents = () => {
 
@@ -57,12 +57,12 @@ const Documents = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        const csrftoken = getCookie('csrftoken');
+        const csrftoken = getCookie("csrftoken");
         const requestOptions = {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                'X-CSRFToken': csrftoken,
+                "X-CSRFToken": csrftoken
             },
             body: JSON.stringify({
                 title: newDocData.title,
