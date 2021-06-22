@@ -102,6 +102,7 @@ const Documents = () => {
                 ))}
             </ul>
         );
+    };
 
     return (
         <div>
