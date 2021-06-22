@@ -17,11 +17,11 @@ const Documents = () => {
             });
     }, []);
 
-    const docInfo = (doc) => {
+    const docInfo = (doc, i) => {
         return (
-            <ul>
+            <ul> Document {i}
                 {Object.keys(doc).map((attribute, i) => (
-                    <li key={i}>{key}: {doc[key]}</li>
+                    <li key={i}>{attribute}: {doc[attribute]}</li>
                 ))}
             </ul>
         );
@@ -31,7 +31,7 @@ const Documents = () => {
         return (
             <ul>
                 {docData.map((doc, i) => (
-                    <li key={i}> {docInfo(doc)} </li>
+                    <li key={i}> {docInfo(doc, i)} </li>
                 ))}
             </ul>
         );
