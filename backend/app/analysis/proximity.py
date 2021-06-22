@@ -359,18 +359,20 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
     def __str__(self):
         return "This is the Gender Proximity Analyzer for different gendered word sets."
 
+
+# Can start here
     def _run_analysis(self):
         """
         Runs _generate_gender_token_counters across each document in the corpus
         """
         results = {}
-        for document in self.corpus:
+        for document in self.corpus: # will probably have corpus/document IDs instead -- need queries to DB
             results[document] = _generate_gender_token_counters(document,
                                                                 self.genders,
                                                                 self.tags,
                                                                 word_window=self.word_window)
         return results
-
+# ----------
     @classmethod
     def list_nltk_tags(cls) -> None:
         """
