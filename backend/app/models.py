@@ -41,7 +41,7 @@ class Pronoun(models.Model):
 class PronounSeries(models.Model):
     """
     A class that allows users to define a custom series of pronouns to be used in
-    `gender_analysis` functions
+    analysis functions
     """
 
     identifier = models.CharField(max_length=60)
@@ -51,6 +51,20 @@ class PronounSeries(models.Model):
     pos_det = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'pos_det'})
     pos_pro = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'pos_pro'})
     reflex = models.ForeignKey(Pronoun, on_delete=models.RESTRICT, limit_choices_to={'type': 'reflex'})
+
+    def get_all_pronouns(self):
+        """
+        :return: The set of all pronoun identifiers.
+        """
+        all_pronouns = {
+            self.subj.identifier,
+            self.obj.identifier,
+            self.pos_det.identifier,
+            self.pos_pro.identifier,
+            self.reflex.identifier,
+        }
+
+        return all_pronouns
 
     def __contains__(self, pronoun):
         """
@@ -63,13 +77,10 @@ class PronounSeries(models.Model):
         >>> 'hers' in pronoun_group
         False
         :param pronoun: The pronoun to check for in this group
-        :return: true if the pronoun is in the group, false otherwise
+        :return: True if the pronoun is in the group, False otherwise
         """
 
-        for each_pronoun in list(self.pronouns.all()):
-            if pronoun.lower() == each_pronoun.identifier:
-                return True
-        return False
+        return pronoun.lower() in self.get_all_pronouns()
 
     def __iter__(self):
         """
@@ -82,23 +93,27 @@ class PronounSeries(models.Model):
         ['her', 'hers', 'herself', 'she']
         """
 
-        all_pronouns = []
-        for each_pronoun in list(self.pronouns.all()):
-            all_pronouns.append(each_pronoun.identifier)
+        all_pronouns = self.get_all_pronouns()
         yield from all_pronouns
 
     def __repr__(self):
         """
-        >>> PronounSeries('Masc', {'he', 'himself', 'his'}, subj='he', obj='him')
+        >>> PronounSeries.create(
+        ...     identifier='Masc',
+        ...     subj='he',
+        ...     obj='him',
+        ...     pos_det='his',
+        ...     pos_pro='his',
+        ...     reflex='himself'
+        ... )
         <Masc: ['he', 'him', 'himself', 'his']>
         :return: A console-friendly representation of the pronoun series
         """
 
-        return f'{self.identifier}: {list(self.pronouns.all())}'
+        return f'<{self.identifier}: {list(sorted(self))}>'
 
     def __str__(self):
         """
-        # >>> from gender_analysis import PronounSeries
         >>> str(PronounSeries('Andy', {'Xe', 'Xis', 'Xem'}, subj='xe', obj='xem'))
         'Andy-series'
         :return: A string-representation of the pronoun series
@@ -117,12 +132,33 @@ class PronounSeries(models.Model):
         """
         Determines whether two `PronounSeries` are equal. Note that they are only equal if
         they have the same identifier and the exact same set of pronouns.
-        # >>> from gender_analysis import PronounSeries
-        >>> fem_series = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
-        >>> second_fem_series = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
+
+        >>> fem_series = PronounSeries.create(
+        ...     identifier='Fem',
+        ...     subj='she',
+        ...     obj='her',
+        ...     pos_det='her',
+        ...     pos_pro='hers',
+        ...     reflex='herself'
+        ... )
+        >>> second_fem_series = PronounSeries.create(
+        ...     identifier='Fem',
+        ...     subj='she',
+        ...     obj='her',
+        ...     pos_pro='hers',
+        ...     reflex='herself'
+        ...     pos_det='HER',
+        ... )
         >>> fem_series == second_fem_series
         True
-        >>> masc_series = PronounSeries('Masc', {'he', 'him', 'his'}, subj='he', obj='him')
+        >>> masc_series = PronounSeries.create(
+        ...     identifier='Masc',
+        ...     subj='he',
+        ...     obj='him',
+        ...     pos_det='his',
+        ...     pos_pro='his',
+        ...     reflex='himself'
+        ... )
         >>> fem_series == masc_series
         False
         :param other: The `PronounSeries` object to compare
