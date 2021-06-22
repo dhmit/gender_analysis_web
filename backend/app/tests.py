@@ -25,7 +25,6 @@ class PronounTestCase(TestCase):
         he = Pronoun.objects.get(identifier='he')
         self.assertEqual(str(he), 'Pronoun: he\nType: Subject')
         self.assertEqual(type(he.type), str)
-        he.save()
 
         with self.assertRaises(ObjectDoesNotExist):
             was_converted_to_lowercase = Pronoun.objects.get(identifier='HIS')
@@ -34,7 +33,6 @@ class PronounTestCase(TestCase):
         his_caps_until_saving = Pronoun(identifier='HIS', type='pos_pro')
         self.assertNotEqual(his, his_caps_until_saving)
 
-        his.save()
         his_caps_until_saving.save()
         self.assertEqual(his, his_caps_until_saving)
 
