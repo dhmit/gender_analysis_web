@@ -5,7 +5,7 @@ import { getCookie } from '../common';
 
 const Documents = () => {
 
-    const [docData, setDocData] = useState(null);
+    const [docData, setDocData] = useState([]);
     const [newDocData, setNewDocData] = useState({
         "author": "",
         "title":"",
