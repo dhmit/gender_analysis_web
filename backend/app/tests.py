@@ -1,8 +1,9 @@
 """
-Tests for the main app.
+Tests for the gender analysis web app.
 """
 
 from django.test import TestCase
+from django.core.exceptions import ObjectDoesNotExist
 from .models import (
     Pronoun,
 )
@@ -14,17 +15,26 @@ class PronounTestCase(TestCase):
     """
 
     def setUp(self):
-        he = Pronoun(pronoun='he', pronoun_type='subj')
-        him = Pronoun(pronoun='him', pronoun_type='obj')
-        his = Pronoun(pronoun='his', pronoun_type='pos_det')
-        his_2 = Pronoun(pronoun='his', pronoun_type='pos_pro')
-        himself = Pronoun(pronoun='himself', pronoun_type='reflex')
+        Pronoun.objects.create(identifier='he', type='subj')
+        Pronoun.objects.create(identifier='him', type='obj')
+        Pronoun.objects.create(identifier='HIS', type='pos_det')
+        Pronoun.objects.create(identifier='his', type='pos_pro')
+        Pronoun.objects.create(identifier='himself', type='reflex')
 
+    def test_models_save(self):
+        he = Pronoun.objects.get(identifier='he')
+        self.assertEqual(str(he), 'Pronoun: he\nType: Subject')
+        self.assertEqual(type(he.type), str)
 
-class LowercaseCharFieldTestCase(TestCase):
-    """
-    TestCase for the LowercaseCharField field.
-    """
+        with self.assertRaises(ObjectDoesNotExist):
+            was_converted_to_lowercase = Pronoun.objects.get(identifier='HIS')
+
+        his = Pronoun.objects.get(identifier='his', type='pos_det')
+        his_caps_until_saving = Pronoun(identifier='HIS', type='pos_pro')
+        self.assertNotEqual(his, his_caps_until_saving)
+
+        his_caps_until_saving.save()
+        self.assertEqual(his, his_caps_until_saving)
 
 
 class MainTests(TestCase):
