@@ -8,10 +8,6 @@ from .models import (
     Pronoun,
 )
 
-from .fields import (
-    LowercaseCharField,
-)
-
 
 class PronounTestCase(TestCase):
     """
@@ -41,15 +37,6 @@ class PronounTestCase(TestCase):
         his.save()
         his_caps_until_saving.save()
         self.assertEqual(his, his_caps_until_saving)
-
-
-# class LowercaseCharFieldTestCase(TestCase):
-#     """
-#     TestCase for the LowercaseCharField field.
-#     """
-#
-#     def setUp(self):
-#         foo = LowercaseCharField()
 
 
 class MainTests(TestCase):
