@@ -111,30 +111,30 @@ const Documents = () => {
                 This page displays all the documents stored in backend.
             </p>
             <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="author">Author</label>
+                <label>
+                    <p>Author</p>
                     <input type="text" className="form-control"
                         id="author" value={newDocData.author}
                         onChange={handleAuthorInputChange}/>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="title">Title</label>
+                </label>
+                <label>
+                    <p>Title</p>
                     <input type="text" className="form-control"
                         id="title" value={newDocData.title}
                         onChange={handleTitleInputChange}/>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="date">Date</label>
+                </label>
+                <label>
+                    <p>Date</p>
                     <input type="number" className="form-control"
                         id="date" value={newDocData.date}
                         onChange={handleDateInputChange}/>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="text">Text</label>
+                </label>
+                <label>
+                    <p>Text</p>
                     <textarea className="form-control" id="text"
                         rows="8" value={newDocData.text}
                         onChange={handleTextInputChange}></textarea>
-                </div>
+                </label>
                 <button type="submit">Add</button>
             </form>
             {
