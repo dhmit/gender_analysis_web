@@ -5,12 +5,15 @@ import React, {useEffect, useState} from "react";
 const Documents = () => {
 
     const [docData, setDocData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [addingDoc, setAddingDoc] = useState(false);
 
     useEffect(() => {
         fetch("/api/all_documents")
             .then(response => response.json())
             .then(data => {
                 setDocData(data);
+                setLoading(false);
             });
     }, []);
 
@@ -21,8 +24,9 @@ const Documents = () => {
                 This page displays all the documents stored in backend.
             </p>
             {
-                docData
-                    ? <div>Documents:
+                loading
+                    ? <p>Currently Loading Documents...</p>
+                    : <div>Documents:
                         {docData.map((doc, i) => {
                             return (<>
                                 <p>Document {i}</p>
@@ -37,7 +41,6 @@ const Documents = () => {
                             );
                         })}
                     </div>
-                    : <p>Currently Loading Documents...</p>
             }
         </div>
     );
