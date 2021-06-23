@@ -123,7 +123,7 @@ const Documents = () => {
                     <p>Year</p>
                     <input type="number" className="form-control"
                         id="year" value={newDocData.year}
-                        maxLength="4" minLength="4"
+                        min="0" max="9999"
                         onChange={handleYearInputChange}/>
                 </label>
                 <label>
