@@ -4,39 +4,6 @@ Models for the gender analysis web app.
 from django.db import models
 from .fields import LowercaseCharField
 
-#
-# class Pronoun(models.Model):
-#     """
-#     A model that allows users to define an individual pronoun and its type
-#     (e.g. subject, object, reflexive, etc). Pronouns are case-insensitive and will be
-#     converted to lowercase.
-#     """
-#     PRONOUN_TYPES = [
-#         ('subj', 'Subject'),
-#         ('obj', 'Object'),
-#         ('pos_det', 'Possessive determiner'),
-#         ('pos_pro', 'Possessive pronoun'),
-#         ('reflex', 'Reflexive'),
-#     ]
-#
-#     identifier = LowercaseCharField(max_length=40)
-#     type = models.CharField(max_length=7, choices=PRONOUN_TYPES)
-#
-#     def __repr__(self):
-#         return f'Pronoun({self.identifier, self.type})'
-#
-#     def __str__(self):
-#         return f'Pronoun: {self.identifier}\nType: {self.get_type_display()}'
-#
-#     def __eq__(self, other):
-#         return self.identifier == other.identifier
-#
-#     def __hash__(self):
-#         """
-#         Makes the `Pronoun` model hashable
-#         """
-#         return self.identifier.__hash__()
-
 
 class PronounSeries(models.Model):
     """
@@ -164,75 +131,6 @@ class PronounSeries(models.Model):
         :return: `True` if the two series are the same, `False` otherwise.
         """
 
-        return (
-                self.identifier == other.identifier
-                and sorted(self) == sorted(other)
-        )
-
-
-class Name(models.Model):
-    """
-    A model that allows users to define an individual name that will be associated with a Gender
-    after being converted to lowercase.
-    """
-
-    identifier = LowercaseCharField(max_length=40)
-
-    def __repr__(self):
-        return f'Name({self.identifier})'
-
-    def __str__(self):
-        return self.identifier
-
-    def __hash__(self):
-        """
-        Makes the `Name` model hashable
-        """
-        return self.identifier.__hash__()
-
-    def __eq__(self, other):
-        return self.identifier == other.identifier
-
-
-class NameSeries(models.Model):
-    """
-    A class that allows users to define a custom series of names to be used for a Gender
-    """
-
-    identifier = models.CharField(max_length=60)
-    names = models.ManyToManyField(Name)
-
-    def __contains__(self, name):
-        """
-        Allows users to see if a particular name is in their name series
-        """
-        for each_name in list(self.names.all()):
-            if name.lower() == each_name.identifier:
-                return True
-        return False
-
-    def __iter__(self):
-        """
-        Allows the user to iterate over all of the names in this group
-        """
-        all_names = []
-        for each_name in list(self.names.all()):
-            all_names.append(each_name.identifier)
-        yield from all_names
-
-    def __repr__(self):
-        return f'{self.identifier}: {list(self.names.all())}'
-
-    def __str__(self):
-        return self.identifier + '-series'
-
-    def __hash__(self):
-        """
-        Makes the `NameSeries` model hashable
-        """
-        return self.identifier.__hash__()
-
-    def __eq__(self, other):
         return (
                 self.identifier == other.identifier
                 and sorted(self) == sorted(other)
