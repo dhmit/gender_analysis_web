@@ -9,7 +9,7 @@ const Documents = () => {
     const [newDocData, setNewDocData] = useState({
         "author": "",
         "title":"",
-        "date": null,
+        "year": "",
         "text": ""
     });
     const [loading, setLoading] = useState(true);
@@ -24,23 +24,20 @@ const Documents = () => {
     }, []);
 
     const handleTitleInputChange = (event) => {
-	    event.persist();
 	    setNewDocData((values) => ({
 		    ...values,
 		    title: event.target.value
 	    }));
     };
 
-    const handleDateInputChange = (event) => {
-	    event.persist();
+    const handleYearInputChange = (event) => {
 	    setNewDocData((values) => ({
 		    ...values,
-		    date: event.target.value
+		    year: event.target.value
 	    }));
     };
 
     const handleTextInputChange = (event) => {
-	    event.persist();
 	    setNewDocData((values) => ({
 		    ...values,
 		    text: event.target.value
@@ -48,7 +45,6 @@ const Documents = () => {
     };
 
     const handleAuthorInputChange = (event) => {
-	    event.persist();
 	    setNewDocData((values) => ({
 		    ...values,
 		    author: event.target.value
@@ -66,7 +62,7 @@ const Documents = () => {
             },
             body: JSON.stringify({
                 title: newDocData.title,
-                date: newDocData.date,
+                year: newDocData.year,
                 author: newDocData.author,
                 text: newDocData.text
             })
@@ -78,7 +74,7 @@ const Documents = () => {
                 setNewDocData({
                     "author": "",
                     "title":"",
-                    "date": "",
+                    "year": "",
                     "text": ""
                 });
             });
@@ -124,10 +120,11 @@ const Documents = () => {
                         onChange={handleTitleInputChange}/>
                 </label>
                 <label>
-                    <p>Date</p>
+                    <p>Year</p>
                     <input type="number" className="form-control"
-                        id="date" value={newDocData.date}
-                        onChange={handleDateInputChange}/>
+                        id="year" value={newDocData.year}
+                        maxLength="4" minLength="4"
+                        onChange={handleYearInputChange}/>
                 </label>
                 <label>
                     <p>Text</p>
