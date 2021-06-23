@@ -67,7 +67,7 @@ const Documents = () => {
                 text: newDocData.text
             })
         };
-        fetch("api/add_text", requestOptions)
+        fetch("api/add_document", requestOptions)
             .then(response => response.json())
             .then(data => {
                 setDocData(docData => [...docData, data]);
