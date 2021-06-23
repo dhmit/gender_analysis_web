@@ -45,76 +45,56 @@ class PronounSeries(models.Model):
     """
 
     identifier = models.CharField(max_length=60)
+    pronouns = models.ManyToManyField(Pronoun)
+    subj = LowercaseCharField(max_length=40, blank=True)
+    obj = LowercaseCharField(max_length=40, blank=True)
+    pos_det = LowercaseCharField(max_length=40, blank=True)
+    pos_pro = LowercaseCharField(max_length=40, blank=True)
+    reflex = LowercaseCharField(max_length=40, blank=True)
 
-    subj = models.ForeignKey(
-        Pronoun,
-        on_delete=models.RESTRICT,
-        limit_choices_to={'type': 'subj'},
-    )
-    obj = models.ForeignKey(
-        Pronoun,
-        on_delete=models.RESTRICT,
-        limit_choices_to={'type': 'obj'}
-    )
-    pos_det = models.ForeignKey(
-        Pronoun,
-        on_delete=models.RESTRICT,
-        limit_choices_to={'type': 'pos_det'}
-    )
-    pos_pro = models.ForeignKey(
-        Pronoun,
-        on_delete=models.RESTRICT,
-        limit_choices_to={'type': 'pos_pro'}
-    )
-    reflex = models.ForeignKey(
-        Pronoun,
-        on_delete=models.RESTRICT,
-        limit_choices_to={'type': 'reflex'}
-    )
+    # def get_all_pronouns(self):
+    #     """
+    #     :return: The set of all pronoun identifiers.
+    #     """
+    #     all_pronouns = {
+    #         self.subj.identifier,
+    #         self.obj.identifier,
+    #         self.pos_det.identifier,
+    #         self.pos_pro.identifier,
+    #         self.reflex.identifier,
+    #     }
+    #
+    #     return all_pronouns
 
-    def get_all_pronouns(self):
-        """
-        :return: The set of all pronoun identifiers.
-        """
-        all_pronouns = {
-            self.subj.identifier,
-            self.obj.identifier,
-            self.pos_det.identifier,
-            self.pos_pro.identifier,
-            self.reflex.identifier,
-        }
+    # def __contains__(self, pronoun):
+    #     """
+    #     Checks to see if the given pronoun exists in this group. This check is case-insensitive
+    #     # >>> from gender_analysis import PronounSeries
+    #     >>> pronouns = {'They', 'Them', 'Theirs', 'Themself'}
+    #     >>> pronoun_group = PronounSeries('Andy', pronouns, 'they', 'them')
+    #     >>> 'they' in pronoun_group
+    #     True
+    #     >>> 'hers' in pronoun_group
+    #     False
+    #     :param pronoun: The pronoun to check for in this group
+    #     :return: True if the pronoun is in the group, False otherwise
+    #     """
+    #
+    #     return pronoun.lower() in self.get_all_pronouns()
 
-        return all_pronouns
-
-    def __contains__(self, pronoun):
-        """
-        Checks to see if the given pronoun exists in this group. This check is case-insensitive
-        # >>> from gender_analysis import PronounSeries
-        >>> pronouns = {'They', 'Them', 'Theirs', 'Themself'}
-        >>> pronoun_group = PronounSeries('Andy', pronouns, 'they', 'them')
-        >>> 'they' in pronoun_group
-        True
-        >>> 'hers' in pronoun_group
-        False
-        :param pronoun: The pronoun to check for in this group
-        :return: True if the pronoun is in the group, False otherwise
-        """
-
-        return pronoun.lower() in self.get_all_pronouns()
-
-    def __iter__(self):
-        """
-        Allows the user to iterate over all of the pronouns in this group. Pronouns
-        are returned in lowercase and order is not guaranteed.
-        # >>> from gender_analysis import PronounSeries
-        >>> pronouns = {'She', 'Her', 'hers', 'herself'}
-        >>> pronoun_group = PronounSeries('Fem', pronouns, subj='she', obj='her')
-        >>> sorted(pronoun_group)
-        ['her', 'hers', 'herself', 'she']
-        """
-
-        all_pronouns = self.get_all_pronouns()
-        yield from all_pronouns
+    # def __iter__(self):
+    #     """
+    #     Allows the user to iterate over all of the pronouns in this group. Pronouns
+    #     are returned in lowercase and order is not guaranteed.
+    #     # >>> from gender_analysis import PronounSeries
+    #     >>> pronouns = {'She', 'Her', 'hers', 'herself'}
+    #     >>> pronoun_group = PronounSeries('Fem', pronouns, subj='she', obj='her')
+    #     >>> sorted(pronoun_group)
+    #     ['her', 'hers', 'herself', 'she']
+    #     """
+    #
+    #     all_pronouns = self.get_all_pronouns()
+    #     yield from all_pronouns
 
     def __repr__(self):
         """
