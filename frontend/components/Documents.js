@@ -130,7 +130,7 @@ const Documents = () => {
                     <p>Text</p>
                     <textarea className="form-control" id="text"
                         rows="8" value={newDocData.text}
-                        onChange={handleTextInputChange}></textarea>
+                        onChange={handleTextInputChange} required></textarea>
                 </label>
                 <button type="submit">Add</button>
             </form>
