@@ -62,7 +62,7 @@ const Documents = () => {
             },
             body: JSON.stringify({
                 title: newDocData.title,
-                year: newDocData.year,
+                year: typeof newDocData.year === "string" ? null : newDocData.year,
                 author: newDocData.author,
                 text: newDocData.text
             })
@@ -123,7 +123,7 @@ const Documents = () => {
                     <p>Year</p>
                     <input type="number" className="form-control"
                         id="year" value={newDocData.year}
-                        min="0" max="9999"
+                        max="9999"
                         onChange={handleYearInputChange}/>
                 </label>
                 <label>
