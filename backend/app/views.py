@@ -91,9 +91,9 @@ def example_id(request, example_id):
     return render(request, 'index.html', context)
 
 @api_view(['POST'])
-def add_text(request):
+def add_document(request):
     """
-    API endpoint for adding a piece of text
+    API endpoint for adding a piece of document
     """
     attributes = request.data
     fields = {
@@ -102,8 +102,7 @@ def add_text(request):
         'year': attributes['year'],
         'text': attributes['text']
     }
-    new_text_obj = Document(**fields)
-    new_text_obj.save()
+    new_text_obj = Document.objects.create_document(**fields)
     serializer = DocumentSerializer(new_text_obj)
     return Response(serializer.data)
 
