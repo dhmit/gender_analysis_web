@@ -99,7 +99,7 @@ def add_text(request):
     fields = {
         'title': attributes['title'],
         'author': attributes['author'],
-        'date': attributes['date'],
+        'year': attributes['year'],
         'text': attributes['text']
     }
     new_text_obj = Document(**fields)
