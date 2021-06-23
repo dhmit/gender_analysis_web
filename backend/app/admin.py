@@ -6,7 +6,6 @@ from django.contrib import admin
 from . import models
 
 models_to_register = [
-    models.Pronoun,
     models.Document,
 ]
 
