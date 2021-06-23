@@ -52,7 +52,7 @@ class Document(models.Model):
     metadata (author, title, publication date, etc.) of a document
     """
     author = models.CharField(max_length=255, blank=True)
-    date = models.IntegerField(null=True, blank=True)
+    year = models.IntegerField(null=True, blank=True)
     new_attributes = models.JSONField(null=True, blank=True, default=dict)
     text = models.TextField(blank=True)
     title = models.CharField(max_length=255, blank=True)
