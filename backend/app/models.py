@@ -38,12 +38,9 @@ class Pronoun(models.Model):
 
 
 class DocumentManager(models.Manager):
-    def create_document(self, attributes):
-        doc = self.create(attributes)
-        doc.get_tokenized_text()
-        doc.get_word_count()
-        doc.get_word_count_counter()
-        doc.get_part_of_speech_tags()
+    def create_document(self, **attributes):
+        doc = self.create(**attributes)
+        doc.get_tokenized_text_wc_and_pos()
         return doc
 
 
@@ -76,23 +73,23 @@ class Document(models.Model):
         self.save()
         return self.text
 
-    def get_tokenized_text(self):
+    def get_tokenized_text_wc_and_pos(self):
         """
         Tokenizes the text of a Document and returns it as a list of tokens, while removing all punctuation
         and converting everything to lowercase.
 
         :param self: The Document to tokenize
-        :return: List of each word in the Document
+        :return: none
         """
-
-        if self.tokenized_text is None:
-            self._clean_quotes()
-            tokens = nltk.word_tokenize(self.text)
-            excluded_characters = set(string.punctuation)
-            tokenized_text = [word.lower() for word in tokens if word not in excluded_characters]
-            self.tokenized_text = tokenized_text
-            self.save()
-        return self.tokenized_text
+        self._clean_quotes()
+        tokens = nltk.word_tokenize(self.text)
+        excluded_characters = set(string.punctuation)
+        tokenized_text = [word.lower() for word in tokens if word not in excluded_characters]
+        self.tokenized_text = tokenized_text
+        self.word_count = len(self.tokenized_text)
+        self.word_count_counter = Counter(self.tokenized_text)
+        self.part_of_speech_tags = nltk.pos_tag(self.tokenized_text)
+        self.save()
 
     def get_count_of_word(self, word):
         """
@@ -103,8 +100,10 @@ class Document(models.Model):
         :param word: word to be counted in text
         :return: Number of occurrences of the word, as an int
         """
-        self.get_word_count_counter()
-        return self.word_count_counter[word.lower()]
+        try:
+            return self.word_count_counter[word.lower()]
+        except KeyError:
+            return 0
 
     def get_count_of_words(self, words):
         """
@@ -117,32 +116,6 @@ class Document(models.Model):
         :return: a Counter with each word in words keyed to its number of occurrences.
         """
         return Counter({word: self.get_count_of_word(word) for word in words})
-
-    def get_word_count(self):
-        """
-        Lazy-loading for **Document.word_count** attribute.
-        Returns the number of words in the document.
-        The word_count attribute is useful for the get_word_freq function.
-        However, it is performance-wise costly, so it's only loaded when it's actually required.
-
-        :param self: The Document to get the word count of
-        :return: Number of words in the document's text as an int
-
-        """
-        if self.word_count is None:
-            self.word_count = len(self.get_tokenized_text())
-            self.save()
-        return self.word_count
-
-    def get_word_count_counter(self):
-        """
-        Returns a Counter object of all of the words in the text.
-
-        :return: Python Counter object
-        """
-        if not self.word_count_counter:
-            self.word_count_counter = Counter(self.get_tokenized_text())
-        return self.word_count_counter
 
     def find_quoted_text(self):
         """
@@ -189,7 +162,7 @@ class Document(models.Model):
         target_word = target_word.lower()
         word_count = Counter()
         check = False
-        text = self.get_tokenized_text()
+        text = self.tokenized_text
 
         for word in text:
             if check:
@@ -219,7 +192,7 @@ class Document(models.Model):
 
         counter = Counter()
 
-        for text_window in windowed(self.get_tokenized_text(), 2 * window_size + 1):
+        for text_window in windowed(self.tokenized_text, 2 * window_size + 1):
             if text_window[window_size] in search_terms:
                 for surrounding_word in text_window:
                     if surrounding_word not in search_terms:
@@ -234,7 +207,7 @@ class Document(models.Model):
         :param word: str to search for in document
         :return: float representing the portion of words in the text that are the parameter word
         """
-        word_frequency = self.get_count_of_word(word) / self.get_word_count()
+        word_frequency = self.get_count_of_word(word) / self.word_count
         return word_frequency
 
     def get_word_freqs(self, words):
@@ -244,25 +217,8 @@ class Document(models.Model):
         :param words: a list of strings.
         :return: a dictionary of words keyed to float frequencies.
         """
-        word_frequencies = {word: self.get_count_of_word(word) / self.get_word_count() for word in words}
+        word_frequencies = {word: self.get_count_of_word(word) / self.word_count for word in words}
         return word_frequencies
-
-    def get_part_of_speech_tags(self):
-        """
-        Returns the part of speech tags as a list of tuples. The first part of each tuple is the
-        term, the second one the part of speech tag.
-
-        Note: the same word can have a different part of speech tags.
-
-        :return: List of tuples (term, speech_tag)
-        """
-
-        if not self.part_of_speech_tags:
-            pos_tags = nltk.pos_tag(nltk.word_tokenize(self.text))
-
-            self.part_of_speech_tags = pos_tags
-            self.save()
-        return self.part_of_speech_tags
 
     def get_part_of_speech_words(self, words, remove_swords=True):
         """
@@ -274,7 +230,7 @@ class Document(models.Model):
         :return: a dictionary keying NLTK tag strings to Counter instances.
         """
         stop_words = set(nltk.corpus.stopwords.words('english'))
-        document_pos_tags = self.get_part_of_speech_tags()
+        document_pos_tags = self.part_of_speech_tags
         words_set = {word.lower() for word in words}
         output = {}
 
@@ -299,34 +255,13 @@ class Document(models.Model):
         :return: None
         """
         default_fields = [field.name for field in self._meta.get_fields()]
-        if not isinstance(new_metadata, dict):
-            raise ValueError(
-                f'new_metadata must be a dictionary of metadata keys, not type {type(new_metadata)}'
-            )
-
         for key in new_metadata:
-            if key == 'date':
-                try:
-                    new_metadata[key] = int(new_metadata[key])
-                except ValueError as err:
-                    raise ValueError(
-                        f"the metadata field 'date' must be a number for the document,"
-                        f" not '{new_metadata['date']}'"
-                    ) from err
             if key not in default_fields:
                 self.new_attributes[key] = new_metadata[key]
             else:
                 setattr(self, key, new_metadata[key])
 
         if 'text' in new_metadata:
-            self.text = self._clean_quotes()
-            self.word_count = None
-            self.tokenized_text = None
-            self.word_count_counter = dict()
-            self.part_of_speech_tags = list()
-            self.get_tokenized_text()
-            self.get_word_count()
-            self.get_word_count_counter()
-            self.get_part_of_speech_tags()
-
+            self.text = new_metadata['text']
+            self.get_tokenized_text_wc_and_pos()
         self.save()
