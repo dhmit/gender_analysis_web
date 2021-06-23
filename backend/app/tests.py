@@ -45,10 +45,10 @@ class DocumentTestCase(TestCase):
     """
 
     def setUp(self):
-        Document.objects.create(title='doc1', date=2021, text='The quick brown fox jumped over the lazy dog.')
+        Document.objects.create(title='doc1', year=2021, text='The quick brown fox jumped over the lazy dog.')
         Document.objects.create(title='doc2', text='She really likes to eat chocolate!')
         Document.objects.create(title='doc3', text='Do you like ice cream as much as I do?')
-        Document.objects.create(title='doc4', text='This is a “smart” phrase')
+        Document.objects.create(title='doc4', text='This is a ‘very’ “smart” phrase')
         Document.objects.create(title='doc5', text='"This is a quote." There is more. "This is my quote."')
         Document.objects.create(title='doc6', text="""She took a lighter out of her purse and handed it over to him. 
                                  He lit his cigarette and took a deep drag from it, and then began 
@@ -86,7 +86,7 @@ class DocumentTestCase(TestCase):
 
     def test_clean_quotes(self):
         doc = Document.objects.get(title='doc4')
-        cleaned = 'This is a "smart" phrase'
+        cleaned = 'This is a \'very\' "smart" phrase'
         self.assertEqual(doc._clean_quotes(), cleaned)
 
     def test_find_quoted_text(self):
@@ -140,12 +140,12 @@ class DocumentTestCase(TestCase):
 
     def test_update_metadata(self):
         doc = Document.objects.get(title='doc1')
-        doc.update_metadata({'date': '1903'})
+        doc.update_metadata({'year': '1903'})
         new_attribute = {'cookies': 'chocolate chip'}
         doc.update_metadata(new_attribute)
         new_attribute_2 = {'text': 'The quick brown fox jumped over the lazy dog.'}
         doc.update_metadata(new_attribute_2)
-        self.assertEqual(doc.date, 1903)
+        self.assertEqual(doc.year, 1903)
         self.assertEqual(doc.new_attributes['cookies'], 'chocolate chip')
         self.assertEqual(doc.word_count, 9)
 

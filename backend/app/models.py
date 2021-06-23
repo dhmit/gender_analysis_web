@@ -3,6 +3,7 @@ Models for the gender analysis web app.
 """
 import nltk
 import string
+import re
 from collections import Counter
 from more_itertools import windowed
 from django.db import models
@@ -71,18 +72,7 @@ class Document(models.Model):
         :param self: The Document to reformat
         :return: A string that is identical to `text`, except with its smart quotes exchanged
         """
-
-        smart_quotes = {
-            '“': '"',
-            '”': '"',
-            "‘": "'",
-            "’": "'",
-        }
-
-        output_text = self.text
-        for quote in smart_quotes:
-            output_text = output_text.replace(quote, smart_quotes[quote])
-        self.text = output_text
+        self.text = re.sub(r'[\“\”]', '\"', re.sub(r'[\‘\’]', '\'', self.text))
         self.save()
         return self.text
 
