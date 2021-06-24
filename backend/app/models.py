@@ -78,7 +78,7 @@ class PronounSeries(models.Model):
 
     def __str__(self):
         """
-        >>> str(PronounSeries.objects.create('Andy', *['Xe', 'Xem', 'Xis', 'Xis', 'Xemself'])
+        >>> str(PronounSeries.objects.create('Andy', *['Xe', 'Xem', 'Xis', 'Xis', 'Xemself']))
         'Andy-series'
         :return: A string-representation of the pronoun series
         """
@@ -146,9 +146,7 @@ class Gender(models.Model):
     def __repr__(self):
         """
         :return: A console-friendly representation of the gender
-        # >>> from gender_analysis import PronounSeries
-        # >>> from gender_analysis import Gender
-        >>> fem_pronouns = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
+        >>> fem_pronouns = PronounSeries.objects.create('Fem', *['she', 'her', 'her', 'hers', 'herself'])
         >>> Gender('Female', fem_pronouns)
         <Female>
         """
@@ -158,9 +156,7 @@ class Gender(models.Model):
     def __str__(self):
         """
         :return: A string representation of the gender
-        # >>> from gender_analysis import PronounSeries
-        # >>> from gender_analysis import Gender
-        >>> fem_pronouns = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
+        >>> fem_pronouns = PronounSeries.objects.create('Fem', *['she', 'her', 'her', 'hers', 'herself'])
         >>> str(Gender('Female', fem_pronouns))
         'Female'
         """
@@ -178,19 +174,17 @@ class Gender(models.Model):
         """
         Performs a check to see whether two `Gender` objects are equivalent. This is true if and
         only if the `Gender` identifiers, pronoun series, and names are identical.
+
         Note that this comparison works:
-        # >>> from gender_analysis import PronounSeries
-        # >>> from gender_analysis import Gender
-        >>> fem_pronouns = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
+        >>> fem_pronouns = PronounSeries.objects.create('Fem', *['she', 'her', 'her', 'hers', 'herself'])
         >>> female = Gender('Female', fem_pronouns)
         >>> another_female = Gender('Female', fem_pronouns)
         >>> female == another_female
         True
+
         But this one does not:
-        # >>> from gender_analysis import PronounSeries
-        # >>> from gender_analysis import Gender
-        >>> they_series = PronounSeries('They', {'they', 'them', 'theirs'}, subj='they', obj='them')
-        >>> xe_series = PronounSeries('Xe', {'xe', 'xer', 'xem'}, subj='xe', obj='xem')
+        >>> they_series = PronounSeries.objects.create('They', *['they', 'them', 'their', 'theirs', 'themselves'])
+        >>> xe_series = PronounSeries.objects.create('They', *['Xe', 'Xem', 'Xis', 'Xis', 'Xemself'])
         >>> androgynous_1 = Gender('NB', they_series)
         >>> androgynous_2 = Gender('NB', xe_series)
         >>> androgynous_1 == androgynous_2
@@ -202,26 +196,24 @@ class Gender(models.Model):
         return (
                 self.label == other.label
                 and list(self.pronoun_series.all()) == list(other.pronoun_series.all())
-                and list(self.names_series.all()) == list(other.names_series.all())
         )
 
     @property
     def pronouns(self):
         """
         :return: A set containing all pronouns that this `Gender` uses
-        # >>> from gender_analysis import PronounSeries
-        # >>> from gender_analysis import Gender
-        >>> they_series = PronounSeries('They', {'they', 'them', 'theirs'}, subj='they', obj='them')
-        >>> xe_series = PronounSeries('Xe', {'Xe', 'Xer', 'Xis'}, subj='xe', obj='xer')
-        >>> androgynous = Gender('Androgynous', [they_series, xe_series])
+        >>> they_series = PronounSeries.objects.create('They', *['they', 'them', 'their', 'theirs', 'themselves'])
+        >>> xe_series = PronounSeries('Xe', *['Xe', 'Xer', 'Xis', 'Xis', 'Xerself'])
+        >>> androgynous = Gender.objects.create(label='Androgynous', pronoun_series=[they_series, xe_series])
         >>> androgynous.pronouns == {'they', 'them', 'theirs', 'xe', 'xer', 'xis'}
         True
         """
 
         all_pronouns = set()
         for series in list(self.pronoun_series.all()):
-            for pronoun in list(series.pronouns.all()):
-                all_pronouns.add(pronoun)
+            for series_pronouns in series.get_all_pronouns():
+                all_pronouns |= series_pronouns
+
         return all_pronouns
 
     # These may be better off in the PronounSeries model, if they exist at all
