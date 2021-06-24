@@ -7,6 +7,8 @@ from . import models
 
 models_to_register = [
     models.Document,
+    models.PronounSeries,
+    models.Gender,
 ]
 
 for model in models_to_register:
