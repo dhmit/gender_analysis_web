@@ -20,10 +20,17 @@ context = {
     'component_name': 'ExampleId'
 }
 """
+import json
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import render
+from .models import (
+    Document
+)
+from .serializers import (
+    DocumentSerializer
+)
 
 
 @api_view(['GET'])
@@ -37,7 +44,6 @@ def get_example(request, example_id):
         'id': example_id,
     }
     return Response(data)
-
 
 def index(request):
     """
@@ -80,6 +86,42 @@ def example_id(request, example_id):
             'id': example_id
         },
         'component_name': 'ExampleId'
+    }
+
+    return render(request, 'index.html', context)
+
+@api_view(['POST'])
+def add_document(request):
+    """
+    API endpoint for adding a piece of document
+    """
+    attributes = request.data
+    fields = {
+        'title': attributes['title'],
+        'author': attributes['author'],
+        'year': attributes['year'],
+        'text': attributes['text']
+    }
+    new_text_obj = Document.objects.create_document(**fields)
+    serializer = DocumentSerializer(new_text_obj)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def all_documents(request):
+    doc_objs = Document.objects.all()
+    serializer = DocumentSerializer(doc_objs, many=True)
+    return Response(serializer.data)
+
+def documents(request):
+    """
+    All Documents page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Documents'
+        },
+        'component_name': 'Documents'
     }
 
     return render(request, 'index.html', context)
