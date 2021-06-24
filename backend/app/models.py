@@ -8,6 +8,7 @@ from collections import Counter
 from more_itertools import windowed
 from django.db import models
 from .fields import LowercaseCharField
+from .managers import DocumentManager
 
 
 class PronounSeries(models.Model):
