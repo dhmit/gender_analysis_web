@@ -18,9 +18,7 @@ class PronounSeries(models.Model):
     """
 
     # Things to consider:
-    # add a default to reflex? i.e. default = object pronoun + 'self'?
-    # set blank=True and null=True to PronounSeries? to add for subsequent adding if
-    # construction of instances is awkward?
+    # Add a default to reflex? i.e. default = object pronoun + 'self'?
     # Also, how to we run doctests here? Or use pytest? (configs don't recognize django package or relative filepath
     # in import statement)
     identifier = models.CharField(max_length=60)
@@ -158,8 +156,7 @@ class Gender(models.Model):
     def __repr__(self):
         """
         :return: A console-friendly representation of the gender
-        >>> fem_pronouns = PronounSeries.objects.create('Fem', *['she', 'her', 'her', 'hers', 'herself'])
-        >>> Gender('Female', fem_pronouns)
+        >>> Gender('Female')
         <Female>
         """
 
@@ -168,8 +165,7 @@ class Gender(models.Model):
     def __str__(self):
         """
         :return: A string representation of the gender
-        >>> fem_pronouns = PronounSeries.objects.create('Fem', *['she', 'her', 'her', 'hers', 'herself'])
-        >>> str(Gender('Female', fem_pronouns))
+        >>> str(Gender('Female')
         'Female'
         """
 
@@ -189,16 +185,26 @@ class Gender(models.Model):
 
         Note that this comparison works:
         >>> fem_pronouns = PronounSeries.objects.create('Fem', *['she', 'her', 'her', 'hers', 'herself'])
-        >>> female = Gender('Female', fem_pronouns)
-        >>> another_female = Gender('Female', fem_pronouns)
+
+        >>> female = Gender.objects.create('Female')
+        >>> female.pronoun_series.add(1)
+
+        >>> another_female = Gender.objects.create('Female')
+        >>> another_female.pronoun_series.add(1)
+
         >>> female == another_female
         True
 
         But this one does not:
         >>> they_series = PronounSeries.objects.create('They', *['they', 'them', 'their', 'theirs', 'themselves'])
         >>> xe_series = PronounSeries.objects.create('They', *['Xe', 'Xem', 'Xis', 'Xis', 'Xemself'])
-        >>> androgynous_1 = Gender('NB', they_series)
-        >>> androgynous_2 = Gender('NB', xe_series)
+
+        >>> androgynous_1 = Gender.objects.create('NB')
+        >>> androgynous_1.pronoun_series.add(2)
+
+        >>> androgynous_2 = Gender.objects.create('NB')
+        >>> androgynous_2.pronoun_series.add(3)
+
         >>> androgynous_1 == androgynous_2
         False
         :param other: The other `Gender` object to compare
@@ -216,7 +222,8 @@ class Gender(models.Model):
         :return: A set containing all pronouns that this `Gender` uses
         >>> they_series = PronounSeries.objects.create('They', *['they', 'them', 'their', 'theirs', 'themselves'])
         >>> xe_series = PronounSeries('Xe', *['Xe', 'Xer', 'Xis', 'Xis', 'Xerself'])
-        >>> androgynous = Gender.objects.create(label='Androgynous', pronoun_series=[they_series, xe_series])
+        >>> androgynous = Gender.objects.create('Androgynous')
+        >>> androgynous.pronoun_series.add(1, 2)
         >>> androgynous.pronouns == {'they', 'them', 'theirs', 'xe', 'xer', 'xis'}
         True
         """
