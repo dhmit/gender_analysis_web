@@ -448,7 +448,7 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
         output = {}
 
         for document in self._results:
-            output[document.label] = self._results[document]
+            output[document.title] = self._results[document]
 
         return _apply_result_filters(output,
                                      sort=sort,
