@@ -11,12 +11,18 @@ class PronounSeries(models.Model):
     analysis functions
     """
 
+    # Things to consider:
+    # add a default to reflex? i.e. default = object pronoun + 'self'?
+    # set blank=True and null=True to PronounSeries? to add for subsequent adding if
+    # construction of instances is awkward?
+    # Also, how to we run doctests here? Or use pytest? (configs don't recognize django package or relative filepath
+    # in import statement)
     identifier = models.CharField(max_length=60)
-    subj = LowercaseCharField(max_length=40, blank=True)
-    obj = LowercaseCharField(max_length=40, blank=True)
-    pos_det = LowercaseCharField(max_length=40, blank=True)
-    pos_pro = LowercaseCharField(max_length=40, blank=True)
-    reflex = LowercaseCharField(max_length=40, blank=True)
+    subj = LowercaseCharField(max_length=40)
+    obj = LowercaseCharField(max_length=40)
+    pos_det = LowercaseCharField(max_length=40)
+    pos_pro = LowercaseCharField(max_length=40)
+    reflex = LowercaseCharField(max_length=40)
 
     def get_all_pronouns(self):
         """
