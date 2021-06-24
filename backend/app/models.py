@@ -270,13 +270,6 @@ class Gender(models.Model):
     #     return subject_pronouns
 
 
-class DocumentManager(models.Manager):
-    def create_document(self, **attributes):
-        doc = self.create(**attributes)
-        doc.get_tokenized_text_wc_and_pos()
-        return doc
-
-
 class Document(models.Model):
     """
     This model will hold the full text and
