@@ -99,7 +99,7 @@ def add_document(request):
     fields = {
         'title': attributes['title'],
         'author': attributes['author'],
-        'year': attributes['year'],
+        'year': attributes['year'] if attributes['year'] != '' else None,
         'text': attributes['text']
     }
     new_text_obj = Document.objects.create_document(**fields)
