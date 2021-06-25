@@ -231,7 +231,7 @@ class Gender(models.Model):
         all_pronouns = set()
         for series in list(self.pronoun_series.all()):
             for series_pronouns in series.all_pronouns:
-                all_pronouns |= series_pronouns
+                all_pronouns |= series_pronouns # Returning a string instead of a set?
 
         return all_pronouns
 
