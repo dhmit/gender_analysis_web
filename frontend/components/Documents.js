@@ -15,6 +15,8 @@ const Documents = () => {
     });
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
 
     useEffect(() => {
         fetch("/api/all_documents")
@@ -102,12 +104,31 @@ const Documents = () => {
         );
     };
 
+    const addDocModal = () => {
+        return (
+            <>
+                <button className="btn btn-primary"
+                    onClick={handleShowModal}>Add Document</button>
+                <Modal show={showModal} onHide={handleCloseModal}>
+                    <Modal.Header closeButton>Add Document</Modal.Header>
+                    <Modal.Body>
+
+                    </Modal.Body>
+                    <Modal.Footer>
+
+                    </Modal.Footer>
+                </Modal>
+            </>
+        );
+    };
+
     return (
         <div>
             <h1>This is the Documents page.</h1>
             <p>
                 This page displays all the documents stored in backend.
             </p>
+            {addDocModal()}
             <form onSubmit={handleSubmit}>
                 <label>
                     <p>Author</p>
