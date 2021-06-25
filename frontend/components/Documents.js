@@ -141,6 +141,8 @@ const Documents = () => {
                                     <input type="number" className="form-control"
                                         id="year" value={newDocData.year}
                                         max="9999"
+                                        onKeyDown={ e => ( e.key === "e" || e.key === "." ) &&
+                                            e.preventDefault() }
                                         onChange={handleYearInputChange}/>
                                 </div>
                             </div>
