@@ -6,13 +6,14 @@ allow the frontend to suggest changes to the backend/database.
 # import json
 from rest_framework import serializers
 from .models import (
-    Document
+    Document,
 )
+
 
 class DocumentSerializer(serializers.ModelSerializer):
     """
-    Serializes a Text object
+    Serializes a Document object
     """
     class Meta:
         model = Document
-        fields = ['id', 'author', 'title', 'date', 'text', 'word_count']
+        fields = ['id', 'author', 'title', 'year', 'text', 'word_count']

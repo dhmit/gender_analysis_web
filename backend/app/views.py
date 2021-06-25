@@ -90,6 +90,21 @@ def example_id(request, example_id):
 
     return render(request, 'index.html', context)
 
+@api_view(['POST'])
+def add_document(request):
+    """
+    API endpoint for adding a piece of document
+    """
+    attributes = request.data
+    fields = {
+        'title': attributes['title'],
+        'author': attributes['author'],
+        'year': attributes['year'],
+        'text': attributes['text']
+    }
+    new_text_obj = Document.objects.create_document(**fields)
+    serializer = DocumentSerializer(new_text_obj)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 def all_documents(request):
@@ -110,16 +125,3 @@ def documents(request):
     }
 
     return render(request, 'index.html', context)
-
-@api_view(['POST'])
-def add_text(request):
-    """
-    API endpoint for adding a piece of text
-    """
-    body = json.loads(request.body.decode('utf-8'))
-    new_text_obj = Document()
-    new_text_obj.save()
-    Document.update_metadata(body)
-    serializer = DocumentSerializer(new_text_obj)
-    return Response(serializer.data)
-

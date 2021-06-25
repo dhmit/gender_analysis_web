@@ -1,11 +1,271 @@
 """
-Models for the ***** app.
+Models for the gender analysis web app.
 """
-from django.db import models
 import nltk
 import string
+import re
 from collections import Counter
 from more_itertools import windowed
+from django.db import models
+from .fields import LowercaseCharField
+from .managers import DocumentManager
+
+
+class PronounSeries(models.Model):
+    """
+    A class that allows users to define a custom series of pronouns to be used in
+    analysis functions
+    """
+
+    # Things to consider:
+    # Add a default to reflex? i.e. default = object pronoun + 'self'?
+    # Also, how to we run doctests here? Or use pytest? (configs don't recognize django package or relative filepath
+    # in import statement)
+    identifier = models.CharField(max_length=60)
+    subj = LowercaseCharField(max_length=40)
+    obj = LowercaseCharField(max_length=40)
+    pos_det = LowercaseCharField(max_length=40)
+    pos_pro = LowercaseCharField(max_length=40)
+    reflex = LowercaseCharField(max_length=40)
+
+    @property
+    def all_pronouns(self):
+        """
+        :return: The set of all pronoun identifiers.
+        """
+        pronoun_set = {
+            self.subj,
+            self.obj,
+            self.pos_det,
+            self.pos_pro,
+            self.reflex,
+        }
+
+        return pronoun_set
+
+    def __contains__(self, pronoun):
+        """
+        Checks to see if the given pronoun exists in this group. This check is case-insensitive
+        >>> pronouns = ['They', 'Them', 'Their', 'Theirs', 'Themself']
+        >>> pronoun_group = PronounSeries.objects.create('Andy', *pronouns)
+        >>> 'they' in pronoun_group
+        True
+        >>> 'hers' in pronoun_group
+        False
+        :param pronoun: The pronoun to check for in this group
+        :return: True if the pronoun is in the group, False otherwise
+        """
+
+        return pronoun.lower() in self.all_pronouns
+
+    def __iter__(self):
+        """
+        Allows the user to iterate over all of the pronouns in this group. Pronouns
+        are returned in lowercase and order is not guaranteed.
+        >>> pronouns = ['she', 'her', 'her', 'hers', 'herself']
+        >>> pronoun_group = PronounSeries.objects.create('Fem', *pronouns)
+        >>> sorted(pronoun_group)
+        ['her', 'hers', 'herself', 'she']
+        """
+
+        yield from self.all_pronouns
+
+    def __repr__(self):
+        """
+        >>> PronounSeries.objects.create(
+        ...     identifier='Masc',
+        ...     subj='he',
+        ...     obj='him',
+        ...     pos_det='his',
+        ...     pos_pro='his',
+        ...     reflex='himself'
+        ... )
+        <Masc: ['he', 'him', 'himself', 'his']>
+        :return: A console-friendly representation of the pronoun series
+        """
+
+        return f'<{self.identifier}: {list(sorted(self))}>'
+
+    def __str__(self):
+        """
+        >>> str(PronounSeries.objects.create('Andy', *['Xe', 'Xem', 'Xis', 'Xis', 'Xemself']))
+        'Andy-series'
+        :return: A string-representation of the pronoun series
+        """
+
+        return self.identifier + '-series'
+
+    def __hash__(self):
+        """
+        Makes the `PronounSeries` class hashable
+        """
+
+        return self.identifier.__hash__()
+
+    def __eq__(self, other):
+        """
+        Determines whether two `PronounSeries` are equal. Note that they are only equal if
+        they have the same identifier and the exact same set of pronouns.
+
+        >>> fem_series = PronounSeries.create(
+        ...     identifier='Fem',
+        ...     subj='she',
+        ...     obj='her',
+        ...     pos_det='her',
+        ...     pos_pro='hers',
+        ...     reflex='herself'
+        ... )
+        >>> second_fem_series = PronounSeries.create(
+        ...     identifier='Fem',
+        ...     subj='she',
+        ...     obj='her',
+        ...     pos_pro='hers',
+        ...     reflex='herself'
+        ...     pos_det='HER',
+        ... )
+        >>> fem_series == second_fem_series
+        True
+        >>> masc_series = PronounSeries.create(
+        ...     identifier='Masc',
+        ...     subj='he',
+        ...     obj='him',
+        ...     pos_det='his',
+        ...     pos_pro='his',
+        ...     reflex='himself'
+        ... )
+        >>> fem_series == masc_series
+        False
+        :param other: The `PronounSeries` object to compare
+        :return: `True` if the two series are the same, `False` otherwise.
+        """
+
+        return (
+                self.identifier == other.identifier
+                and sorted(self) == sorted(other)
+        )
+
+
+class Gender(models.Model):
+    """
+    This model defines a gender that analysis functions will use to operate.
+    """
+
+    label = models.CharField(max_length=60)
+    pronoun_series = models.ManyToManyField(PronounSeries)
+
+    def __repr__(self):
+        """
+        :return: A console-friendly representation of the gender
+        >>> Gender('Female')
+        <Female>
+        """
+
+        return f'<{self.label}>'
+
+    def __str__(self):
+        """
+        :return: A string representation of the gender
+        >>> str(Gender('Female')
+        'Female'
+        """
+
+        return self.label
+
+    def __hash__(self):
+        """
+        Allows the Gender object to be hashed
+        """
+
+        return self.label.__hash__()
+
+    def __eq__(self, other):
+        """
+        Performs a check to see whether two `Gender` objects are equivalent. This is true if and
+        only if the `Gender` identifiers, pronoun series, and names are identical.
+
+        Note that this comparison works:
+        >>> fem_pronouns = PronounSeries.objects.create('Fem', *['she', 'her', 'her', 'hers', 'herself'])
+
+        >>> female = Gender.objects.create('Female')
+        >>> female.pronoun_series.add(1)
+
+        >>> another_female = Gender.objects.create('Female')
+        >>> another_female.pronoun_series.add(1)
+
+        >>> female == another_female
+        True
+
+        But this one does not:
+        >>> they_series = PronounSeries.objects.create('They', *['they', 'them', 'their', 'theirs', 'themselves'])
+        >>> xe_series = PronounSeries.objects.create('They', *['Xe', 'Xem', 'Xis', 'Xis', 'Xemself'])
+
+        >>> androgynous_1 = Gender.objects.create('NB')
+        >>> androgynous_1.pronoun_series.add(2)
+
+        >>> androgynous_2 = Gender.objects.create('NB')
+        >>> androgynous_2.pronoun_series.add(3)
+
+        >>> androgynous_1 == androgynous_2
+        False
+        :param other: The other `Gender` object to compare
+        :return: `True` if the `Gender`s are the same, `False` otherwise
+        """
+
+        return (
+                self.label == other.label
+                and list(self.pronoun_series.all()) == list(other.pronoun_series.all())
+        )
+
+    @property
+    def pronouns(self):
+        """
+        :return: A set containing all pronouns that this `Gender` uses
+        >>> they_series = PronounSeries.objects.create('They', *['they', 'them', 'their', 'theirs', 'themselves'])
+        >>> xe_series = PronounSeries('Xe', *['Xe', 'Xer', 'Xis', 'Xis', 'Xerself'])
+        >>> androgynous = Gender.objects.create('Androgynous')
+        >>> androgynous.pronoun_series.add(1, 2)
+        >>> androgynous.pronouns == {'they', 'them', 'theirs', 'xe', 'xer', 'xis'}
+        True
+        """
+
+        all_pronouns = set()
+        for series in list(self.pronoun_series.all()):
+            all_pronouns |= series.all_pronouns
+
+        return all_pronouns
+
+    @property
+    def subj(self):
+        """
+        :return: set of all subject pronouns used to describe the gender
+        >>> fem_pronouns = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
+        >>> masc_pronouns = PronounSeries('Masc', {'he', 'him', 'his'}, subj='he', obj='him')
+        >>> bigender = Gender('Bigender', [fem_pronouns, masc_pronouns])
+        >>> bigender.subj == {'he', 'she'}
+        True
+        """
+
+        subject_pronouns = set()
+        for series in list(self.pronoun_series.all()):
+            subject_pronouns.add(series.subj)
+
+        return subject_pronouns
+
+    @property
+    def obj(self):
+        """
+        :return: set of all object pronouns used to describe the gender
+        >>> fem_pronouns = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
+        >>> masc_pronouns = PronounSeries('Masc', {'he', 'him', 'his'}, subj='he', obj='him')
+        >>> bigender = Gender('Bigender', [fem_pronouns, masc_pronouns])
+        >>> bigender.obj == {'him', 'her'}
+        True
+        """
+
+        subject_pronouns = set()
+        for series in list(self.pronoun_series.all()):
+            subject_pronouns.add(series.obj)
+        return subject_pronouns
 
 
 class Document(models.Model):
@@ -14,14 +274,16 @@ class Document(models.Model):
     metadata (author, title, publication date, etc.) of a document
     """
     author = models.CharField(max_length=255, blank=True)
-    date = models.IntegerField(null=True, blank=True)
+    year = models.IntegerField(null=True, blank=True)
     new_attributes = models.JSONField(null=True, blank=True, default=dict)
     text = models.TextField(blank=True)
     title = models.CharField(max_length=255, blank=True)
     word_count = models.PositiveIntegerField(blank=True, null=True, default=None)
     tokenized_text = models.JSONField(null=True, blank=True, default=None)
-    word_counts_counter = models.JSONField(null=True, blank=True, default=dict)
+    word_count_counter = models.JSONField(null=True, blank=True, default=dict)
     part_of_speech_tags = models.JSONField(null=True, blank=True, default=list)
+
+    objects = DocumentManager()
 
     def _clean_quotes(self):
         """
@@ -31,95 +293,53 @@ class Document(models.Model):
         :param self: The Document to reformat
         :return: A string that is identical to `text`, except with its smart quotes exchanged
         """
-
-        # Define the quotes that will be swapped out
-        smart_quotes = {
-            '“': '"',
-            '”': '"',
-            "‘": "'",
-            "’": "'",
-        }
-
-        # Replace all entries one by one
-        output_text = self.text
-        for quote in smart_quotes:
-            output_text = output_text.replace(quote, smart_quotes[quote])
-        self.text = output_text
+        self.text = re.sub(r'[\“\”]', '\"', re.sub(r'[\‘\’]', '\'', self.text))
         self.save()
         return self.text
 
-    def get_tokenized_text(self):
+    def get_tokenized_text_wc_and_pos(self):
         """
-        Tokenizes the text and returns it as a list of tokens, while removing all punctuation.
+        Tokenizes the text of a Document and returns it as a list of tokens, while removing all punctuation
+        and converting everything to lowercase.
 
-        Note: This does not currently properly handle dashes or contractions.
-
-        :return: List of each word in the Document
+        :param self: The Document to tokenize
+        :return: none
         """
-
-        # Excluded characters: !"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~
-        if self.tokenized_text is None:
-            tokens = nltk.word_tokenize(self.text)
-            excluded_characters = set(string.punctuation)
-            tokenized_text = [word.lower() for word in tokens if word not in excluded_characters]
-            self.tokenized_text = tokenized_text
-            self.save()
-        return self.tokenized_text
+        self._clean_quotes()
+        tokens = nltk.word_tokenize(self.text)
+        excluded_characters = set(string.punctuation)
+        tokenized_text = [word.lower() for word in tokens if word not in excluded_characters]
+        self.tokenized_text = tokenized_text
+        self.word_count = len(self.tokenized_text)
+        self.word_count_counter = Counter(self.tokenized_text)
+        self.part_of_speech_tags = nltk.pos_tag(self.tokenized_text)
+        self.save()
 
     def get_count_of_word(self, word):
         """
-        .. _get-count-of-word:
+        Returns the number of instances of a word in the text.
 
-        Returns the number of instances of a word in the text. Not case-sensitive.
-
-        If this is your first time running this method, this can be slow.
+        Note: This method is not case sensitive
 
         :param word: word to be counted in text
-        :return: Number of occurences of the word, as an int
+        :return: Number of occurrences of the word, as an int
         """
-
-        # If word_counts were not previously initialized, do it now and store it for the future.
-        self.getwordcount_counter()
-        return self.word_counts_counter[word]
+        try:
+            return self.word_count_counter[word.lower()]
+        except KeyError:
+            return 0
 
     def get_count_of_words(self, words):
         """
         A helper method for retrieving the number of occurrences of a given set of words within
         a Document.
 
+        Note: The method is not case sensitive.
+
         :param words: a list of strings.
         :return: a Counter with each word in words keyed to its number of occurrences.
         """
         return Counter({word: self.get_count_of_word(word) for word in words})
-
-    def get_word_count(self):
-        """
-        Lazy-loading for **Document.word_count** attribute.
-        Returns the number of words in the document.
-        The word_count attribute is useful for the get_word_freq function.
-        However, it is performance-wise costly, so it's only loaded when it's actually required.
-
-        :return: Number of words in the document's text as an int
-
-        """
-        if self.word_count is None:
-            self.word_count = len(self.get_tokenized_text())
-            self.save()
-        return self.word_count
-
-    def get_wordcount_counter(self):
-        """
-        Returns a counter object of all of the words in the text.
-
-        If this is your first time running this method, this can be slow.
-
-        :return: Python Counter object
-        """
-
-        # If word_counts were not previously initialized, do it now and store it for the future.
-        if not self.word_counts_counter:
-            self.word_counts_counter = Counter(self.get_tokenized_text())
-        return self.word_counts_counter
 
     def find_quoted_text(self):
         """
@@ -153,14 +373,12 @@ class Document(models.Model):
 
     def words_associated(self, target_word):
         """
-        .. _words-associated:
-
         Returns a Counter of the words found after a given word.
 
         In the case of double/repeated words, the counter would include the word itself and the next
         new word.
 
-        Note: words always return lowercase.
+        Note: the method is not case sensitive and words always return lowercase.
 
         :param target_word: Single word to search for in the document's text
         :return: a Python Counter() object with {associated_word: occurrences}
@@ -168,7 +386,7 @@ class Document(models.Model):
         target_word = target_word.lower()
         word_count = Counter()
         check = False
-        text = self.get_tokenized_text()
+        text = self.tokenized_text
 
         for word in text:
             if check:
@@ -178,11 +396,8 @@ class Document(models.Model):
                 check = True
         return word_count
 
-    # pylint: disable=line-too-long
     def get_word_windows(self, search_terms, window_size=2):
         """
-        .. _get-word-windows:
-
         Finds all instances of `word` and returns a counter of the words around it.
         window_size is the number of words before and after to return, so the total window is
         2*window_size + 1.
@@ -201,7 +416,7 @@ class Document(models.Model):
 
         counter = Counter()
 
-        for text_window in windowed(self.get_tokenized_text(), 2 * window_size + 1):
+        for text_window in windowed(self.tokenized_text, 2 * window_size + 1):
             if text_window[window_size] in search_terms:
                 for surrounding_word in text_window:
                     if surrounding_word not in search_terms:
@@ -211,47 +426,23 @@ class Document(models.Model):
 
     def get_word_freq(self, word):
         """
-        .. _get-word-freq:
-
         Returns the frequency of appearance of a word in the document
 
         :param word: str to search for in document
         :return: float representing the portion of words in the text that are the parameter word
         """
-
-        word_frequency = self.get_count_of_word(word) / self.get_word_count()
+        word_frequency = self.get_count_of_word(word) / self.word_count
         return word_frequency
 
-    def get_word_frequencies(self, words):
+    def get_word_freqs(self, words):
         """
-        A helper method for retreiving the frequencies of a given set of words within a Document.
+        A helper method for retrieving the frequencies of a given set of words within a Document.
 
         :param words: a list of strings.
         :return: a dictionary of words keyed to float frequencies.
         """
-        word_frequencies = {word: self.get_count_of_word(word) / self.get_word_count() for word in words}
-
+        word_frequencies = {word: self.get_count_of_word(word) / self.word_count for word in words}
         return word_frequencies
-
-    def get_part_of_speech_tags(self):
-        """
-        .. _get-pos:
-
-        Returns the part of speech tags as a list of tuples. The first part of each tuple is the
-        term, the second one the part of speech tag.
-
-        Note: the same word can have a different part of speech tags.
-
-        :return: List of tuples (term, speech_tag)
-        """
-
-        if not self.part_of_speech_tags:
-            text = nltk.word_tokenize(self.text)
-            pos_tags = nltk.pos_tag(text)
-
-            self.part_of_speech_tags = pos_tags
-            self.save()
-        return self.part_of_speech_tags
 
     def get_part_of_speech_words(self, words, remove_swords=True):
         """
@@ -263,7 +454,7 @@ class Document(models.Model):
         :return: a dictionary keying NLTK tag strings to Counter instances.
         """
         stop_words = set(nltk.corpus.stopwords.words('english'))
-        document_pos_tags = self.get_part_of_speech_tags()
+        document_pos_tags = self.part_of_speech_tags
         words_set = {word.lower() for word in words}
         output = {}
 
@@ -284,42 +475,17 @@ class Document(models.Model):
         Updates the metadata of the document without requiring a complete reloading
         of the text and other properties.
 
-        'filename' cannot be updated with this method.
-
         :param new_metadata: dict of new metadata to apply to the document
         :return: None
         """
         default_fields = [field.name for field in self._meta.get_fields()]
-        if not isinstance(new_metadata, dict):
-            raise ValueError(
-                f'new_metadata must be a dictionary of metadata keys, not type {type(new_metadata)}'
-            )
-
         for key in new_metadata:
-            if key == 'date':
-                try:
-                    new_metadata[key] = int(new_metadata[key])
-                except ValueError as err:
-                    raise ValueError(
-                        f"the metadata field 'date' must be a number for the document,"
-                        f" not '{new_metadata['date']}'"
-                    ) from err
             if key not in default_fields:
                 self.new_attributes[key] = new_metadata[key]
             else:
                 setattr(self, key, new_metadata[key])
 
-        if 'text' in new_metadata or not self.tokenized_text:
-            self.text = self._clean_quotes()
-            self.word_count = None
-            self.tokenized_text = None
-            self.word_counts_counter = dict()
-            self.part_of_speech_tags = list()
-            self.save()
-            # get_word_count() will call get_tokenized_text() and update both
-            # self.word_count and self.tokenized_text
-            self.get_word_count()
-            self.get_wordcount_counter()
-            self.get_part_of_speech_tags()
-
+        if 'text' in new_metadata:
+            self.text = new_metadata['text']
+            self.get_tokenized_text_wc_and_pos()
         self.save()
