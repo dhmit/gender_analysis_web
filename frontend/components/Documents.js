@@ -14,6 +14,7 @@ const Documents = () => {
         "text": ""
     });
     const [loading, setLoading] = useState(true);
+    const [addingDoc, setAddingDoc] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
@@ -57,6 +58,7 @@ const Documents = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        setAddingDoc(true);
         const csrftoken = getCookie("csrftoken");
         const requestOptions = {
             method: "POST",
@@ -81,6 +83,7 @@ const Documents = () => {
                     "year": "",
                     "text": ""
                 });
+                setAddingDoc(false);
             });
     };
 
@@ -111,12 +114,51 @@ const Documents = () => {
                     onClick={handleShowModal}>Add Document</button>
                 <Modal show={showModal} onHide={handleCloseModal}>
                     <Modal.Header closeButton>Add Document</Modal.Header>
-                    <Modal.Body>
-
-                    </Modal.Body>
-                    <Modal.Footer>
-
-                    </Modal.Footer>
+                    <form onSubmit={handleSubmit}>
+                        <Modal.Body>
+                            <div className="row mb-3">
+                                <label htmlFor="author"
+                                    className="col-2 col-form-label">Author</label>
+                                <div className="col">
+                                    <input type="text" className="form-control"
+                                        id="author" value={newDocData.author}
+                                        onChange={handleAuthorInputChange}/>
+                                </div>
+                            </div>
+                            <div className="row mb-3">
+                                <label htmlFor="title"
+                                    className="col-2 col-form-label">Title</label>
+                                <div className="col">
+                                    <input type="text" className="form-control"
+                                        id="title" value={newDocData.title}
+                                        onChange={handleTitleInputChange}/>
+                                </div>
+                            </div>
+                            <div className="row mb-3">
+                                <label htmlFor="year" className="col-2 col-form-label">Year</label>
+                                <div className="col">
+                                    <input type="number" className="form-control"
+                                        id="year" value={newDocData.year}
+                                        max="9999"
+                                        onChange={handleYearInputChange}/>
+                                </div>
+                            </div>
+                            <div className="row mb-3">
+                                <label htmlFor="text" className="col-2 col-form-label">Text</label>
+                                <div className="col">
+                                    <textarea className="form-control" id="text"
+                                        rows="8" value={newDocData.text}
+                                        onChange={handleTextInputChange} required></textarea>
+                                </div>
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <button className="btn btn-secondary"
+                                onClick={handleCloseModal}>Close</button>
+                            <button className="btn btn-primary"
+                                type="submit" onClick={handleCloseModal}>Add</button>
+                        </Modal.Footer>
+                    </form>
                 </Modal>
             </>
         );
@@ -128,35 +170,14 @@ const Documents = () => {
             <p>
                 This page displays all the documents stored in backend.
             </p>
+            {
+                addingDoc
+                    ? <div className="alert alert-warning" role="alert">
+                        Currently adding document... Please do not close this tab.
+                    </div>
+                    : null
+            }
             {addDocModal()}
-            <form onSubmit={handleSubmit}>
-                <label>
-                    <p>Author</p>
-                    <input type="text" className="form-control"
-                        id="author" value={newDocData.author}
-                        onChange={handleAuthorInputChange}/>
-                </label>
-                <label>
-                    <p>Title</p>
-                    <input type="text" className="form-control"
-                        id="title" value={newDocData.title}
-                        onChange={handleTitleInputChange}/>
-                </label>
-                <label>
-                    <p>Year</p>
-                    <input type="number" className="form-control"
-                        id="year" value={newDocData.year}
-                        max="9999"
-                        onChange={handleYearInputChange}/>
-                </label>
-                <label>
-                    <p>Text</p>
-                    <textarea className="form-control" id="text"
-                        rows="8" value={newDocData.text}
-                        onChange={handleTextInputChange} required></textarea>
-                </label>
-                <button type="submit">Add</button>
-            </form>
             {
                 loading
                     ? <p>Currently Loading Documents...</p>
