@@ -6,8 +6,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [('app', '0003_pronounseries_gender'), ('app', '0004_name_nameseries'), ('app', '0005_change_pronounseries'), ('app', '0006_remove_pronounseries_pronouns'), ('app', '0007_remove_gender_names_series'), ('app', '0008_delete_pronoun'), ('app', '0009_delete_name_nameseries'), ('app', '0010_pronounseries_fields_blank_false')]
-
     dependencies = [
         ('app', '0002_document'),
     ]
