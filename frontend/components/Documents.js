@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 // import * as PropTypes from "prop-types";
 // import STYLES from "./Documents.module.scss";
 import {getCookie} from "../common";
+import {Modal} from "react-bootstrap";
 
 const Documents = () => {
 
@@ -13,6 +14,7 @@ const Documents = () => {
         "text": ""
     });
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         fetch("/api/all_documents")
