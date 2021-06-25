@@ -28,11 +28,12 @@ class PronounSeries(models.Model):
     pos_pro = LowercaseCharField(max_length=40)
     reflex = LowercaseCharField(max_length=40)
 
-    def get_all_pronouns(self):
+    @property
+    def all_pronouns(self):
         """
         :return: The set of all pronoun identifiers.
         """
-        all_pronouns = {
+        pronoun_set = {
             self.subj,
             self.obj,
             self.pos_det,
@@ -40,7 +41,7 @@ class PronounSeries(models.Model):
             self.reflex,
         }
 
-        return all_pronouns
+        return pronoun_set
 
     def __contains__(self, pronoun):
         """
@@ -55,7 +56,7 @@ class PronounSeries(models.Model):
         :return: True if the pronoun is in the group, False otherwise
         """
 
-        return pronoun.lower() in self.get_all_pronouns()
+        return pronoun.lower() in self.all_pronouns
 
     def __iter__(self):
         """
@@ -67,8 +68,7 @@ class PronounSeries(models.Model):
         ['her', 'hers', 'herself', 'she']
         """
 
-        all_pronouns = self.get_all_pronouns()
-        yield from all_pronouns
+        yield from self.all_pronouns
 
     def __repr__(self):
         """
@@ -230,52 +230,43 @@ class Gender(models.Model):
 
         all_pronouns = set()
         for series in list(self.pronoun_series.all()):
-            for series_pronouns in series.get_all_pronouns():
+            for series_pronouns in series.all_pronouns:
                 all_pronouns |= series_pronouns
 
         return all_pronouns
 
-    # These may be better off in the PronounSeries model, if they exist at all
+    @property
+    def subj(self):
+        """
+        :return: set of all subject pronouns used to describe the gender
+        >>> fem_pronouns = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
+        >>> masc_pronouns = PronounSeries('Masc', {'he', 'him', 'his'}, subj='he', obj='him')
+        >>> bigender = Gender('Bigender', [fem_pronouns, masc_pronouns])
+        >>> bigender.subj == {'he', 'she'}
+        True
+        """
 
-    # @property
-    # def subj(self):
-    #     """
-    #     :return: set of all subject pronouns used to describe the gender
-    #     # >>> from gender_analysis import PronounSeries
-    #     # >>> from gender_analysis import Gender
-    #     >>> fem_pronouns = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
-    #     >>> masc_pronouns = PronounSeries('Masc', {'he', 'him', 'his'}, subj='he', obj='him')
-    #     >>> bigender = Gender('Bigender', [fem_pronouns, masc_pronouns])
-    #     >>> bigender.subj == {'he', 'she'}
-    #     True
-    #     """
-    #
-    #     subject_pronouns = set()
-    #     for series in list(self.pronoun_series.all()):
-    #         for each_pronoun in list(series.pronouns.all()):
-    #             if each_pronoun.type == 'subj':
-    #                 subject_pronouns.add(each_pronoun)
-    #     return subject_pronouns
-    #
-    # @property
-    # def obj(self):
-    #     """
-    #     :return: set of all object pronouns used to describe the gender
-    #     # >>> from gender_analysis import PronounSeries
-    #     # >>> from gender_analysis import Gender
-    #     >>> fem_pronouns = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
-    #     >>> masc_pronouns = PronounSeries('Masc', {'he', 'him', 'his'}, subj='he', obj='him')
-    #     >>> bigender = Gender('Bigender', [fem_pronouns, masc_pronouns])
-    #     >>> bigender.obj == {'him', 'her'}
-    #     True
-    #     """
-    #
-    #     subject_pronouns = set()
-    #     for series in list(self.pronoun_series.all()):
-    #         for each_pronoun in list(series.pronouns.all()):
-    #             if each_pronoun.type == 'obj':
-    #                 subject_pronouns.add(each_pronoun)
-    #     return subject_pronouns
+        subject_pronouns = set()
+        for series in list(self.pronoun_series.all()):
+            subject_pronouns.add(series.subj)
+
+        return subject_pronouns
+
+    @property
+    def obj(self):
+        """
+        :return: set of all object pronouns used to describe the gender
+        >>> fem_pronouns = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
+        >>> masc_pronouns = PronounSeries('Masc', {'he', 'him', 'his'}, subj='he', obj='him')
+        >>> bigender = Gender('Bigender', [fem_pronouns, masc_pronouns])
+        >>> bigender.obj == {'him', 'her'}
+        True
+        """
+
+        subject_pronouns = set()
+        for series in list(self.pronoun_series.all()):
+            subject_pronouns.add(series.obj)
+        return subject_pronouns
 
 
 class Document(models.Model):
