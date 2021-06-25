@@ -24,20 +24,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Name',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('identifier', app.fields.LowercaseCharField(max_length=40)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='NameSeries',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('identifier', models.CharField(max_length=60)),
-            ],
-        ),
-        migrations.CreateModel(
             name='Gender',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -47,11 +33,5 @@ class Migration(migrations.Migration):
         ),
         migrations.DeleteModel(
             name='Pronoun',
-        ),
-        migrations.DeleteModel(
-            name='Name',
-        ),
-        migrations.DeleteModel(
-            name='NameSeries',
         ),
     ]
