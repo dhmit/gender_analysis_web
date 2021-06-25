@@ -2,11 +2,16 @@ from collections import Counter
 from ..models import (
     Corpus,
     Document,
-    Gender
 )
 
 
-def _get_gender_word_frequencies_relative(gender_word_counts):
+from typing import Dict
+from app.models import Gender
+
+GenderCounts = Dict[Gender, Counter]
+
+
+def _get_gender_word_frequencies_relative(gender_word_counts: GenderCounts):
     """
     A private helper function that examines identifier counts keyed to Gender instances,
     determines the total count value of all identifiers across Gender instances,
@@ -85,3 +90,20 @@ def run_analysis(corpus_id, gender_ids):
     for pk in doc_ids:
         results[pk] = run_single_analysis(Document.objects.get(id=pk), genders)
     return results
+
+
+def _run_frequency_analysis(texts, genders):
+    count = {}
+    frequencies = {}
+    relatives = {}
+
+    for document in texts:
+        count[document] = Counter()
+        frequencies[document] = {}
+        relatives[document] = {}
+        for gender in genders:
+            count[document][gender] = document.get_count_of_words(gender.identifiers)
+            frequencies[document][gender] = document.get_word_frequencies(gender.identifiers)
+        relatives[document] = _get_gender_word_frequencies_relative(count[document])
+
+    return count, frequencies, relatives
