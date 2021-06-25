@@ -59,6 +59,7 @@ const Documents = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
         setAddingDoc(true);
+        handleCloseModal();
         const csrftoken = getCookie("csrftoken");
         const requestOptions = {
             method: "POST",
@@ -156,7 +157,7 @@ const Documents = () => {
                             <button className="btn btn-secondary"
                                 onClick={handleCloseModal}>Close</button>
                             <button className="btn btn-primary"
-                                type="submit" onClick={handleCloseModal}>Add</button>
+                                type="submit">Add</button>
                         </Modal.Footer>
                     </form>
                 </Modal>
