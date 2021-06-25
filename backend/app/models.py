@@ -267,6 +267,16 @@ class Gender(models.Model):
             subject_pronouns.add(series.obj)
         return subject_pronouns
 
+class Corpus(models.Model):
+    """
+    This model will hold associations to other Documents and their
+    metadata (author, title, publication date, etc.)
+    """
+    title = models.CharField(max_length=30)
+    description = models.CharField(max_length=500, blank=True)
+
+    def __str__(self):
+        return self.title
 
 class Document(models.Model):
     """
@@ -282,6 +292,7 @@ class Document(models.Model):
     tokenized_text = models.JSONField(null=True, blank=True, default=None)
     word_count_counter = models.JSONField(null=True, blank=True, default=dict)
     part_of_speech_tags = models.JSONField(null=True, blank=True, default=list)
+    corpuses = models.ManyToManyField(Corpus)
 
     objects = DocumentManager()
 
