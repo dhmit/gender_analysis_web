@@ -342,7 +342,6 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
     def __str__(self):
         return "This is the Gender Proximity Analyzer for different gendered word sets."
 
-
     def _run_analysis(self):
         """
         Runs _generate_gender_token_counters across each document in the corpus
@@ -354,7 +353,7 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
             while True:
                 # get the row in the Document table in the DB by primary key
                 # (we don't want to load each document!)
-                document = self.corpus.documents.get(pk=pk) # still have to review this line
+                document = self.corpus.documents.get(pk=pk)  # still have to review this line
 
                 # possibly use primary keys as keys in the results dictionary?
                 # we'll have access to the tokenized text via document.tokenized_text,
@@ -371,6 +370,7 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
         # keep running through the primary keys until there are no more documents
         except ObjectDoesNotExist:
             return results
+
     # ----------
     @classmethod
     def list_nltk_tags(cls) -> None:
@@ -435,7 +435,8 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
                 if bin_year not in output:
                     continue
                 for gender_label in self.gender_labels:
-                    output[bin_year][gender_label] = _merge_token_counters([self._results[pk][gender_label], output[bin_year][gender_label]])
+                    output[bin_year][gender_label] = _merge_token_counters(
+                        [self._results[pk][gender_label], output[bin_year][gender_label]])
 
                 pk += 1
 
