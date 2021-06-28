@@ -267,6 +267,7 @@ class Gender(models.Model):
             subject_pronouns.add(series.obj)
         return subject_pronouns
 
+
 class Corpus(models.Model):
     """
     This model will hold associations to other Documents and their
@@ -276,7 +277,31 @@ class Corpus(models.Model):
     description = models.CharField(max_length=500, blank=True)
 
     def __str__(self):
+        """Returns the title of the corpus"""
         return self.title
+
+    def __len__(self):
+        """Returns the number of documents associated with this corpus"""
+        return len(self.document_set.all())
+
+    def __iter__(self):
+        """Yields each document associated with the corpus"""
+        for this_document in self.document_set.all():
+            yield this_document
+
+    def __eq__(self, other):
+        """Returns true if both of the corpuses are associated with the same documents"""
+        if not isinstance(other, Corpus):
+            raise NotImplementedError("Only a Corpus can be compared to another Corpus.")
+
+        if len(self) != len(other):
+            return False
+
+        if set(self.document_set.all()) == set(other.document_set.all()):
+            return True
+        else:
+            return False
+
 
 class Document(models.Model):
     """
@@ -500,3 +525,7 @@ class Document(models.Model):
             self.text = new_metadata['text']
             self.get_tokenized_text_wc_and_pos()
         self.save()
+
+    def __str__(self):
+        """Prints the title of the document"""
+        return self.title
