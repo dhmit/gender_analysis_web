@@ -8,6 +8,17 @@ GenderCounts = Dict[Gender, Counter]
 GenderFrequencies = Dict[Gender, WordFrequency]
 
 def _get_gender_word_frequencies_relative(gender_word_counts: GenderCounts) -> GenderFrequencies:
+    """
+    A private helper function that examines identifier counts keyed to Gender instances,
+    determines the total count value of all identifiers across Gender instances,
+    and returns the percentage of each identifier count over the total count.
+
+    :param gender_word_counts: a dictionary keying gender instances to string identifiers keyed to
+                               integer counts.
+    :return: a dictionary with the integer counts transformed into float values representing
+             the identifier count as a percentage of the total identifier counts across all
+             identifiers.
+    """
 
     output = {}
     total_word_count = 0
@@ -28,8 +39,19 @@ def _get_gender_word_frequencies_relative(gender_word_counts: GenderCounts) -> G
 
 def _run_analysis(texts, genders):
     """
+    A private helper method for running the primary analysis of GenderFrequencyAnalyzer.
+    This method generates three dictionaries: one (count) keying Document instances
+    to Gender instances to Counter instances representing the total number of instances
+    of each Gender's identifiers in a given Document; one (frequency) keying Document instances
+    to Gender instances to dictionaries of the shape {str:float} representing the total number
+    of instances of each Gender's identifiers over the total word count of that Document; and
+    one (relative) keying Document instances to Gender instances to dicationaries of the shape
+    {str:float} representing the relative percentage of Gender identifiers across all Gender
+    instances in a given Document instance.
+
     :param texts: a list of strings presenting the documents
     :param genders: a list of strings presenting the pronouns
+    :return: :return: a tuple containing three dictionaries
     """
     count = {}
     frequencies = {}
