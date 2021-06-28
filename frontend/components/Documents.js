@@ -13,6 +13,7 @@ const Documents = () => {
         "year": "",
         "text": ""
     });
+    const [newAttributes, setNewAttributes] = useState([{"name": "", "value": ""}]);
     const [loading, setLoading] = useState(true);
     const [addingDoc, setAddingDoc] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -150,6 +151,27 @@ const Documents = () => {
                                         rows="8" value={newDocData.text}
                                         onChange={handleTextInputChange} required></textarea>
                                 </div>
+                            </div>
+                            <p>Attributes</p>
+                            <div className="row mb-3">
+                                {
+                                    newAttributes.map((attribute, i) => {
+                                        return (
+                                            <>
+                                            <div className="col">
+                                                <input type="text" className="form-control" name="Name" value={attribute.name}/>
+                                            </div>
+                                            <div className="col">
+                                                <input type="text" className="form-control" name="Value" value={attribute.value}/>
+                                            </div>
+                                            <div className="col">
+                                                {newAttributes.length !== 1 && <button className="btn btn-secondary">Remove</button>}
+                                                {newAttributes.length - 1 === i && <button className="btn btn-primary">Add</button>}
+                                            </div>
+                                            </>
+                                        );
+                                    })
+                                }
                             </div>
                         </Modal.Body>
                         <Modal.Footer>
