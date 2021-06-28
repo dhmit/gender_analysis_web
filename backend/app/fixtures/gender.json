@@ -1,0 +1,10 @@
+[
+  {
+    "model": "app.Gender",
+    "pk": 1,
+    "fields": {
+      "identifier": "Male",
+      "pronoun_series": "PronounSeries.objects.get(pk = 1)"
+    }
+  }
+]

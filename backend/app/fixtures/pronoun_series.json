@@ -1,0 +1,122 @@
+[
+  {
+    "model": "app.PronounSeries",
+    "pk": 1,
+    "fields": {
+      "identifier": "Masc",
+      "subj": "he",
+      "obj": "him",
+      "pos_det": "his",
+      "pos_pro": "his",
+      "reflex": "himself"
+    }
+  },
+  {
+    "model": "app.PronounSeries",
+    "pk": 2,
+    "fields": {
+      "identifier": "Fem",
+      "subj": "she",
+      "obj": "her",
+      "pos_det": "her",
+      "pos_pro": "hers",
+      "reflex": "herself"
+    }
+  },
+  {
+    "model": "app.PronounSeries",
+    "pk": 3,
+    "fields": {
+      "identifier": "Andy",
+      "subj": "they",
+      "obj": "them",
+      "pos_det": "their",
+      "pos_pro": "theirs",
+      "reflex": "themself"
+    }
+  },
+  {
+    "model": "app.PronounSeries",
+    "pk": 4,
+    "fields": {
+      "identifier": "It",
+      "subj": "it",
+      "obj": "it",
+      "pos_det": "it",
+      "pos_pro": "it",
+      "reflex": "itself"
+    }
+  },
+  {
+    "model": "app.PronounSeries",
+    "pk": 5,
+    "fields": {
+      "identifier": "Xe",
+      "subj": "xe",
+      "obj": "xem",
+      "pos_det": "xyr",
+      "pos_pro": "xyrs",
+      "reflex": "xemself"
+    }
+  },
+  {
+    "model": "app.PronounSeries",
+    "pk": 6,
+    "fields": {
+      "identifier": "Ae",
+      "subj": "ae",
+      "obj": "aer",
+      "pos_det": "aers",
+      "pos_pro": "aer",
+      "reflex": "aerself"
+    }
+  },
+  {
+    "model": "app.PronounSeries",
+    "pk": 8,
+    "fields": {
+      "identifier": "Ey",
+      "subj": "ey",
+      "obj": "em",
+      "pos_det": "eir",
+      "pos_pro": "eirs",
+      "reflex": "eirself"
+    }
+  },
+  {
+    "model": "app.PronounSeries",
+    "pk": 9,
+    "fields": {
+      "identifier": "Ve",
+      "subj": "ve",
+      "obj": "ver",
+      "pos_det": "vis",
+      "pos_pro": "vers",
+      "reflex": "verself"
+    }
+  },
+  {
+    "model": "app.PronounSeries",
+    "pk": 10,
+    "fields": {
+      "identifier": "Per",
+      "subj": "per",
+      "obj": "per",
+      "pos_det": "per",
+      "pos_pro": "pers",
+      "reflex": "perself"
+    }
+  },
+  {
+    "model": "app.PronounSeries",
+    "pk": 11,
+    "fields": {
+      "identifier": "Ze",
+      "subj": "ze",
+      "obj": "hir",
+      "pos_det": "hir",
+      "pos_pro": "hirs",
+      "reflex": "hirself"
+    }
+  }
+]
