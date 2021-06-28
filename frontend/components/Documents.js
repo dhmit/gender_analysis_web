@@ -57,6 +57,24 @@ const Documents = () => {
 	    }));
     };
 
+    const handleAttributeInputChange = (event, index) => {
+        const {name, value} = event.target;
+        console.log(name, value);
+        const attributesList = [...newAttributes];
+        attributesList[index][name] = value;
+        setNewAttributes(attributesList);
+    };
+
+    const handleAddAttribute = () => {
+        setNewAttributes([...newAttributes, {"name": "", "value": ""}]);
+    };
+
+    const handleRemoveAttribute = (index) => {
+        const attributesList = [...newAttributes];
+        attributesList.splice(index, 1);
+        setNewAttributes(attributesList);
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
         setAddingDoc(true);
@@ -153,29 +171,42 @@ const Documents = () => {
                                 </div>
                             </div>
                             <p>Attributes</p>
-                            <div className="row mb-3">
-                                {
-                                    newAttributes.map((attribute, i) => {
-                                        return (
-                                            <>
-                                            <div className="col">
-                                                <input type="text" className="form-control" name="Name" value={attribute.name}/>
+                            {
+                                newAttributes.map((attribute, i) => {
+                                    return (
+                                        <div key={i} className="row mb-3">
+                                            <div className="col-4">
+                                                <input type="text" className="form-control"
+                                                    name="name" onChange={event =>
+                                                        handleAttributeInputChange(event,i)}
+                                                    placeholder="name" value={attribute.name}/>
                                             </div>
-                                            <div className="col">
-                                                <input type="text" className="form-control" name="Value" value={attribute.value}/>
+                                            <div className="col-3">
+                                                <input type="text" className="form-control"
+                                                    name="value" onChange={event =>
+                                                        handleAttributeInputChange(event,i)}
+                                                    placeholder="value" value={attribute.value}/>
                                             </div>
-                                            <div className="col">
-                                                {newAttributes.length !== 1 && <button className="btn btn-secondary">Remove</button>}
-                                                {newAttributes.length - 1 === i && <button className="btn btn-primary">Add</button>}
-                                            </div>
-                                            </>
-                                        );
-                                    })
-                                }
-                            </div>
+                                            {newAttributes.length !== 1 &&
+                                                <div className="col">
+                                                    <button type="button"
+                                                        onClick={() => handleRemoveAttribute(i)}
+                                                        className="btn btn-secondary">
+                                                        Remove </button>
+                                                </div>}
+                                            {newAttributes.length - 1 === i &&
+                                                <div className="col">
+                                                    <button type="button"
+                                                        onClick={handleAddAttribute}
+                                                        className="btn btn-primary">Add</button>
+                                                </div>}
+                                        </div>
+                                    );
+                                })
+                            }
                         </Modal.Body>
                         <Modal.Footer>
-                            <button className="btn btn-secondary"
+                            <button className="btn btn-secondary" type="button"
                                 onClick={handleCloseModal}>Close</button>
                             <button className="btn btn-primary"
                                 type="submit" onClick={handleCloseModal}>Add</button>
@@ -192,12 +223,9 @@ const Documents = () => {
             <p>
                 This page displays all the documents stored in backend.
             </p>
-            {
-                addingDoc
-                    ? <div className="alert alert-warning" role="alert">
-                        Currently adding document... Please do not close this tab.
-                    </div>
-                    : null
+            {addingDoc && <div className="alert alert-warning" role="alert">
+                Currently adding document... Please do not close this tab.
+            </div>
             }
             {addDocModal()}
             {
