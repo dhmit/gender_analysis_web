@@ -1,10 +1,13 @@
 from collections import Counter
 from typing import Dict, Optional, Sequence, Tuple, Union
-from app.models import Gender
+from app.models import (
+    Gender,
+)
 
 GenderCounts = Dict[Gender, Counter]
+GenderFrequencies = Dict[Gender, WordFrequency]
 
-def _get_gender_word_frequencies_relative(gender_word_counts: GenderCounts):
+def _get_gender_word_frequencies_relative(gender_word_counts: GenderCounts) -> GenderFrequencies:
 
     output = {}
     total_word_count = 0
@@ -23,10 +26,10 @@ def _get_gender_word_frequencies_relative(gender_word_counts: GenderCounts):
 
     return output
 
-def _run_frequency_analysis(texts, genders):
+def _run_analysis(texts, genders):
     """
-    :param document: a list of strings presenting the documents
-    :param pronouns: a list of strings presenting the pronouns
+    :param texts: a list of strings presenting the documents
+    :param genders: a list of strings presenting the pronouns
     """
     count = {}
     frequencies = {}
@@ -37,8 +40,8 @@ def _run_frequency_analysis(texts, genders):
         frequencies[document] = {}
         relatives[document] = {}
         for gender in genders:
-            count[document][gender] = document.get_count_of_words(gender.identifiers)
-            frequencies[document][gender] = document.get_word_frequencies(gender.identifiers)
+            count[document][gender] = document.get_count_of_words(gender.pronouns)
+            frequencies[document][gender] = document.get_word_freqs(gender.pronouns)
         relatives[document] = _get_gender_word_frequencies_relative(count[document])
 
     return count, frequencies, relatives
