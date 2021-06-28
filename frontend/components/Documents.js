@@ -138,7 +138,7 @@ const Documents = () => {
                                 <label htmlFor="year" className="col-2 col-form-label">Year</label>
                                 <div className="col">
                                     <input type="number" className="form-control"
-                                        id="year" value={newDocData.year} max = "9999"
+                                        id="year" value={newDocData.year} max="9999"
                                         onChange={handleYearInputChange}/>
                                 </div>
                             </div>
