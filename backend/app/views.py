@@ -46,6 +46,7 @@ def get_example(request, example_id):
     }
     return Response(data)
 
+
 def index(request):
     """
     Home page
@@ -91,6 +92,7 @@ def example_id(request, example_id):
 
     return render(request, 'index.html', context)
 
+
 @api_view(['POST'])
 def add_document(request):
     """
@@ -107,11 +109,13 @@ def add_document(request):
     serializer = DocumentSerializer(new_text_obj)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 def all_documents(request):
     doc_objs = Document.objects.all()
     serializer = SimpleDocumentSerializer(doc_objs, many=True)
     return Response(serializer.data)
+
 
 def documents(request):
     """
