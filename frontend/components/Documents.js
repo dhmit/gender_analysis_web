@@ -119,11 +119,6 @@ const Documents = () => {
                     ))}
                 </div>
             </div>
-            // <ul>
-            //     {docData.map((doc, i) => (
-            //         <li key={i}> {docInfo(doc, i)} </li>
-            //     ))}
-            // </ul>
         );
     };
 
