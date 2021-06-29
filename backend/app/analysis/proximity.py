@@ -6,14 +6,12 @@ import nltk
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from gender_analysis.text.document import Document
-from gender_analysis.text.common import NLTK_TAGS, NLTK_TAGS_ADJECTIVES, SWORDS_ENG
+from gender_analysis_web.backend.app.models import Gender, Document
 
-from gender_analysis.gender.common import MALE, FEMALE, BINARY_GROUP
-from gender_analysis.gender.gender import Gender
+from gender_analysis_web.backend.app.common import NLTK_TAGS, NLTK_TAGS_ADJECTIVES, SWORDS_ENG, MALE, FEMALE, BINARY_GROUP
 
-from gender_analysis.analysis.base_analyzers import CorpusAnalyzer
-from gender_analysis.analysis.common import compute_bin_year
+from gender_analysis_web.backend.app.analysis.base_analyzers import CorpusAnalyzer
+from gender_analysis_web.backend.app.analysis.common import compute_bin_year
 
 GenderTokenCounters = Dict[str, Counter]
 GenderTokenSequence = Dict[str, Sequence[Tuple[str, int]]]
