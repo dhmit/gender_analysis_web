@@ -59,6 +59,7 @@ const Documents = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
         setAddingDoc(true);
+        handleCloseModal();
         const csrftoken = getCookie("csrftoken");
         const requestOptions = {
             method: "POST",
@@ -140,6 +141,8 @@ const Documents = () => {
                                     <input type="number" className="form-control"
                                         id="year" value={newDocData.year}
                                         max="9999"
+                                        onKeyDown={ e => ( e.key === "e" || e.key === "." ) &&
+                                            e.preventDefault() }
                                         onChange={handleYearInputChange}/>
                                 </div>
                             </div>
@@ -156,7 +159,7 @@ const Documents = () => {
                             <button className="btn btn-secondary"
                                 onClick={handleCloseModal}>Close</button>
                             <button className="btn btn-primary"
-                                type="submit" onClick={handleCloseModal}>Add</button>
+                                type="submit">Add</button>
                         </Modal.Footer>
                     </form>
                 </Modal>
