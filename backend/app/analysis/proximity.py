@@ -4,7 +4,7 @@ from functools import reduce
 from more_itertools import windowed
 import nltk
 
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import FieldError
 
 from gender_analysis_web.backend.app.models import Gender, Document
 
@@ -98,16 +98,15 @@ def _diff_gender_token_counters(gender_token_counters: GenderTokenCounters) -> G
     return difference_dict
 
 
-def _generate_token_counter(document: Document,
+def _generate_token_counter(text: list[str],
                             gender_to_find: Gender,
                             word_window: int,
                             tags: Sequence[str],
                             genders_to_exclude: Optional[Sequence[Gender]] = None) -> Counter:
     # pylint: disable=too-many-locals
     """
-    A private helper function for generating token Counters based on the tokenized text of the
-    input Document.
-    :param document: an instance of the Document class.
+    A private helper function for generating token Counters based on some input tokenized text.
+    :param text: a list of strings representing a tokenized text.
     :param gender_to_find: an instance of the Gender class.
     :param word_window: number of words to search for in either direction of a Gender instance.
     :param tags: a list containing NLTK token strings.
@@ -127,7 +126,6 @@ def _generate_token_counter(document: Document,
 
     output = Counter()
     identifiers_to_exclude = []
-    text = document.tokenized_text
 
     identifiers_to_find = gender_to_find.pronouns
 
@@ -156,14 +154,14 @@ def _generate_token_counter(document: Document,
     return output
 
 
-def _generate_gender_token_counters(document: Document,
+def _generate_gender_token_counters(text: list[str],
                                     genders: Sequence[Gender],
                                     tags: Sequence[str],
                                     word_window: int) -> GenderTokenCounters:
     """
     A private helper function for generating  dictionaries of the
     shape Dict[str, Counter] that are used throughout this module.
-    :param document: an instance of the Document class.
+    :param text: a list of strings representing a tokenized text.
     :param genders: a list containing instances of the Gender class.
     :param tags: a list containing NLTK token strings.
     :param word_window: number of words to search for in either direction of a Gender instance.
@@ -187,13 +185,13 @@ def _generate_gender_token_counters(document: Document,
 
     for gender in genders:
         if gender.label == FEMALE.label:
-            novel_result = _generate_token_counter(document,
+            novel_result = _generate_token_counter(text,
                                                    FEMALE,
                                                    word_window,
                                                    tags,
                                                    genders_to_exclude=[MALE])
         elif gender.label == MALE.label:
-            novel_result = _generate_token_counter(document,
+            novel_result = _generate_token_counter(text,
                                                    MALE,
                                                    word_window,
                                                    tags,
@@ -201,7 +199,7 @@ def _generate_gender_token_counters(document: Document,
         else:
             # Note that we exclude male from female and female from male but do not do this
             # with other genders.
-            novel_result = _generate_token_counter(document, gender, word_window, tags)
+            novel_result = _generate_token_counter(text, gender, word_window, tags)
         if novel_result != "lower window bound less than 5":
             results.update({gender.label: novel_result})
 
@@ -283,7 +281,7 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
     Class methods:
         list_nltk_tags()
     Instance methods:
-        by_date()
+        by_year()
         by_document()
         by_gender()
         by_metadata()
@@ -346,30 +344,17 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
         """
         results = {}
 
-        try:
-            pk = 1
-            while True:
-                # get the row in the Document table in the DB by primary key
-                # (we don't want to load each document!)
-                document = self.corpus.documents.get(pk=pk)  # still have to review this line
+        for doc in self.corpus.documents.values('pk', 'tokenized_text'):
+            results[doc['pk']] = _generate_gender_token_counters(
+                doc['tokenized_text'],
+                self.genders,
+                self.tags,
+                word_window=self.word_window
+            )
 
-                # possibly use primary keys as keys in the results dictionary?
-                # we'll have access to the tokenized text via document.tokenized_text,
-                # but we still need to figure out how to access it without loading the whole document
+        return results
 
-                results[pk] = _generate_gender_token_counters(
-                    document,
-                    self.genders,
-                    self.tags,
-                    word_window=self.word_window)
 
-                pk += 1
-
-        # keep running through the primary keys until there are no more documents
-        except ObjectDoesNotExist:
-            return results
-
-    # ----------
     @classmethod
     def list_nltk_tags(cls) -> None:
         """
@@ -380,7 +365,7 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
         for tag, definition in NLTK_TAGS.items():
             print(f'{tag}: {definition}')
 
-    def by_date(self,
+    def by_year(self,
                 time_frame: Tuple[int, int],
                 bin_size: int,
                 sort: bool = False,
@@ -401,13 +386,13 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
         >>> from gender_analysis import Corpus
         >>> analyzer = GenderProximityAnalyzer(file_path=DOCUMENT_TEST_PATH,
         ...                                    csv_path=DOCUMENT_TEST_CSV)
-        >>> analyzer.by_date((2000, 2008), 2).keys()
+        >>> analyzer.by_year((2000, 2008), 2).keys()
         dict_keys([2000, 2002, 2004, 2006])
-        >>> analyzer.by_date((2000, 2010), 2).get(2002)
+        >>> analyzer.by_year((2000, 2010), 2).get(2002)
         {'Female': Counter({'sad': 7, 'died': 1}), 'Male': Counter()}
-        >>> analyzer.by_date((2000, 2010), 2, sort=True).get(2002)
+        >>> analyzer.by_year((2000, 2010), 2, sort=True).get(2002)
         {'Female': [('sad', 7), ('died', 1)], 'Male': []}
-        >>> analyzer.by_date((2000, 2010), 2, diff=True).get(2002)
+        >>> analyzer.by_year((2000, 2010), 2, diff=True).get(2002)
         {'Female': Counter({'sad': 7, 'died': 1}), 'Male': Counter()}
         """
 
@@ -416,35 +401,28 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
         for bin_start_year in range(time_frame[0], time_frame[1], bin_size):
             output[bin_start_year] = {label: Counter() for label in self.gender_labels}
 
-        try:
-            pk = 1
-            while True:
-                # get the row in the Document table in the DB by primary key
-                # (we don't want to load each document!)
-                document = self.corpus.documents.get(pk=pk)
+        for doc in self.corpus.documents.values('pk', 'year'):
+            year = doc['year']
+            if year is None:
+                continue
 
-                # possibly use primary keys as keys in the results dictionary?
-                # we'll have access to the tokenized text via document.tokenized_text,
-                # but we still need to figure out how to access it without loading the whole document
-                date = getattr(document, 'date', None)
-                if date is None:
-                    continue
-                bin_year = compute_bin_year(date, time_frame[0], bin_size)
-                if bin_year not in output:
-                    continue
-                for gender_label in self.gender_labels:
-                    output[bin_year][gender_label] = _merge_token_counters(
-                        [self._results[pk][gender_label], output[bin_year][gender_label]])
+            bin_year = compute_bin_year(year, time_frame[0], bin_size)
+            if bin_year not in output:
+                continue
 
-                pk += 1
+            for gender_label in self.gender_labels:
+                output[bin_year][gender_label] = _merge_token_counters(
+                    [
+                        self._results[doc['pk']][gender_label],
+                        output[bin_year][gender_label]
+                    ]
+                )
 
-        # keep running through the primary keys until there are no more documents
-        except ObjectDoesNotExist:
-            return _apply_result_filters(output,
-                                         sort=sort,
-                                         diff=diff,
-                                         limit=limit,
-                                         remove_swords=remove_swords)
+        return _apply_result_filters(output,
+                                     sort=sort,
+                                     diff=diff,
+                                     limit=limit,
+                                     remove_swords=remove_swords)
 
     def by_document(self,
                     sort: bool = False,
@@ -475,9 +453,8 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
 
         output = {}
 
-        for document_pk in self._results:
-            document = self.corpus.documents.get(pk=document_pk)
-            output[document.title] = self._results[document_pk]
+        for doc in self.corpus.documents.values('pk', 'title'):
+            output[doc['title']] = self._results[doc['pk']]
 
         return _apply_result_filters(output,
                                      sort=sort,
@@ -574,23 +551,26 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
 
         output = {}
 
-        for document_pk, gender_token_counters in self._results.items():
-            document = self.corpus.documents.get(pk=document_pk)
+        try:
+            for doc in self.corpus.documents.values('pk', metadata_key):
 
-            matching_key = getattr(document, metadata_key, None)
-            if matching_key is None:
-                continue
+                matching_key = doc[metadata_key]
+                if matching_key is None:
+                    continue
 
-            if matching_key not in output:
-                output[matching_key] = {}
+                if matching_key not in output:
+                    output[matching_key] = {}
 
-            for gender_label in self.gender_labels:
-                if gender_label not in output[matching_key]:
-                    output[matching_key][gender_label] = Counter()
-                output[matching_key][gender_label] = _merge_token_counters([
-                    gender_token_counters[gender_label],
-                    output[matching_key][gender_label]
-                ])
+                for gender_label in self.gender_labels:
+                    if gender_label not in output[matching_key]:
+                        output[matching_key][gender_label] = Counter()
+
+                    output[matching_key][gender_label] = _merge_token_counters([
+                        self._results[doc['pk']][gender_label],
+                        output[matching_key][gender_label]
+                    ])
+        except FieldError:
+            pass
 
         return _apply_result_filters(output,
                                      sort=sort,
@@ -615,7 +595,7 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
         sets_of_adjectives = {}
 
         for gender_label in self.gender_labels:
-            sets_of_adjectives[gender_label] = set(list(self.by_gender()[gender_label].keys()))
+            sets_of_adjectives[gender_label] = set(self.by_gender()[gender_label].keys())
 
         intersects_with_all = set.intersection(*sets_of_adjectives.values())
 
