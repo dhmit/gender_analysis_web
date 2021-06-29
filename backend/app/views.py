@@ -29,7 +29,8 @@ from .models import (
     Document
 )
 from .serializers import (
-    DocumentSerializer
+    DocumentSerializer,
+    SimpleDocumentSerializer
 )
 
 
@@ -109,7 +110,7 @@ def add_document(request):
 @api_view(['GET'])
 def all_documents(request):
     doc_objs = Document.objects.all()
-    serializer = DocumentSerializer(doc_objs, many=True)
+    serializer = SimpleDocumentSerializer(doc_objs, many=True)
     return Response(serializer.data)
 
 def documents(request):
