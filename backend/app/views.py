@@ -117,6 +117,13 @@ def all_documents(request):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+def get_document(request, doc_id):
+    doc_obj = Document.objects.get(id=doc_id)
+    serializer = DocumentSerializer(doc_obj)
+    return Response(serializer.data)
+
+
 def documents(request):
     """
     All Documents page
