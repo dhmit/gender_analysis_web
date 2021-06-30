@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 // import * as PropTypes from "prop-types";
-// import STYLES from "./Documents.module.scss";
+import STYLES from "./Documents.module.scss";
 import {getCookie} from "../common";
 import {Modal} from "react-bootstrap";
 
@@ -90,19 +90,21 @@ const Documents = () => {
 
     const docInfo = (doc) => {
         return (
-            <div className="card">
-                <div className="card-body">
-                    <h6 className="mb-0">{doc.title}</h6>
-                    <p>
-                        {doc.author}
-                        <br/>
-                        Year Published: {doc.year ? doc.year : "Unknown"}
-                        <br/>
-                        Word Count: {doc.word_count}
-                    </p>
+            <a href={`/document/${doc.id}`} className={STYLES.docCard}>
+                <div className="card">
+                    <div className="card-body">
+                        <h6 className="mb-0">{doc.title}</h6>
+                        <p>
+                            {doc.author}
+                            <br/>
+                            Year Published: {doc.year ? doc.year : "Unknown"}
+                            <br/>
+                            Word Count: {doc.word_count}
+                        </p>
 
+                    </div>
                 </div>
-            </div>
+            </a>
         );
     };
 
