@@ -88,14 +88,12 @@ const Documents = () => {
             });
     };
 
-    const docInfo = (doc, i) => {
+    const docInfo = (doc) => {
         return (
-            <div className="card" key={i}>
+            <div className="card">
                 <div className="card-body">
-
+                    <h6 className="mb-0">{doc.title}</h6>
                     <p>
-                        <b>{doc.title}</b>
-                        <br/>
                         {doc.author}
                         <br/>
                         Year Published: {doc.year ? doc.year : "Unknown"}
