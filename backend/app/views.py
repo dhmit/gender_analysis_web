@@ -130,3 +130,21 @@ def documents(request):
     }
 
     return render(request, 'index.html', context)
+
+
+def single_document(request, doc_id):
+    """
+    Single Document page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Document '
+        },
+        'component_props': {
+            'id': doc_id
+        },
+        'component_name': 'SingleDocument'
+    }
+
+    return render(request, 'index.html', context)
