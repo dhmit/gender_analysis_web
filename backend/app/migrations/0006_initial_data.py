@@ -4,33 +4,33 @@ from django.db import migrations
 
 
 def add_objects(apps, schema_editor):
-    pronounseries = apps.get_model('app', 'PronounSeries')
-    gender = apps.get_model('app', 'Gender')
+    PronounSeries = apps.get_model('app', 'PronounSeries')
+    Gender = apps.get_model('app', 'Gender')
 
-    he_series = pronounseries.objects.create(identifier = "Masc",subj = "he",obj = "him",pos_det = "his",pos_pro = "his",reflex = "himself")
-    Male = gender.objects.create(label = "Male")
-    Male.pronoun_series.add(he_series)
+    he_series = PronounSeries.objects.create(identifier = "Masc",subj = "he",obj = "him",pos_det = "his",pos_pro = "his",reflex = "himself")
+    male = Gender.objects.create(label = "Male")
+    male.pronoun_series.add(he_series)
 
-    she_series = pronounseries.objects.create(identifier = "Fem",subj = "she",obj = "her",pos_det = "hers",pos_pro = "her",reflex = "herself")
-    Female = gender.objects.create(label = "Female")
-    Female.pronoun_series.add(she_series)
+    she_series = PronounSeries.objects.create(identifier = "Fem",subj = "she",obj = "her",pos_det = "hers",pos_pro = "her",reflex = "herself")
+    female = Gender.objects.create(label = "Female")
+    female.pronoun_series.add(she_series)
 
-    they_series = pronounseries.objects.create(identifier = "Andy",subj = "they",obj = "them",pos_det = "theirs",pos_pro = "their",reflex = "themself")
-    Nonbinary = gender.objects.create(label = "Nonbinary")
-    Nonbinary.pronoun_series.add(they_series)
+    they_series = PronounSeries.objects.create(identifier = "Andy",subj = "they",obj = "them",pos_det = "theirs",pos_pro = "their",reflex = "themself")
+    nonbinary = Gender.objects.create(label = "Nonbinary")
+    nonbinary.pronoun_series.add(they_series)
 
-    xe_series = pronounseries.objects.create(identifier = "Xe",subj = "xe",obj = "xem",pos_det = "xyr",pos_pro = "xyrs",reflex = "xemself")
-    ae_series = pronounseries.objects.create(identifier = "Ae",subj = "ae",obj = "aer",pos_det = "aers",pos_pro = "aers",reflex = "aerself")
-    fae_series = pronounseries.objects.create(identifier = "Fae",subj = "fae",obj = "faer",pos_det = "faer",pos_pro = "faers",reflex = "faerself")
-    ey_series = pronounseries.objects.create(identifier = "Ey",subj = "ey",obj = "em",pos_det = "eir",pos_pro = "eirs",reflex = "eirself")
-    ve_series = pronounseries.objects.create(identifier = "Ve",subj = "ve",obj = "ver",pos_det = "vis",pos_pro = "vis",reflex = "verself")
-    per_series = pronounseries.objects.create(identifier = "Per",subj = "per",obj = "per",pos_det = "per",pos_pro = "pers",reflex = "perself")
-    ze_hir_series = pronounseries.objects.create(identifier = "Ze",subj = "ze",obj = "hir",pos_det = "hir",pos_pro = "hirs",reflex = "hirself")
+    xe_series = PronounSeries.objects.create(identifier = "Xe",subj = "xe",obj = "xem",pos_det = "xyr",pos_pro = "xyrs",reflex = "xemself")
+    ae_series = PronounSeries.objects.create(identifier = "Ae",subj = "ae",obj = "aer",pos_det = "aers",pos_pro = "aers",reflex = "aerself")
+    fae_series = PronounSeries.objects.create(identifier = "Fae",subj = "fae",obj = "faer",pos_det = "faer",pos_pro = "faers",reflex = "faerself")
+    ey_series = PronounSeries.objects.create(identifier = "Ey",subj = "ey",obj = "em",pos_det = "eir",pos_pro = "eirs",reflex = "eirself")
+    ve_series = PronounSeries.objects.create(identifier = "Ve",subj = "ve",obj = "ver",pos_det = "vis",pos_pro = "vis",reflex = "verself")
+    per_series = PronounSeries.objects.create(identifier = "Per",subj = "per",obj = "per",pos_det = "per",pos_pro = "pers",reflex = "perself")
+    ze_hir_series = PronounSeries.objects.create(identifier = "Ze",subj = "ze",obj = "hir",pos_det = "hir",pos_pro = "hirs",reflex = "hirself")
 
     all_series = [xe_series,ae_series,fae_series,ey_series,ve_series,per_series,ze_hir_series]
-    Neogenders = gender.objects.create(label = "Neo")
+    neogenders = Gender.objects.create(label = "Neo")
     for each_series in all_series:
-        Neogenders.pronoun_series.add(each_series)
+        neogenders.pronoun_series.add(each_series)
 
 
 class Migration(migrations.Migration):
