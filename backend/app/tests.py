@@ -46,7 +46,8 @@ class PronounSeriesTestCase(TestCase):
     def test_PronounSeries_save(self):
         """
         Tests the __str__, __repr__, and __iter__ methods on the PronounSeries model.
-        By testing the model's .save() mechanism, this also tests that LowercaseCharField works as expected.
+        By testing the model's .save() mechanism, this also tests that LowercaseCharField works
+        as expected.
         """
         masc_1 = PronounSeries.objects.get(pk=1)
         masc_2 = PronounSeries.objects.get(pk=2)
