@@ -41,3 +41,12 @@ class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = ['id', 'author', 'title', 'year', 'text', 'word_count']
+
+
+class SimpleDocumentSerializer(serializers.ModelSerializer):
+    """
+    Serializes a Document object (does not include the text itself)
+    """
+    class Meta:
+        model = Document
+        fields = ['id', 'author', 'title', 'year', 'word_count']

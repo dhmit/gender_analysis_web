@@ -59,6 +59,7 @@ const Documents = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
         setAddingDoc(true);
+        handleCloseModal();
         const csrftoken = getCookie("csrftoken");
         const requestOptions = {
             method: "POST",
@@ -87,30 +88,42 @@ const Documents = () => {
             });
     };
 
-    const docInfo = (doc, i) => {
+    const docInfo = (doc) => {
         return (
-            <ul> Document {i}
-                {Object.keys(doc).map((attribute, i) => (
-                    <li key={i}>{attribute}: {doc[attribute]}</li>
-                ))}
-            </ul>
+            <div className="card">
+                <div className="card-body">
+                    <h6 className="mb-0">{doc.title}</h6>
+                    <p>
+                        {doc.author}
+                        <br/>
+                        Year Published: {doc.year ? doc.year : "Unknown"}
+                        <br/>
+                        Word Count: {doc.word_count}
+                    </p>
+
+                </div>
+            </div>
         );
     };
 
     const docList = () => {
         return (
-            <ul>
-                {docData.map((doc, i) => (
-                    <li key={i}> {docInfo(doc, i)} </li>
-                ))}
-            </ul>
+            <div className="container-fluid">
+                <div className="row">
+                    {docData.map((doc, i) => (
+                        <div className="col-6 mb-3" key={i}>
+                            {docInfo(doc, i)}
+                        </div>
+                    ))}
+                </div>
+            </div>
         );
     };
 
     const addDocModal = () => {
         return (
             <>
-                <button className="btn btn-primary"
+                <button className="btn btn-primary mb-3"
                     onClick={handleShowModal}>Add Document</button>
                 <Modal show={showModal} onHide={handleCloseModal}>
                     <Modal.Header closeButton>Add Document</Modal.Header>
@@ -140,6 +153,8 @@ const Documents = () => {
                                     <input type="number" className="form-control"
                                         id="year" value={newDocData.year}
                                         max="9999"
+                                        onKeyDown={ e => ( e.key === "e" || e.key === "." ) &&
+                                            e.preventDefault() }
                                         onChange={handleYearInputChange}/>
                                 </div>
                             </div>
@@ -156,7 +171,7 @@ const Documents = () => {
                             <button className="btn btn-secondary"
                                 onClick={handleCloseModal}>Close</button>
                             <button className="btn btn-primary"
-                                type="submit" onClick={handleCloseModal}>Add</button>
+                                type="submit">Add</button>
                         </Modal.Footer>
                     </form>
                 </Modal>
@@ -166,7 +181,7 @@ const Documents = () => {
 
     return (
         <div>
-            <h1>This is the Documents page.</h1>
+            <h1>Documents</h1>
             <p>
                 This page displays all the documents stored in backend.
             </p>
@@ -182,7 +197,6 @@ const Documents = () => {
                 loading
                     ? <p>Currently Loading Documents...</p>
                     : <div>
-                        Documents:
                         {docList()}
                     </div>
             }
