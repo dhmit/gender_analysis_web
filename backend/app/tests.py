@@ -4,6 +4,8 @@ Tests for the gender analysis web app.
 from collections import Counter
 from django.test import TestCase
 from .models import (
+    PronounSeries,
+    Gender,
     Document,
 )
 
