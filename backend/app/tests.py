@@ -6,7 +6,6 @@ from django.test import TestCase
 from django.core.exceptions import ObjectDoesNotExist
 from .models import (
     PronounSeries,
-    Gender,
     Document,
 )
 
