@@ -8,18 +8,15 @@ def add_objects(apps, schema_editor):
     gender = apps.get_model('app', 'Gender')
 
     he_series = pronounseries.objects.create(identifier = "Masc",subj = "he",obj = "him",pos_det = "his",pos_pro = "his",reflex = "himself")
-    Male = gender(label = "Male")
-    Male.save()
+    Male = gender.objects.create(label = "Male")
     Male.pronoun_series.add(he_series)
 
     she_series = pronounseries.objects.create(identifier = "Fem",subj = "she",obj = "her",pos_det = "hers",pos_pro = "her",reflex = "herself")
-    Female = gender(label = "Female")
-    Female.save()
+    Female = gender.objects.create(label = "Female")
     Female.pronoun_series.add(she_series)
 
     they_series = pronounseries.objects.create(identifier = "Andy",subj = "they",obj = "them",pos_det = "theirs",pos_pro = "their",reflex = "themself")
-    Nonbinary = gender(label = "Nonbinary")
-    Nonbinary.save()
+    Nonbinary = gender.objects.create(label = "Nonbinary")
     Nonbinary.pronoun_series.add(they_series)
 
     xe_series = pronounseries.objects.create(identifier = "Xe",subj = "xe",obj = "xem",pos_det = "xyr",pos_pro = "xyrs",reflex = "xemself")
@@ -31,8 +28,7 @@ def add_objects(apps, schema_editor):
     ze_hir_series = pronounseries.objects.create(identifier = "Ze",subj = "ze",obj = "hir",pos_det = "hir",pos_pro = "hirs",reflex = "hirself")
 
     all_series = [xe_series,ae_series,fae_series,ey_series,ve_series,per_series,ze_hir_series]
-    Neogenders = gender(label = "Neo")
-    Neogenders.save()
+    Neogenders = gender.objects.create(label = "Neo")
     for each_series in all_series:
         Neogenders.pronoun_series.add(each_series)
 
