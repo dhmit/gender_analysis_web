@@ -1,12 +1,10 @@
 """
-Tests for the models of the gender analysis web app.
+Tests for the gender analysis web app.
 """
 from collections import Counter
-
 from django.test import TestCase
 from django.core.exceptions import ObjectDoesNotExist
-
-from ..models import (
+from .models import (
     PronounSeries,
     Gender,
     Document,
@@ -84,58 +82,6 @@ class PronounSeriesTestCase(TestCase):
         self.assertTrue('SHE' in fem)
 
         should_be_hashable = {fem}
-
-
-class GenderTestCase(TestCase):
-    """
-    TestCase for the Gender model.
-    """
-
-    def setUp(self):
-        PronounSeries.objects.create(
-            identifier='Masc_1',
-            subj='he',
-            obj='him',
-            pos_det='his',
-            pos_pro='his',
-            reflex='himself'
-        )
-
-        PronounSeries.objects.create(
-            identifier='Masc_2',
-            subj='HE',
-            obj='HIM',
-            pos_det='HIS',
-            pos_pro='HIS',
-            reflex='HIMSELF'
-        )
-
-        PronounSeries.objects.create(
-            identifier='Fem',
-            subj='she',
-            obj='her',
-            pos_det='her',
-            pos_pro='hers',
-            reflex='herself'
-        )
-
-        Gender.objects.create(label='Woman 1')
-        Gender.objects.create(label='Man 1')
-
-    def test_something(self):
-        masc_1 = PronounSeries.objects.get(pk=1)
-        masc_2 = PronounSeries.objects.get(pk=2)
-        fem = PronounSeries.objects.get(pk=3)
-
-        woman_1 = Gender.objects.get(pk=1)
-        man_1 = Gender.objects.get(pk=2)
-
-        woman_1.pronoun_series.add(3)
-        man_1.pronoun_series.add(1, 2)
-
-        self.assertEqual(set(woman_1.pronoun_series.all()), {fem})
-        self.assertEqual(set(man_1.pronoun_series.all()), {masc_1, masc_2})
-        self.assertEqual(man_1.pronoun_series.values('gender'), masc_1.all_pronouns)
 
 
 class DocumentTestCase(TestCase):
