@@ -34,7 +34,11 @@ def run_analysis(doc_set):
     """
     results = {}
 
-    for doc in doc_set.values('pk', 'tokenized_text'):
+    query = doc_set.only('tokenized_text')
+
+    print(query.explain())
+
+    for doc in query:
         results['pk'] = 'tokenized_text'
         del results['pk']
 
