@@ -15,7 +15,7 @@ const Nav = () => {
                 </li>
             </ul>
             <a className={STYLES.linkLab} href="https://digitalhumanities.mit.edu/" target="_blank" rel="noreferrer">
-               <img className={STYLES.imageLab} src={DH_LOGO} />
+                <img className={STYLES.imageLab} src={DH_LOGO} />
             </a>
         </nav>
     );
