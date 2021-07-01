@@ -29,7 +29,8 @@ from .models import (
     Document
 )
 from .serializers import (
-    DocumentSerializer
+    DocumentSerializer,
+    SimpleDocumentSerializer
 )
 
 
@@ -44,6 +45,7 @@ def get_example(request, example_id):
         'id': example_id,
     }
     return Response(data)
+
 
 def index(request):
     """
@@ -90,6 +92,7 @@ def example_id(request, example_id):
 
     return render(request, 'index.html', context)
 
+
 @api_view(['POST'])
 def add_document(request):
     """
@@ -99,18 +102,20 @@ def add_document(request):
     fields = {
         'title': attributes['title'],
         'author': attributes['author'],
-        'year': attributes['year'],
+        'year': attributes['year'] if attributes['year'] != '' else None,
         'text': attributes['text']
     }
     new_text_obj = Document.objects.create_document(**fields)
     serializer = DocumentSerializer(new_text_obj)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 def all_documents(request):
     doc_objs = Document.objects.all()
-    serializer = DocumentSerializer(doc_objs, many=True)
+    serializer = SimpleDocumentSerializer(doc_objs, many=True)
     return Response(serializer.data)
+
 
 def documents(request):
     """
