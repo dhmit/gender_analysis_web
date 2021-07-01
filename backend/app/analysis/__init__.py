@@ -23,8 +23,14 @@ def make_documents(num):
 
 def run_analysis(doc_set):
     """
-    Runs _generate_gender_token_counters across each document in the corpus
-    For optimization version: `doc_set` is a `QuerySet` of `Document` objects.
+    A test version of the `run_analysis` method found in the `GenderProximityAnalyzer` class in `proximity.py`.
+    Focuses on optimizing iteration through a `QuerySet` of Documents. This uses the `results` dictionary to trigger
+    evaluation of the `doc_set` `QuerySet`.
+
+    For more on `QuerySet` evaluation, see https://docs.djangoproject.com/en/3.1/topics/db/queries/#querysets-are-lazy.
+
+    :param: doc_set: A `QuerySet` of `Document` objects.
+    :return: An empty dict
     """
     results = {}
 
