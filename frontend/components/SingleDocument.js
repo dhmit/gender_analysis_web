@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import * as PropTypes from "prop-types";
-// import STYLES from "./SingleDocument.module.scss";
+import STYLES from "./SingleDocument.module.scss";
 
 const SingleDocument = ({id}) => {
 
@@ -21,7 +21,7 @@ const SingleDocument = ({id}) => {
     const handleShowText = () => setShowText(!showText);
 
     return (
-        <div>
+        <div className="container-fluid">
             {loading
                 ? <p>Currently Loading Documents...</p>
                 : <div>
@@ -29,17 +29,18 @@ const SingleDocument = ({id}) => {
                     <p>
                         Author: {docData.author}
                         <br/>
-                        Word Count: {docData.word_count}
+                        Word Count: {docData.word_count.toLocaleString()}
                     </p>
-                    <button className="btn btn-outline-primary" onClick={handleShowText}>
+                    <button className="btn btn-outline-primary mb-3" onClick={handleShowText}>
                         {showText ? "Hide Full Text" : "Show Full Text"}
                     </button>
-                    {showText && <p>{docData.text}</p>}
+                    {showText && <p className={STYLES.docText}>{docData.text}</p>}
                 </div>
             }
         </div>
     );
 };
+
 
 SingleDocument.propTypes = {
     id: PropTypes.number

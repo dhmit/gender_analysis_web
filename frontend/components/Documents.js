@@ -99,7 +99,7 @@ const Documents = () => {
                             <br/>
                             Year Published: {doc.year ? doc.year : "Unknown"}
                             <br/>
-                            Word Count: {doc.word_count}
+                            Word Count: {doc.word_count.toLocaleString()}
                         </p>
 
                     </div>
@@ -110,14 +110,12 @@ const Documents = () => {
 
     const docList = () => {
         return (
-            <div className="container-fluid">
-                <div className="row">
-                    {docData.map((doc, i) => (
-                        <div className="col-6 mb-3" key={i}>
-                            {docInfo(doc, i)}
-                        </div>
-                    ))}
-                </div>
+            <div className="row">
+                {docData.map((doc, i) => (
+                    <div className="col-6 mb-3" key={i}>
+                        {docInfo(doc, i)}
+                    </div>
+                ))}
             </div>
         );
     };
@@ -182,7 +180,7 @@ const Documents = () => {
     };
 
     return (
-        <div>
+        <div className="container-fluid">
             <h1>Documents</h1>
             <p>
                 This page displays all the documents stored in backend.
