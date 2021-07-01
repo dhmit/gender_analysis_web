@@ -29,6 +29,8 @@ const SingleDocument = ({id}) => {
                     <p>
                         Author: {docData.author}
                         <br/>
+                        Year Published {docData.year ? docData : "Unknown"}
+                        <br/>
                         Word Count: {docData.word_count.toLocaleString()}
                     </p>
                     <button className="btn btn-outline-primary mb-3" onClick={handleShowText}>
