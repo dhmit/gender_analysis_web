@@ -1,5 +1,6 @@
-from memory_profiler import profile
 from django.db import connection
+from memory_profiler import profile
+
 from app.models import Document
 
 
@@ -36,7 +37,8 @@ def run_analysis(doc_set):
     :return: An empty dict
     """
     results = {}
-
+    # ------- SQLite3 doesn't support the 'DECLARE' or 'FETCH' keywords! (https://www.sqlite.org/lang_keywords.html)
+    # ------- It also doesn't support cursors -- we need another solution.
     cursor = connection.cursor()
     input_query = str(doc_set.only('tokenized_text').query).replace('\"', '')
     query = f"DECLARE doc_cursor BINARY CURSOR FOR {input_query}"
