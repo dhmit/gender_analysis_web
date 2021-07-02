@@ -40,9 +40,10 @@ def run_analysis(doc_set):
     cursor = connection.cursor()
     input_query = str(doc_set.only('tokenized_text').query).replace('\"', '')
     query = f"DECLARE doc_cursor BINARY CURSOR FOR {input_query}"
-    breakpoint()
 
-    cursor.execute(query)
+    breakpoint()  # Works fine up to here
+
+    cursor.execute(query)  # Here's the error
     cursor.execute('OPEN doc_cursor')
 
     while True:
