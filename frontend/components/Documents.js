@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 // import * as PropTypes from "prop-types";
-// import STYLES from "./Documents.module.scss";
+import STYLES from "./Documents.module.scss";
 import {getCookie} from "../common";
 import {Modal} from "react-bootstrap";
 
@@ -90,32 +90,32 @@ const Documents = () => {
 
     const docInfo = (doc) => {
         return (
-            <div className="card">
-                <div className="card-body">
-                    <h6 className="mb-0">{doc.title}</h6>
-                    <p>
-                        {doc.author}
-                        <br/>
-                        Year Published: {doc.year ? doc.year : "Unknown"}
-                        <br/>
-                        Word Count: {doc.word_count}
-                    </p>
+            <a href={`/document/${doc.id}`} className={STYLES.docCard}>
+                <div className="card">
+                    <div className="card-body">
+                        <h6 className="mb-0">{doc.title}</h6>
+                        <p>
+                            {doc.author}
+                            <br/>
+                            Year Published: {doc.year ? doc.year : "Unknown"}
+                            <br/>
+                            Word Count: {doc.word_count.toLocaleString()}
+                        </p>
 
+                    </div>
                 </div>
-            </div>
+            </a>
         );
     };
 
     const docList = () => {
         return (
-            <div className="container-fluid">
-                <div className="row">
-                    {docData.map((doc, i) => (
-                        <div className="col-6 mb-3" key={i}>
-                            {docInfo(doc, i)}
-                        </div>
-                    ))}
-                </div>
+            <div className="row">
+                {docData.map((doc, i) => (
+                    <div className="col-6 mb-3" key={i}>
+                        {docInfo(doc, i)}
+                    </div>
+                ))}
             </div>
         );
     };
@@ -180,7 +180,7 @@ const Documents = () => {
     };
 
     return (
-        <div>
+        <div className="container-fluid">
             <h1>Documents</h1>
             <p>
                 This page displays all the documents stored in backend.
