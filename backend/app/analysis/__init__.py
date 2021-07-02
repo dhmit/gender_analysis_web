@@ -1,3 +1,5 @@
+from memory_profiler import profile
+from django.db import connection
 from app.models import Document
 
 
@@ -21,6 +23,7 @@ def make_documents(num):
     print(f'Done! {num} Document objects created.\nTotal number of Document objects: {Document.objects.count()}')
 
 
+@profile
 def run_analysis(doc_set):
     """
     A test version of the `run_analysis` method found in the `GenderProximityAnalyzer` class in `proximity.py`.
@@ -34,13 +37,25 @@ def run_analysis(doc_set):
     """
     results = {}
 
-    query = doc_set.only('tokenized_text')
+    cursor = connection.cursor()
+    input_query = str(doc_set.only('tokenized_text').query).replace('\"', '')
+    query = f"DECLARE doc_cursor BINARY CURSOR FOR {input_query}"
+    breakpoint()
 
-    print(query.explain())
+    cursor.execute(query)
+    cursor.execute('OPEN doc_cursor')
 
-    for doc in query:
-        results['pk'] = 'tokenized_text'
-        del results['pk']
+    while True:
+        doc_subset = cursor.execute('FETCH 10 FROM doc_cursor')
+        for _ in range(10):
+            doc = doc_subset.fetchone()
+            breakpoint()
+
+    # query = doc_set.only('tokenized_text').iterator()
+
+    # for doc in query:
+    #     results['pk'] = 'tokenized_text'
+    #     del results['pk']
 
     print('END run_analysis')
     return results
