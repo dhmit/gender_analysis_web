@@ -14,7 +14,6 @@ const SingleDocument = ({id}) => {
             .then(data => {
                 setDocData(data);
                 setLoading(false);
-                console.log(data);
             });
     }, []);
 
