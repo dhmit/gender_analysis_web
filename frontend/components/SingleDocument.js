@@ -17,7 +17,7 @@ const SingleDocument = ({id}) => {
             });
     }, []);
 
-    const handleShowText = () => setShowText(!showText);
+    const handleShowText = () => setShowText(prevShowText => !prevShowText);
 
     return (
         <div className="container-fluid">
