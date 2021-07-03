@@ -7,7 +7,7 @@ This project is an extension of the work originally begun in https://github.com/
 This project uses the Python package [neuralcoref](https://pypi.org/project/neuralcoref/), 
 which requires a few extra steps to install. Note that the following instructions
 are meant for those set up with the DHMIT lab's tooling 
-(for which see [here](https://urop.dhmit.xzy)).
+(for which see [here](https://urop.dhmit.xyz)).
 
 To install, follow the following steps:
 - Open requirements.txt in PyCharm, click the 'Install requirements' button. This will clone the package directly 
