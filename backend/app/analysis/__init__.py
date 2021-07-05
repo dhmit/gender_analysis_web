@@ -6,14 +6,16 @@ from app.models import Document
 
 def longfrock():
     """
-    :return: A ~2KB sample of text as a string.
+    Returns a relatively small text sample used for optimizing and debugging `Document` iteration.
+    :return: Around 2 KB of text as a string.
     """
     return open('app/analysis/aanrud_longfrock.txt').read()
 
 
 def middlemarch():
     """
-    :return: A 1.7MB sample of text as a string.
+    Returns a relatively large text sample used for optimizing and debugging `Document` iteration.
+    :return: Around 1.7 MB of text as a string.
     """
     return open('app/analysis/eliot_middlemarch.txt').read()
 
@@ -22,7 +24,7 @@ def middlemarch():
 def make_documents(num):
     """
     Mechanism (mainly for debugging) for creating test `Document` objects.
-    Each `Document` here holds about 1.7MB of text (can be changed depending on the text function).
+    Each `Document` here holds about 1.7 MB of text (can be changed depending on the text function).
 
     :param: num: A non-negative `int` representing the number of `Document`s to be created and saved to the database.
     :return: `None`
