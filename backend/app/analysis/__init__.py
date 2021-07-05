@@ -7,6 +7,7 @@ from app.models import Document
 def longfrock():
     return open('app/analysis/aanrud_longfrock.txt').read()
 
+
 def middlemarch():
     return open('app/analysis/eliot_middlemarch.txt').read()
 
@@ -23,12 +24,12 @@ def make_documents(num):
     assert num >= 0, 'Please input a non-negative integer.'
 
     for _ in range(num):
-        Document.objects.create(author='George Eliot', title='Middlemarch', text=middlemarch())
+        Document.objects.create_document(author='George Eliot', title='Middlemarch', text=middlemarch())
 
     print(f'Done! {num} Document objects created.\nTotal number of Document objects: {Document.objects.count()}')
 
 
-# @profile
+@profile
 def run_analysis(doc_set):
     """
     A test version of the `run_analysis` method found in the `GenderProximityAnalyzer` class in `proximity.py`.
@@ -61,10 +62,12 @@ def run_analysis(doc_set):
     query = doc_set.only('tokenized_text').iterator()
     print('After iterator declaration:', len(connection.queries))
 
+    i = 0
     for doc in query:
         print('\nBefore adding to dict:', len(connection.queries))
         results[doc.pk] = doc.tokenized_text
         print('After adding to dict:', len(connection.queries))
+        i += 1
 
-    print('\nEND run_analysis')
+    print(f'\nEND run_analysis')
     return {}
