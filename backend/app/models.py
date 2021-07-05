@@ -107,7 +107,7 @@ class PronounSeries(models.Model):
         Determines whether two `PronounSeries` are equal. Note that they are only equal if
         they have the same identifier and the exact same set of pronouns.
 
-        >>> fem_series = PronounSeries.create(
+        >>> fem_series = PronounSeries.objects.create(
         ...     identifier='Fem',
         ...     subj='she',
         ...     obj='her',
@@ -115,7 +115,7 @@ class PronounSeries(models.Model):
         ...     pos_pro='hers',
         ...     reflex='herself'
         ... )
-        >>> second_fem_series = PronounSeries.create(
+        >>> second_fem_series = PronounSeries.objects.create(
         ...     identifier='Fem',
         ...     subj='she',
         ...     obj='her',
@@ -125,7 +125,7 @@ class PronounSeries(models.Model):
         ... )
         >>> fem_series == second_fem_series
         True
-        >>> masc_series = PronounSeries.create(
+        >>> masc_series = PronounSeries.objects.create(
         ...     identifier='Masc',
         ...     subj='he',
         ...     obj='him',
