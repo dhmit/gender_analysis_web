@@ -32,6 +32,11 @@ const SingleDocument = ({id}) => {
                         <br/>
                         Word Count: {docData.word_count.toLocaleString()}
                     </p>
+                    <h3>Analyses</h3>
+                    <h6>Frequency</h6>
+                    <p>
+
+                    </p>
                     <button className="btn btn-outline-primary mb-3" onClick={handleShowText}>
                         {showText ? "Hide Full Text" : "Show Full Text"}
                     </button>
