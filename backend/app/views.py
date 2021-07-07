@@ -26,11 +26,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import render
 from .models import (
-    Document
+    Document,
+    Gender
 )
 from .serializers import (
     DocumentSerializer,
-    SimpleDocumentSerializer
+    SimpleDocumentSerializer,
+    GenderSerializer
 )
 
 
@@ -155,3 +157,10 @@ def single_document(request, doc_id):
     }
 
     return render(request, 'index.html', context)
+
+
+@api_view(['GET'])
+def all_genders(request):
+    gender_objs = Gender.objects.all()
+    serializer = GenderSerializer(gender_objs, many=True)
+    return Response(serializer.data)
