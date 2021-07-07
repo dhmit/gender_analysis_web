@@ -5,6 +5,7 @@ from more_itertools import windowed
 import nltk
 
 from django.core.exceptions import FieldError
+from django.db.models.query import QuerySet
 
 from gender_analysis.text.document import Document
 from gender_analysis.text.common import NLTK_TAGS, NLTK_TAGS_ADJECTIVES, SWORDS_ENG
@@ -100,7 +101,7 @@ def _diff_gender_token_counters(gender_token_counters: GenderTokenCounters) -> G
     return difference_dict
 
 
-def _generate_token_counter(text: list[str],
+def _generate_token_counter(text_query: QuerySet,
                             gender_to_find: Gender,
                             word_window: int,
                             tags: Sequence[str],
@@ -125,6 +126,7 @@ def _generate_token_counter(text: list[str],
     >>> test.get('everyone')
     3
     """
+    assert text_query.count() == 1
 
     output = Counter()
     identifiers_to_exclude = []
@@ -138,7 +140,7 @@ def _generate_token_counter(text: list[str],
         for identifier in gender.pronouns:
             identifiers_to_exclude.append(identifier)
 
-    for words in windowed(text, 2 * word_window + 1):
+    for words in windowed(text_query.get(), 2 * word_window + 1):
         if words[word_window].lower() in identifiers_to_find:
             if bool(set(words) & set(identifiers_to_exclude)):
                 continue
@@ -156,7 +158,7 @@ def _generate_token_counter(text: list[str],
     return output
 
 
-def _generate_gender_token_counters(text: list[str],
+def _generate_gender_token_counters(text_query: QuerySet,
                                     genders: Sequence[Gender],
                                     tags: Sequence[str],
                                     word_window: int) -> GenderTokenCounters:
@@ -187,13 +189,13 @@ def _generate_gender_token_counters(text: list[str],
 
     for gender in genders:
         if gender.label == FEMALE.label:
-            novel_result = _generate_token_counter(text,
+            novel_result = _generate_token_counter(text_query,
                                                    FEMALE,
                                                    word_window,
                                                    tags,
                                                    genders_to_exclude=[MALE])
         elif gender.label == MALE.label:
-            novel_result = _generate_token_counter(text,
+            novel_result = _generate_token_counter(text_query,
                                                    MALE,
                                                    word_window,
                                                    tags,
@@ -201,7 +203,7 @@ def _generate_gender_token_counters(text: list[str],
         else:
             # Note that we exclude male from female and female from male but do not do this
             # with other genders.
-            novel_result = _generate_token_counter(text, gender, word_window, tags)
+            novel_result = _generate_token_counter(text_query, gender, word_window, tags)
         if novel_result != "lower window bound less than 5":
             results.update({gender.label: novel_result})
 
@@ -346,9 +348,9 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
         """
         results = {}
 
-        for doc in self.corpus.documents.values('pk', 'tokenized_text'):
-            results[doc['pk']] = _generate_gender_token_counters(
-                doc['tokenized_text'],
+        for key in self.corpus.documents.values_list('pk', flat=True):
+            results[key] = _generate_gender_token_counters(
+                self.corpus.documents.values_list('tokenized_text', flat=True).filter(pk=key),
                 self.genders,
                 self.tags,
                 word_window=self.word_window
@@ -403,8 +405,7 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
         for bin_start_year in range(time_frame[0], time_frame[1], bin_size):
             output[bin_start_year] = {label: Counter() for label in self.gender_labels}
 
-        for doc in self.corpus.documents.values('pk', 'year'):
-            year = doc['year']
+        for key, year in self.corpus.documents.values_list('pk', 'year'):
             if year is None:
                 continue
 
@@ -415,7 +416,7 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
             for gender_label in self.gender_labels:
                 output[bin_year][gender_label] = _merge_token_counters(
                     [
-                        self._results[doc['pk']][gender_label],
+                        self._results[key][gender_label],
                         output[bin_year][gender_label]
                     ]
                 )
@@ -455,8 +456,8 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
 
         output = {}
 
-        for doc in self.corpus.documents.values('pk', 'title'):
-            output[doc['title']] = self._results[doc['pk']]
+        for key, title in self.corpus.documents.values_list('pk', 'title'):
+            output[title] = self._results[key]
 
         return _apply_result_filters(output,
                                      sort=sort,
@@ -554,25 +555,23 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
         output = {}
 
         try:
-            for doc in self.corpus.documents.values('pk', metadata_key):
+            for key in self.corpus.documents.values_list('pk', flat=True):
 
-                matching_key = doc[metadata_key]
-                if matching_key is None:
-                    continue
+                metadata_query = self.corpus.documents.values_list(metadata_key).filter(pk=key)
 
-                if matching_key not in output:
-                    output[matching_key] = {}
+                if metadata_query.exists():
 
-                for gender_label in self.gender_labels:
-                    if gender_label not in output[matching_key]:
-                        output[matching_key][gender_label] = Counter()
+                    metadata = metadata_query.get()
 
-                    output[matching_key][gender_label] = _merge_token_counters([
-                        self._results[doc['pk']][gender_label],
-                        output[matching_key][gender_label]
-                    ])
+                    for gender_label in self.gender_labels:
+                        output.setdefault(metadata, {}).setdefault(gender_label, Counter())
+
+                        output[metadata][gender_label] = _merge_token_counters([
+                            self._results[key][gender_label],
+                            output[metadata][gender_label]
+                        ])
         except FieldError:
-            pass
+            raise
 
         return _apply_result_filters(output,
                                      sort=sort,
