@@ -570,8 +570,9 @@ class GenderProximityAnalyzer(CorpusAnalyzer):
                             self._results[key][gender_label],
                             output[metadata][gender_label]
                         ])
+
         except FieldError:
-            raise
+            raise FieldError('Check the argument passed in as the `metadata_key` parameter!')
 
         return _apply_result_filters(output,
                                      sort=sort,
