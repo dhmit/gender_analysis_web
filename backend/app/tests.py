@@ -185,6 +185,12 @@ class DocumentTestCase(TestCase):
         self.assertEqual(doc.new_attributes['cookies'], 'chocolate chip')
         self.assertEqual(doc.word_count, 9)
 
+class FrequencyTestCase(TestCase):
+    """
+    Test cases for the frequency analysis
+    """
+
+
 
 class MainTests(TestCase):
     """
