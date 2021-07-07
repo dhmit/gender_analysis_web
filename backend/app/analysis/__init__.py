@@ -120,17 +120,37 @@ def analysis_wrapper(doc_set):
     # return the results dictionary
 
     @profile
-    def do_analysis():
-        results = {}
-        for key in doc_set.values_list('pk', flat=True):
-            breakpoint()
-            doc_text = doc_set.values_list('tokenized_text', flat=True).get(pk=key)
+    def doc_iteration(doc_set):
+        """
+        Iterate through the `Document` objects, create master word_count dictionary
 
-            for word in doc_text:
-                results[word] = results.get(word, 0) + 1
+        """
+        results = {}
+
+        for key in doc_set.values_list('pk', flat=True):
+            doc_text_query = doc_set.values_list('tokenized_text', flat=True).filter(pk=key)
+            # breakpoint()
+
+            results.update(get_analysis(doc_text_query))
 
         return results
 
-    results_dict = do_analysis()
+    @profile
+    def get_analysis(doc_text_query):
+        """
+        Create a word count dictionary for a tokenized text
+        :return: A dictionary mapping strings (tokens) to ints (frequency).
+        """
+        assert doc_text_query.count() == 1, 'Something went wrong with filtering the `QuerySet`!'
+
+        results = {}
+
+        for word in doc_text_query.get():
+            results[word] = results.get(word, 0) + 1
+
+        return results
+
+    results_dict = doc_iteration(doc_set)
+    print('Queries:\n', connection.queries, sep='')
     return "Done!"
 
