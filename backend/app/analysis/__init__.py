@@ -55,9 +55,9 @@ def make_documents_wrapper(num, text_func):
 @profile
 def run_analysis(doc_set):
     """
-    A test version of the `run_analysis` method found in the `GenderProximityAnalyzer` class in `proximity.py`.
-    Focuses on optimizing iteration through a `QuerySet` of Documents. This uses the `results` dictionary to trigger
-    evaluation of the `doc_set` `QuerySet`.
+    This was an early version of testing out `Document` iteration by iterating through an entirely loaded list of
+    `Document` objects (with variations). This method proved to be ineffective in favor of the method outlined in
+    `analysis_wrapper` below. I've left the method here in case any of these notes are of any value.
 
     For more on `QuerySet` evaluation, see https://docs.djangoproject.com/en/3.1/topics/db/queries/#querysets-are-lazy.
 
@@ -85,6 +85,17 @@ def run_analysis(doc_set):
     #         breakpoint()
     print(len(connection.queries))
 
+    # Four variations of queries. The ones with .iterator() attached evaluate the `QuerySet` immediately, load all
+    # objects from the database, and return an iterator object. This method does not populate the cache of the original
+    # 'QuerySet', but the method still proved ineffective (for reasons I have't yet figured out, it actually didn't
+    # seem to help memory usage at all. It's probably because if the original doc_set parameter is filtered or
+    # modified in any way, the doc_set `QuerySet` will never have its `._result_cache` populated (since filtering a
+    # `QuerySet` returns another `QuerySet`, for the most part.
+
+    # For more details on `QuerySet`s, check out Django's API reference:
+    # https://docs.djangoproject.com/en/3.1/ref/models/querysets/#methods-that-do-not-return-querysets
+
+
     # query = doc_set
     query = doc_set.iterator()
     # query = doc_set.only('tokenized_text')
@@ -111,9 +122,9 @@ def analysis_wrapper(doc_set):
     For more on `QuerySet` evaluation, see https://docs.djangoproject.com/en/3.1/topics/db/queries/#querysets-are-lazy.
 
     :param doc_set: A `QuerySet` of `Document` objects. This `QuerySet` should come unevaluated (can check this using
-        QuerySet._result_cache. If this cache is empty, the `QuerySet` was likely never evaluated.
+        QuerySet._result_cache. If this cache is empty, the `QuerySet` was likely never evaluated).
 
-    :return: A string ("Done!") to signal completion when running this in the Django shell (python manage.py shell).
+    :return: A string ("Done!") to signal completion when running this in the Django shell (`python manage.py shell`).
     """
 
     # define a function, and inside of it:
@@ -121,6 +132,8 @@ def analysis_wrapper(doc_set):
     #   run analysis on it (for now, create a word count dictionary without using Document.word_count attribute)
     #   return the word counts dictionary
     # do something relevant to seeing the memory usage/tracking garbage collection of `Document` instances
+    #   (here the "something relevant" is splitting the above steps into several functions to try and track memory usage
+    #   across scopes/local environments and any object destruction)
     # return the results dictionary
 
     @profile
@@ -137,7 +150,9 @@ def analysis_wrapper(doc_set):
 
         for key in doc_set.values_list('pk', flat=True):
             doc_text_query = doc_set.values_list('tokenized_text', flat=True).filter(pk=key)
-            # breakpoint()
+            # breakpoint() - we want to make sure this is an unevaluted `QuerySet`.
+            # Maybe there's a way to do this passing in only the *primary key* down to the get_analysis function.
+            # After all, an int takes up less space than a `QuerySet`!
 
             results.update(get_analysis(doc_text_query))
 
