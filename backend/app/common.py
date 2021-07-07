@@ -2,17 +2,7 @@
 Miscellaneous utility functions and variables useful throughout the system
 """
 from textwrap import dedent
-from app.models import Gender
 from nltk.corpus import stopwords
-
-def get_gender_female():
-    return Gender.objects.all().filter(label="Female")
-
-def get_gender_male():
-    return Gender.objects.all().filter(label="Male")
-
-def get_gender_non_binary():
-    return Gender.objects.all().filter(label="Neo")
 
 SWORDS_ENG = stopwords.words('english')
 
