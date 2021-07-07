@@ -1,13 +1,6 @@
 from collections import Counter
-from typing import Dict, Optional, Sequence, Tuple, Union
-from app.models import (
-    Gender,
-)
 
-GenderCounts = Dict[Gender, Counter]
-GenderFrequencies = Dict[Gender, WordFrequency]
-
-def _get_gender_word_frequencies_relative(gender_word_counts: GenderCounts) -> GenderFrequencies:
+def _get_gender_word_frequencies_relative(gender_word_counts):
     """
     A private helper function that examines identifier counts keyed to Gender instances,
     determines the total count value of all identifiers across Gender instances,
@@ -39,14 +32,14 @@ def _get_gender_word_frequencies_relative(gender_word_counts: GenderCounts) -> G
 
 def _run_analysis(texts, genders):
     """
-    A private helper method for running the primary analysis of GenderFrequencyAnalyzer.
+    A private helper method for running the primary frequency analysis.
     This method generates three dictionaries: one (count) keying Document instances
     to Gender instances to Counter instances representing the total number of instances
-    of each Gender's identifiers in a given Document; one (frequency) keying Document instances
+    of each Gender's pronouns in a given Document; one (frequency) keying Document instances
     to Gender instances to dictionaries of the shape {str:float} representing the total number
-    of instances of each Gender's identifiers over the total word count of that Document; and
-    one (relative) keying Document instances to Gender instances to dicationaries of the shape
-    {str:float} representing the relative percentage of Gender identifiers across all Gender
+    of instances of each Gender's pronouns over the total word count of that Document; and
+    one (relative) keying Document instances to Gender instances to dictionaries of the shape
+    {str:float} representing the relative percentage of Gender pronouns across all Gender
     instances in a given Document instance.
 
     :param texts: a list of strings presenting the documents
