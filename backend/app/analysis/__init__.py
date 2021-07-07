@@ -108,8 +108,12 @@ def analysis_wrapper(doc_set):
     Uses a wrapper function to track changes in memory usage over time, including after the function call (to track
     garbage collection).
 
-    :param doc_set: A `QuerySet` of `Document` objects.
-    :return: A dictionary mapping words to occurrences across all `Document`s in the `doc_set`.
+    For more on `QuerySet` evaluation, see https://docs.djangoproject.com/en/3.1/topics/db/queries/#querysets-are-lazy.
+
+    :param doc_set: A `QuerySet` of `Document` objects. This `QuerySet` should come unevaluated (can check this using
+        QuerySet._result_cache. If this cache is empty, the `QuerySet` was likely never evaluated.
+
+    :return: A string ("Done!") to signal completion when running this in the Django shell (python manage.py shell).
     """
 
     # define a function, and inside of it:
@@ -124,6 +128,10 @@ def analysis_wrapper(doc_set):
         """
         Iterate through the `Document` objects, create master word_count dictionary
 
+        :param doc_set: A `QuerySet` (unevaluated) of `Document` objects. This could come from, for example, a
+            `corpus.documents.all()` call on a `Corpus` instance or a `Document.objects.all()` call (as long as the
+            `QuerySet` would return `Document` objects when evaluated.
+        :return: A word count dictionary using data from all `Document`s in the `QuerySet`.
         """
         results = {}
 
@@ -139,15 +147,22 @@ def analysis_wrapper(doc_set):
     def get_analysis(doc_text_query):
         """
         Create a word count dictionary for a tokenized text
+
+        :param doc_text_query: A length-1 (unevaluated) `QuerySet` object that, when evaluated, returns a list
+            of strings.
         :return: A dictionary mapping strings (tokens) to ints (frequency).
         """
         assert doc_text_query.count() == 1, 'Something went wrong with filtering the `QuerySet`!'
 
         results = {}
 
+        # Finally hits the database (once) and loads the tokenized_text field as a list of strings
+        # The .get() method does not cache (store) the results.
         for word in doc_text_query.get():
             results[word] = results.get(word, 0) + 1
 
+        # After the function returns the results dict, the list of strings object is destroyed (exactly what we want!)
+        # and Python frees up memory for the next list of strings (the next function call; the next iteration)
         return results
 
     results_dict = doc_iteration(doc_set)
