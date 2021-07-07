@@ -7,14 +7,16 @@ import nltk
 from django.core.exceptions import FieldError
 from django.db.models.query import QuerySet
 
-from gender_analysis.text.document import Document
-from gender_analysis.text.common import NLTK_TAGS, NLTK_TAGS_ADJECTIVES, SWORDS_ENG
 
-from gender_analysis.gender.common import MALE, FEMALE, BINARY_GROUP
-from gender_analysis.gender.gender import Gender
+# These refer to doctests from GATK that need to be updated (or removed entirely)
 
-from gender_analysis.analysis.base_analyzers import CorpusAnalyzer
-from gender_analysis.analysis.common import compute_bin_year
+# from gender_analysis.text.common import NLTK_TAGS, NLTK_TAGS_ADJECTIVES, SWORDS_ENG
+#
+# from gender_analysis.gender.common import MALE, FEMALE, BINARY_GROUP
+# from gender_analysis.gender.gender import Gender
+#
+# from gender_analysis.analysis.base_analyzers import CorpusAnalyzer
+# from gender_analysis.analysis.common import compute_bin_year
 
 GenderTokenCounters = Dict[str, Counter]
 GenderTokenSequence = Dict[str, Sequence[Tuple[str, int]]]
