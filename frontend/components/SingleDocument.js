@@ -6,6 +6,7 @@ const SingleDocument = ({id}) => {
 
     const [docData, setDocData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [genderData, setGenderData] = useState([]);
     const [showText, setShowText] = useState(false);
 
     useEffect(() => {
@@ -13,6 +14,13 @@ const SingleDocument = ({id}) => {
             .then(response => response.json())
             .then(data => {
                 setDocData(data);
+
+            });
+        fetch('/api/all_genders')
+            .then(response => response.json())
+            .then(data => {
+                setGenderData(data);
+                console.log(data);
                 setLoading(false);
             });
     }, []);
