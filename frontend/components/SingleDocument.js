@@ -19,6 +19,25 @@ const SingleDocument = ({id}) => {
 
     const handleShowText = () => setShowText(prevShowText => !prevShowText);
 
+    const frequencyModule = () => {
+        return (
+            <form>
+                <div className="form-check">
+                    <input className="form-check-input" type="checkbox" value="" id="female"/>
+                    <label className="form-check-label" htmlFor="female">
+                        Female
+                    </label>
+                </div>
+                <div className="form-check">
+                    <input className="form-check-input" type="checkbox" value="" id="male"/>
+                    <label className="form-check-label" htmlFor="male">
+                        Male
+                    </label>
+                </div>
+            </form>
+        );
+    };
+
     return (
         <div className="container-fluid">
             {loading
@@ -33,10 +52,8 @@ const SingleDocument = ({id}) => {
                         Word Count: {docData.word_count.toLocaleString()}
                     </p>
                     <h3>Analyses</h3>
-                    <h6>Frequency</h6>
-                    <p>
-
-                    </p>
+                    <h5>Frequency</h5>
+                    {frequencyModule()}
                     <button className="btn btn-outline-primary mb-3" onClick={handleShowText}>
                         {showText ? "Hide Full Text" : "Show Full Text"}
                     </button>
