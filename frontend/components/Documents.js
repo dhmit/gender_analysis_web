@@ -69,7 +69,7 @@ const Documents = () => {
             },
             body: JSON.stringify({
                 title: newDocData.title,
-                year: typeof newDocData.year === "string" ? null : newDocData.year,
+                year: newDocData.year,
                 author: newDocData.author,
                 text: newDocData.text
             })
