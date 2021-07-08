@@ -8,40 +8,264 @@ from collections import Counter
 from more_itertools import windowed
 from django.db import models
 from .fields import LowercaseCharField
+from .managers import DocumentManager
 
 
-class Pronoun(models.Model):
+class PronounSeries(models.Model):
     """
-    A model that allows users to define an individual pronoun and its type
-    (e.g. subject, object, reflexive, etc). Pronouns are case-insensitive and will be
-    converted to lowercase.
+    A class that allows users to define a custom series of pronouns to be used in
+    analysis functions
     """
-    PRONOUN_TYPES = [
-        ('subj', 'Subject'),
-        ('obj', 'Object'),
-        ('pos_det', 'Possessive determiner'),
-        ('pos_pro', 'Possessive pronoun'),
-        ('reflex', 'Reflexive'),
-    ]
 
-    identifier = LowercaseCharField(max_length=40)
-    type = models.CharField(max_length=7, choices=PRONOUN_TYPES)
+    # Things to consider:
+    # Add a default to reflex? i.e. default = object pronoun + 'self'?
+    # Also, how to we run doctests here? Or use pytest? (configs don't recognize django package or relative filepath
+    # in import statement)
+    identifier = models.CharField(max_length=60)
+    subj = LowercaseCharField(max_length=40)
+    obj = LowercaseCharField(max_length=40)
+    pos_det = LowercaseCharField(max_length=40)
+    pos_pro = LowercaseCharField(max_length=40)
+    reflex = LowercaseCharField(max_length=40)
+
+    @property
+    def all_pronouns(self):
+        """
+        :return: The set of all pronoun identifiers.
+        """
+        pronoun_set = {
+            self.subj,
+            self.obj,
+            self.pos_det,
+            self.pos_pro,
+            self.reflex,
+        }
+
+        return pronoun_set
+
+    def __contains__(self, pronoun):
+        """
+        Checks to see if the given pronoun exists in this group. This check is case-insensitive
+        >>> pronouns = ['They', 'Them', 'Their', 'Theirs', 'Themself']
+        >>> pronoun_group = PronounSeries.objects.create('Andy', *pronouns)
+        >>> 'they' in pronoun_group
+        True
+        >>> 'hers' in pronoun_group
+        False
+        :param pronoun: The pronoun to check for in this group
+        :return: True if the pronoun is in the group, False otherwise
+        """
+
+        return pronoun.lower() in self.all_pronouns
+
+    def __iter__(self):
+        """
+        Allows the user to iterate over all of the pronouns in this group. Pronouns
+        are returned in lowercase and order is not guaranteed.
+        >>> pronouns = ['she', 'her', 'her', 'hers', 'herself']
+        >>> pronoun_group = PronounSeries.objects.create('Fem', *pronouns)
+        >>> sorted(pronoun_group)
+        ['her', 'hers', 'herself', 'she']
+        """
+
+        yield from self.all_pronouns
 
     def __repr__(self):
-        return f'Pronoun({self.identifier, self.type})'
+        """
+        >>> PronounSeries.objects.create(
+        ...     identifier='Masc',
+        ...     subj='he',
+        ...     obj='him',
+        ...     pos_det='his',
+        ...     pos_pro='his',
+        ...     reflex='himself'
+        ... )
+        <Masc: ['he', 'him', 'himself', 'his']>
+        :return: A console-friendly representation of the pronoun series
+        """
+
+        return f'<{self.identifier}: {list(sorted(self))}>'
 
     def __str__(self):
-        return f'Pronoun: {self.identifier}\nType: {self.get_type_display()}'
+        """
+        >>> str(PronounSeries.objects.create('Andy', *['Xe', 'Xem', 'Xis', 'Xis', 'Xemself']))
+        'Andy-series'
+        :return: A string-representation of the pronoun series
+        """
+
+        return self.identifier + '-series'
+
+    def __hash__(self):
+        """
+        Makes the `PronounSeries` class hashable
+        """
+
+        return self.identifier.__hash__()
 
     def __eq__(self, other):
-        return self.identifier == other.identifier
+        """
+        Determines whether two `PronounSeries` are equal. Note that they are only equal if
+        they have the same identifier and the exact same set of pronouns.
+
+        >>> fem_series = PronounSeries.objects.create(
+        ...     identifier='Fem',
+        ...     subj='she',
+        ...     obj='her',
+        ...     pos_det='her',
+        ...     pos_pro='hers',
+        ...     reflex='herself'
+        ... )
+        >>> second_fem_series = PronounSeries.objects.create(
+        ...     identifier='Fem',
+        ...     subj='she',
+        ...     obj='her',
+        ...     pos_pro='hers',
+        ...     reflex='herself'
+        ...     pos_det='HER',
+        ... )
+        >>> fem_series == second_fem_series
+        True
+        >>> masc_series = PronounSeries.objects.create(
+        ...     identifier='Masc',
+        ...     subj='he',
+        ...     obj='him',
+        ...     pos_det='his',
+        ...     pos_pro='his',
+        ...     reflex='himself'
+        ... )
+        >>> fem_series == masc_series
+        False
+        :param other: The `PronounSeries` object to compare
+        :return: `True` if the two series are the same, `False` otherwise.
+        """
+
+        return (
+                self.identifier == other.identifier
+                and sorted(self) == sorted(other)
+        )
 
 
-class DocumentManager(models.Manager):
-    def create_document(self, **attributes):
-        doc = self.create(**attributes)
-        doc.get_tokenized_text_wc_and_pos()
-        return doc
+class Gender(models.Model):
+    """
+    This model defines a gender that analysis functions will use to operate.
+    """
+
+    label = models.CharField(max_length=60)
+    pronoun_series = models.ManyToManyField(PronounSeries)
+
+    def __repr__(self):
+        """
+        :return: A console-friendly representation of the gender
+        >>> Gender('Female')
+        <Female>
+        """
+
+        return f'<{self.label}>'
+
+    def __str__(self):
+        """
+        :return: A string representation of the gender
+        >>> str(Gender('Female')
+        'Female'
+        """
+
+        return self.label
+
+    def __hash__(self):
+        """
+        Allows the Gender object to be hashed
+        """
+
+        return self.label.__hash__()
+
+    def __eq__(self, other):
+        """
+        Performs a check to see whether two `Gender` objects are equivalent. This is true if and
+        only if the `Gender` identifiers, pronoun series, and names are identical.
+
+        Note that this comparison works:
+        >>> fem_pronouns = PronounSeries.objects.create('Fem', *['she', 'her', 'her', 'hers', 'herself'])
+
+        >>> female = Gender.objects.create('Female')
+        >>> female.pronoun_series.add(1)
+
+        >>> another_female = Gender.objects.create('Female')
+        >>> another_female.pronoun_series.add(1)
+
+        >>> female == another_female
+        True
+
+        But this one does not:
+        >>> they_series = PronounSeries.objects.create('They', *['they', 'them', 'their', 'theirs', 'themselves'])
+        >>> xe_series = PronounSeries.objects.create('They', *['Xe', 'Xem', 'Xis', 'Xis', 'Xemself'])
+
+        >>> androgynous_1 = Gender.objects.create('NB')
+        >>> androgynous_1.pronoun_series.add(2)
+
+        >>> androgynous_2 = Gender.objects.create('NB')
+        >>> androgynous_2.pronoun_series.add(3)
+
+        >>> androgynous_1 == androgynous_2
+        False
+        :param other: The other `Gender` object to compare
+        :return: `True` if the `Gender`s are the same, `False` otherwise
+        """
+
+        return (
+                self.label == other.label
+                and list(self.pronoun_series.all()) == list(other.pronoun_series.all())
+        )
+
+    @property
+    def pronouns(self):
+        """
+        :return: A set containing all pronouns that this `Gender` uses
+        >>> they_series = PronounSeries.objects.create('They', *['they', 'them', 'their', 'theirs', 'themselves'])
+        >>> xe_series = PronounSeries('Xe', *['Xe', 'Xer', 'Xis', 'Xis', 'Xerself'])
+        >>> androgynous = Gender.objects.create('Androgynous')
+        >>> androgynous.pronoun_series.add(1, 2)
+        >>> androgynous.pronouns == {'they', 'them', 'theirs', 'xe', 'xer', 'xis'}
+        True
+        """
+
+        all_pronouns = set()
+        for series in list(self.pronoun_series.all()):
+            all_pronouns |= series.all_pronouns
+
+        return all_pronouns
+
+    @property
+    def subj(self):
+        """
+        :return: set of all subject pronouns used to describe the gender
+        >>> fem_pronouns = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
+        >>> masc_pronouns = PronounSeries('Masc', {'he', 'him', 'his'}, subj='he', obj='him')
+        >>> bigender = Gender('Bigender', [fem_pronouns, masc_pronouns])
+        >>> bigender.subj == {'he', 'she'}
+        True
+        """
+
+        subject_pronouns = set()
+        for series in list(self.pronoun_series.all()):
+            subject_pronouns.add(series.subj)
+
+        return subject_pronouns
+
+    @property
+    def obj(self):
+        """
+        :return: set of all object pronouns used to describe the gender
+        >>> fem_pronouns = PronounSeries('Fem', {'she', 'her', 'hers'}, subj='she', obj='her')
+        >>> masc_pronouns = PronounSeries('Masc', {'he', 'him', 'his'}, subj='he', obj='him')
+        >>> bigender = Gender('Bigender', [fem_pronouns, masc_pronouns])
+        >>> bigender.obj == {'him', 'her'}
+        True
+        """
+
+        subject_pronouns = set()
+        for series in list(self.pronoun_series.all()):
+            subject_pronouns.add(series.obj)
+        return subject_pronouns
 
 
 class Document(models.Model):

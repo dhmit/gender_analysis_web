@@ -1,42 +1,87 @@
 """
 Tests for the gender analysis web app.
 """
-
 from collections import Counter
 from django.test import TestCase
 from django.core.exceptions import ObjectDoesNotExist
 from .models import (
-    Pronoun,
+    PronounSeries,
     Document,
 )
 
 
-class PronounTestCase(TestCase):
+class PronounSeriesTestCase(TestCase):
     """
     TestCase for the Pronoun model
     """
 
     def setUp(self):
-        Pronoun.objects.create(identifier='he', type='subj')
-        Pronoun.objects.create(identifier='him', type='obj')
-        Pronoun.objects.create(identifier='HIS', type='pos_det')
-        Pronoun.objects.create(identifier='his', type='pos_pro')
-        Pronoun.objects.create(identifier='himself', type='reflex')
+        PronounSeries.objects.create(
+            identifier='Masc_1',
+            subj='he',
+            obj='him',
+            pos_det='his',
+            pos_pro='HIS',
+            reflex='himself'
+        )
 
-    def test_models_save(self):
-        he = Pronoun.objects.get(identifier='he')
-        self.assertEqual(str(he), 'Pronoun: he\nType: Subject')
-        self.assertEqual(type(he.type), str)
+        PronounSeries.objects.create(
+            identifier='Masc_2',
+            subj='HE',
+            obj='HIM',
+            pos_det='HIS',
+            pos_pro='HIS',
+            reflex='HIMSELF'
+        )
+
+        PronounSeries.objects.create(
+            identifier='Fem',
+            subj='she',
+            obj='her',
+            pos_det='her',
+            pos_pro='hers',
+            reflex='herself'
+        )
+
+    def test_PronounSeries_save(self):
+        """
+        Tests the __str__, __repr__, and __iter__ methods on the PronounSeries model.
+        By testing the model's .save() mechanism, this also tests that LowercaseCharField works
+        as expected.
+        """
+        masc_1 = PronounSeries.objects.get(pk=1)
+        masc_2 = PronounSeries.objects.get(pk=2)
+        self.assertEqual(str(masc_1), 'Masc_1-series')
+        self.assertEqual(repr(masc_2), "<Masc_2: ['he', 'him', 'himself', 'his']>")
 
         with self.assertRaises(ObjectDoesNotExist):
-            was_converted_to_lowercase = Pronoun.objects.get(identifier='HIS')
+            was_converted_to_lowercase = PronounSeries.objects.get(reflex='HIMSELF')
 
-        his = Pronoun.objects.get(identifier='his', type='pos_det')
-        his_caps_until_saving = Pronoun(identifier='HIS', type='pos_pro')
-        self.assertNotEqual(his, his_caps_until_saving)
+        has_caps_until_saving = PronounSeries(
+            identifier='Masc_2',
+            subj='HE',
+            obj='HIM',
+            pos_det='HIS',
+            pos_pro='HIS',
+            reflex='HIMSELF'
+        )
 
-        his_caps_until_saving.save()
-        self.assertEqual(his, his_caps_until_saving)
+        self.assertNotEqual(masc_2, has_caps_until_saving)
+
+        has_caps_until_saving.save()
+        self.assertEqual(masc_2, has_caps_until_saving)
+
+    def test_PronounSeries_methods(self):
+        """
+        Tests all other PronounSeries methods explicitly specified in the class not already tested
+        in test_PronounSeries_save.
+        """
+        fem = PronounSeries.objects.get(pk=3)
+
+        self.assertEqual(fem.all_pronouns, {'she', 'her', 'hers', 'herself'})
+        self.assertTrue('SHE' in fem)
+
+        should_be_hashable = {fem}
 
 
 class DocumentTestCase(TestCase):
@@ -50,15 +95,15 @@ class DocumentTestCase(TestCase):
         Document.objects.create_document(title='doc3', text='Do you like ice cream as much as I do?')
         Document.objects.create(title='doc4', text='This is a ‘very’ “smart” phrase')
         Document.objects.create_document(title='doc5', text='"This is a quote." There is more. "This is my quote."')
-        Document.objects.create_document(title='doc6', text="""She took a lighter out of her purse and handed it over to him. 
-                                 He lit his cigarette and took a deep drag from it, and then began 
+        Document.objects.create_document(title='doc6', text="""She took a lighter out of her purse and handed it over to him.
+                                 He lit his cigarette and took a deep drag from it, and then began
                                  his speech which ended in a proposal. Her tears drowned the ring.""")
-        Document.objects.create_document(title='doc7', text="""Hester was convicted of adultery. which made her very sad, 
-                                 and then Arthur was also sad, and everybody was sad and then 
+        Document.objects.create_document(title='doc7', text="""Hester was convicted of adultery. which made her very sad,
+                                 and then Arthur was also sad, and everybody was sad and then
                                  Arthur died and it was very sad.  Sadness.""")
-        Document.objects.create_document(title='doc8', text="""Jane was convicted of adultery. she was a beautiful gal, 
-                                 and everyone thought that she was very beautiful, and everybody 
-                                 was sad and then she died. Everyone agreed that she was a beautiful 
+        Document.objects.create_document(title='doc8', text="""Jane was convicted of adultery. she was a beautiful gal,
+                                 and everyone thought that she was very beautiful, and everybody
+                                 was sad and then she died. Everyone agreed that she was a beautiful
                                  corpse that deserved peace.""")
         Document.objects.create_document(title='doc9', text='They refuse to permit us to obtain the refuse permit.')
 
