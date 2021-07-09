@@ -26,11 +26,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import render
 from .models import (
-    Document
+    Document,
+    Gender
 )
 from .serializers import (
     DocumentSerializer,
-    SimpleDocumentSerializer
+    SimpleDocumentSerializer,
+    GenderSerializer
 )
 
 
@@ -112,6 +114,9 @@ def add_document(request):
 
 @api_view(['GET'])
 def all_documents(request):
+    """
+    API Endpoint to get all the documents
+    """
     doc_objs = Document.objects.all()
     serializer = SimpleDocumentSerializer(doc_objs, many=True)
     return Response(serializer.data)
@@ -119,6 +124,9 @@ def all_documents(request):
 
 @api_view(['GET'])
 def get_document(request, doc_id):
+    """
+    API Endpoint to get a document based on the ID
+    """
     doc_obj = Document.objects.get(id=doc_id)
     serializer = DocumentSerializer(doc_obj)
     return Response(serializer.data)
@@ -155,3 +163,13 @@ def single_document(request, doc_id):
     }
 
     return render(request, 'index.html', context)
+
+
+@api_view(['GET'])
+def all_genders(request):
+    """
+    API Endpoint to get all gender instances.
+    """
+    gender_objs = Gender.objects.all()
+    serializer = GenderSerializer(gender_objs, many=True)
+    return Response(serializer.data)

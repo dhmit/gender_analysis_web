@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/all_documents', views.all_documents),
     path('api/add_document', views.add_document),
     path('api/document/<int:doc_id>', views.get_document),
+    path('api/all_genders', views.all_genders),
 
     # View paths
     path('', views.index, name='index'),
