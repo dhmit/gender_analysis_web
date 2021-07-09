@@ -29,6 +29,7 @@ def professor():
     """
     return open('app/analysis/bronte_professor.txt').read()
 
+
 @profile
 def make_documents_wrapper(num, text_func):
     @profile
@@ -51,66 +52,6 @@ def make_documents_wrapper(num, text_func):
     make_documents(num, text_func)
     print('Anything happen?')
 
-
-@profile
-def run_analysis(doc_set):
-    """
-    This was an early version of testing out `Document` iteration by iterating through an entirely loaded list of
-    `Document` objects (with variations). This method proved to be ineffective in favor of the method outlined in
-    `analysis_wrapper` below. I've left the method here in case any of these notes are of any value.
-
-    For more on `QuerySet` evaluation, see https://docs.djangoproject.com/en/3.1/topics/db/queries/#querysets-are-lazy.
-
-    :param doc_set: A `QuerySet` of `Document` objects.
-    :return: An empty dict
-    """
-
-    # results = {}
-
-    # ------- SQLite3 doesn't support the 'DECLARE' or 'FETCH' keywords! (https://www.sqlite.org/lang_keywords.html)
-    # ------- It also doesn't support cursors -- we need another solution.
-    # cursor = connection.cursor()
-    # input_query = str(doc_set.only('tokenized_text').query).replace('\"', '')
-    # query = f"DECLARE doc_cursor BINARY CURSOR FOR {input_query}"
-    #
-    # breakpoint()  # Works fine up to here
-    #
-    # cursor.execute(query)  # Here's the error
-    # cursor.execute('OPEN doc_cursor')
-    #
-    # while True:
-    #     doc_subset = cursor.execute('FETCH 10 FROM doc_cursor')
-    #     for _ in range(10):
-    #         doc = doc_subset.fetchone()
-    #         breakpoint()
-    print(len(connection.queries))
-
-    # Four variations of queries. The ones with .iterator() attached evaluate the `QuerySet` immediately, load all
-    # objects from the database, and return an iterator object. This method does not populate the cache of the original
-    # 'QuerySet', but the method still proved ineffective (for reasons I have't yet figured out, it actually didn't
-    # seem to help memory usage at all. It's probably because if the original doc_set parameter is filtered or
-    # modified in any way, the doc_set `QuerySet` will never have its `._result_cache` populated (since filtering a
-    # `QuerySet` returns another `QuerySet`, for the most part.
-
-    # For more details on `QuerySet`s, check out Django's API reference:
-    # https://docs.djangoproject.com/en/3.1/ref/models/querysets/#methods-that-do-not-return-querysets
-
-
-    # query = doc_set
-    query = doc_set.iterator()
-    # query = doc_set.only('tokenized_text')
-    # query = doc_set.only('tokenized_text').iterator()
-
-    # i = 0
-    for doc in query:
-        pass
-        print('\nQuery count:', len(connection.queries))
-        # results[doc.pk] = doc.tokenized_text
-        # print('After adding to dict:', len(connection.queries))
-        # i += 1
-
-    print(f'\nEND run_analysis')
-    return None
 
 @profile
 def analysis_wrapper(doc_set):
@@ -184,3 +125,62 @@ def analysis_wrapper(doc_set):
     print('Queries:\n', connection.queries, sep='')
     return "Done!"
 
+# @profile
+# def run_analysis(doc_set):
+#     """
+#     This was an early version of testing out `Document` iteration by iterating through an entirely loaded list of
+#     `Document` objects (with variations). This method proved to be ineffective in favor of the method outlined in
+#     `analysis_wrapper` below. I've left the method here in case any of these notes are of any value.
+#
+#     For more on `QuerySet` evaluation, see https://docs.djangoproject.com/en/3.1/topics/db/queries/#querysets-are-lazy.
+#
+#     :param doc_set: A `QuerySet` of `Document` objects.
+#     :return: An empty dict
+#     """
+#
+#     # results = {}
+#
+#     # ------- SQLite3 doesn't support the 'DECLARE' or 'FETCH' keywords! (https://www.sqlite.org/lang_keywords.html)
+#     # ------- It also doesn't support cursors -- we need another solution.
+#     # cursor = connection.cursor()
+#     # input_query = str(doc_set.only('tokenized_text').query).replace('\"', '')
+#     # query = f"DECLARE doc_cursor BINARY CURSOR FOR {input_query}"
+#     #
+#     # breakpoint()  # Works fine up to here
+#     #
+#     # cursor.execute(query)  # Here's the error
+#     # cursor.execute('OPEN doc_cursor')
+#     #
+#     # while True:
+#     #     doc_subset = cursor.execute('FETCH 10 FROM doc_cursor')
+#     #     for _ in range(10):
+#     #         doc = doc_subset.fetchone()
+#     #         breakpoint()
+#     print(len(connection.queries))
+#
+#     # Four variations of queries. The ones with .iterator() attached evaluate the `QuerySet` immediately, load all
+#     # objects from the database, and return an iterator object. This method does not populate the cache of the original
+#     # 'QuerySet', but the method still proved ineffective (for reasons I have't yet figured out, it actually didn't
+#     # seem to help memory usage at all. It's probably because if the original doc_set parameter is filtered or
+#     # modified in any way, the doc_set `QuerySet` will never have its `._result_cache` populated (since filtering a
+#     # `QuerySet` returns another `QuerySet`, for the most part.
+#
+#     # For more details on `QuerySet`s, check out Django's API reference:
+#     # https://docs.djangoproject.com/en/3.1/ref/models/querysets/#methods-that-do-not-return-querysets
+#
+#
+#     # query = doc_set
+#     query = doc_set.iterator()
+#     # query = doc_set.only('tokenized_text')
+#     # query = doc_set.only('tokenized_text').iterator()
+#
+#     # i = 0
+#     for doc in query:
+#         pass
+#         print('\nQuery count:', len(connection.queries))
+#         # results[doc.pk] = doc.tokenized_text
+#         # print('After adding to dict:', len(connection.queries))
+#         # i += 1
+#
+#     print(f'\nEND run_analysis')
+#     return None
