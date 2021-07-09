@@ -1,4 +1,4 @@
-from backend.app.common import HONORIFICS
+from app.common import HONORIFICS
 
 
 def filter_honr(name):

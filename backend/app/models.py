@@ -962,7 +962,7 @@ class Character(models.Model):
         return alias
 
 
-class Alias:
+class Alias(models.Model):
     """
     An Alias object is one name along with its associated metadata: mentions,
     coref clusters, and so forth. A Character object is made up of aliases.
