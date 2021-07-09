@@ -290,7 +290,7 @@ class Corpus(models.Model):
             yield this_document
 
     def __eq__(self, other):
-        """Returns true if both of the corpuses are associated with the same documents"""
+        """Returns true if both of the corpora are associated with the same documents"""
         if not isinstance(other, Corpus):
             raise NotImplementedError("Only a Corpus can be compared to another Corpus.")
 
@@ -317,7 +317,7 @@ class Document(models.Model):
     tokenized_text = models.JSONField(null=True, blank=True, default=None)
     word_count_counter = models.JSONField(null=True, blank=True, default=dict)
     part_of_speech_tags = models.JSONField(null=True, blank=True, default=list)
-    corpuses = models.ManyToManyField(Corpus)
+    corpora = models.ManyToManyField(Corpus)
 
     objects = DocumentManager()
 
