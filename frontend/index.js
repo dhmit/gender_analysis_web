@@ -6,6 +6,7 @@ import Base from "./components/global/Base";
 import ErrorNotFoundComponent from "./components/ErrorNotFoundComponent";
 import ExampleId from "./components/ExampleId";
 import Documents from "./components/Documents";
+import SingleDocument from "./components/SingleDocument";
 
 const COMPONENT_PROPS_RAW = document.getElementById("component_props").text;
 const COMPONENT_NAME_RAW = document.getElementById("component_name").text;
@@ -15,7 +16,8 @@ const COMPONENT_NAME = JSON.parse(COMPONENT_NAME_RAW);
 const COMPONENTS = {
     ErrorNotFoundComponent,
     ExampleId,
-    Documents
+    Documents,
+    SingleDocument
 };
 
 const PreselectedComponent = COMPONENTS[COMPONENT_NAME || "ErrorNotFoundComponent"];
