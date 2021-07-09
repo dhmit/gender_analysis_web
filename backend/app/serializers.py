@@ -9,6 +9,7 @@ from .models import (
     PronounSeries,
     Gender,
     Document,
+    Corpus
 )
 
 
@@ -47,6 +48,16 @@ class SimpleDocumentSerializer(serializers.ModelSerializer):
     """
     Serializes a Document object (does not include the text itself)
     """
+
     class Meta:
         model = Document
         fields = ['id', 'author', 'title', 'year', 'word_count']
+
+class CorpusSerializer(serializers.ModelSerializer):
+    """
+    Serializes a Corpus object
+    """
+
+    class Meta:
+        model = Corpus
+        fields = ['title', 'description']
