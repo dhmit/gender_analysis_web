@@ -91,7 +91,7 @@ def analysis_wrapper(doc_set):
 
         for key in doc_set.values_list('pk', flat=True):
             doc_text_query = doc_set.values_list('tokenized_text', flat=True).filter(pk=key)
-            # breakpoint() - we want to make sure this is an unevaluted `QuerySet`.
+            # breakpoint() - we want to make sure this is an unevaluated `QuerySet`.
             # Maybe there's a way to do this passing in only the *primary key* down to the get_analysis function.
             # After all, an int takes up less space than a `QuerySet`!
 
