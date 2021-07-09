@@ -27,12 +27,14 @@ from rest_framework.response import Response
 from django.shortcuts import render
 from .models import (
     Document,
-    Gender
+    Gender,
+    Corpus
 )
 from .serializers import (
     DocumentSerializer,
     SimpleDocumentSerializer,
-    GenderSerializer
+    GenderSerializer,
+    CorpusSerializer
 )
 
 
@@ -173,3 +175,43 @@ def all_genders(request):
     gender_objs = Gender.objects.all()
     serializer = GenderSerializer(gender_objs, many=True)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+def add_corpus(request):
+    """
+    API endpoint for adding a corpus instance
+    """
+    attributes = request.data
+    fields = {
+        'title': attributes['title'],
+        'description': attributes['description']
+    }
+    new_corpus_obj = Corpus.objects.create(**fields)
+    serializer = CorpusSerializer(new_corpus_obj)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def all_corpora(request):
+    """
+    API Endpoint to get all the corpora
+    """
+    corpus_objs = Corpus.objects.all()
+    serializer = CorpusSerializer(corpus_objs, many=True)
+    return Response(serializer.data)
+
+
+def corpora(request):
+    """
+    Corpora page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Corpora'
+        },
+        'component_name': 'Corpora'
+    }
+
+    return render(request, 'index.html', context)
