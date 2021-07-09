@@ -9,6 +9,8 @@ models_to_register = [
     models.Document,
     models.PronounSeries,
     models.Gender,
+    models.Character,
+    models.Alias,
 ]
 
 for model in models_to_register:

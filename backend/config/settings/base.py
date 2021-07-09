@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'webpack_loader',
 
     # our application code
-    'app',
+    'backend.app',
 ]
 
 MIDDLEWARE = [
