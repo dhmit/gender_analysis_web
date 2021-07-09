@@ -91,9 +91,11 @@ def analysis_wrapper(doc_set):
 
         for key in doc_set.values_list('pk', flat=True):
             doc_text_query = doc_set.values_list('tokenized_text', flat=True).filter(pk=key)
-            # breakpoint() - we want to make sure this is an unevaluated `QuerySet`.
-            # Maybe there's a way to do this passing in only the *primary key* down to the get_analysis function.
-            # After all, an int takes up less space than a `QuerySet`!
+            # breakpoint() - we want to make sure this is an unevaluated `QuerySet`. We can do this by checking that
+            # the doc_text_query._result_cache is empty.
+
+            # There's also a way to do this by just passing the key to the get_analysis function and only constructing
+            # a `QuerySet` when we want to hit the database. After all, an int takes up less space than a `QuerySet`!
 
             results.update(get_analysis(doc_text_query))
 
