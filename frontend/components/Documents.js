@@ -90,7 +90,8 @@ const Documents = () => {
                 title: newDocData.title,
                 year: newDocData.year,
                 author: newDocData.author,
-                text: newDocData.text
+                text: newDocData.text,
+                newAttributes: newAttributes
             })
         };
         fetch("api/add_document", requestOptions)
@@ -114,7 +115,7 @@ const Documents = () => {
                     <div className="card-body">
                         <h6 className="mb-0">{doc.title}</h6>
                         <p>
-                            {doc.author}
+                            {doc.author ? doc.author : "Unknown"}
                             <br/>
                             Year Published: {doc.year ? doc.year : "Unknown"}
                             <br/>
@@ -163,7 +164,7 @@ const Documents = () => {
                                 <div className="col">
                                     <input type="text" className="form-control"
                                         id="title" value={newDocData.title}
-                                        onChange={handleTitleInputChange}/>
+                                        onChange={handleTitleInputChange} required/>
                                 </div>
                             </div>
                             <div className="row mb-3">
@@ -194,13 +195,17 @@ const Documents = () => {
                                                 <input type="text" className="form-control"
                                                     name="name" onChange={event =>
                                                         handleAttributeInputChange(event,i)}
-                                                    placeholder="name" value={attribute.name}/>
+                                                    placeholder="name" value={attribute.name}
+                                                    required={newAttributes[i]["value"]
+                                                        ? true : false}/>
                                             </div>
                                             <div className="col-3">
                                                 <input type="text" className="form-control"
                                                     name="value" onChange={event =>
                                                         handleAttributeInputChange(event,i)}
-                                                    placeholder="value" value={attribute.value}/>
+                                                    placeholder="value" value={attribute.value}
+                                                    required={newAttributes[i]["name"]
+                                                        ? true : false}/>
                                             </div>
                                             {newAttributes.length !== 1 &&
                                                 <div className="col">
