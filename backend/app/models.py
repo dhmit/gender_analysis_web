@@ -325,10 +325,10 @@ class Alias(models.Model):
         raw_pronoun_dict = {p[0]: 0 for p in PRONOUN_COLLECTIONS if p}
 
         for clu in self.coref_clusters:
-            mention_list = clu.mentions
+            mention_list = clu['mentions']
             for mention in mention_list:
                 for pronoun_group in PRONOUN_COLLECTIONS:
-                    if mention.text in pronoun_group:
+                    if mention in pronoun_group:
                         overall_pronoun_count += 1
                         raw_pronoun_dict[pronoun_group[0]] += 1
 
@@ -645,6 +645,7 @@ class Document(models.Model):
     sentence_pos_tags = models.JSONField(null=True, blank=True, default=list)
     sentence_chunks = models.JSONField(null=True, blank=True, default=list)
 
+
     name_list = models.JSONField(null=True, blank=True, default=list)
     name_dict = models.JSONField(null=True, blank=True, default=dict)
     name_coref_dict = models.JSONField(null=True, blank=True, default=dict)
@@ -805,10 +806,14 @@ class Document(models.Model):
             name_coref_dict[name] = []
             for mention in self.name_dict[name]:
                 mention_string = self.sentences[mention]
-                coref = nlp(mention_string)
-                for cluster in coref._.coref_clusters:
-                    if cluster.main.text == name:
-                        name_coref_dict[name].append(cluster)
+                spaced = nlp(mention_string)
+                for cluster in spaced._.coref_clusters:
+                    cluster_dict = cluster.__dict__
+                    other_cluster_dict = {'mentions':[], 'main':""}
+                    other_cluster_dict['mentions'] = [mention.text for mention in cluster_dict['mentions']]
+                    other_cluster_dict['main'] = cluster.main.text
+                    if other_cluster_dict['main'] == name:
+                        name_coref_dict[name].append(other_cluster_dict)
 
         self.name_coref_dict = name_coref_dict
         return name_coref_dict
@@ -826,22 +831,18 @@ class Document(models.Model):
 
         if get_corefs:
             if not self.name_coref_dict:
-                name_coref_dict = self.get_name_corefs()
+                self.name_coref_dict = self.get_name_corefs()
             for name_and_count in self.name_list:
                 name = name_and_count[0]
                 count = name_and_count[1]
-                alias = Alias.objects.create_alias(name=name, count=count, mentions=mention_dict[name],
-                                                   coref_clusters = self.name_coref_dict[name])
-                alias.save()
+                alias = Alias.objects.create_alias(name=name, count=count, mentions=mention_dict[name],coref_clusters= self.name_coref_dict[name])
                 self.aliases.add(alias)
         else:
             for name_and_count in self.name_list:
                 name = name_and_count[0]
                 count = name_and_count[1]
                 alias = Alias.objects.create_alias(name=name, count=count, mentions=mention_dict[name])
-                alias.save()
                 self.aliases.add(alias)
-
         self.save()
 
     def get_disambiguated_characters(self, cutoff_num=20):

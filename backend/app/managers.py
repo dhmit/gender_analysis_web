@@ -21,6 +21,7 @@ class CharacterManager(models.Manager):
         character.count = alias.get_count()
         character.full_name = character.guess_full_name()
         character.gender = character.guess_gender()
+        character.save()
         return character
 
 
@@ -31,4 +32,5 @@ class AliasManager(models.Manager):
         alias.raw_pronouns = all_pronouns[0]
         alias.pronoun_rates = all_pronouns[1]
         alias.sanitized_pronoun_rates = all_pronouns[2]
+        alias.save()
         return alias
