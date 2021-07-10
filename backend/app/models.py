@@ -268,44 +268,6 @@ class Gender(models.Model):
         return subject_pronouns
 
 
-class Corpus(models.Model):
-    """
-    This model will hold associations to other Documents and their
-    metadata (author, title, publication date, etc.)
-    """
-    title = models.CharField(max_length=30)
-    description = models.CharField(max_length=500, blank=True)
-
-    class Meta:
-        verbose_name_plural = "Corpora"
-
-    def __str__(self):
-        """Returns the title of the corpus"""
-        return self.title
-
-    def __len__(self):
-        """Returns the number of documents associated with this corpus"""
-        return len(self.document_set.all())
-
-    def __iter__(self):
-        """Yields each document associated with the corpus"""
-        for this_document in self.document_set.all():
-            yield this_document
-
-    def __eq__(self, other):
-        """Returns true if both of the corpora are associated with the same documents"""
-        if not isinstance(other, Corpus):
-            raise NotImplementedError("Only a Corpus can be compared to another Corpus.")
-
-        if len(self) != len(other):
-            return False
-
-        if set(self.document_set.all()) == set(other.document_set.all()):
-            return True
-        else:
-            return False
-
-
 class Document(models.Model):
     """
     This model will hold the full text and
@@ -320,7 +282,6 @@ class Document(models.Model):
     tokenized_text = models.JSONField(null=True, blank=True, default=None)
     word_count_counter = models.JSONField(null=True, blank=True, default=dict)
     part_of_speech_tags = models.JSONField(null=True, blank=True, default=list)
-    corpora = models.ManyToManyField(Corpus)
 
     objects = DocumentManager()
 
@@ -532,3 +493,42 @@ class Document(models.Model):
     def __str__(self):
         """Prints the title of the document"""
         return self.title
+
+
+class Corpus(models.Model):
+    """
+    This model will hold associations to other Documents and their
+    metadata (author, title, publication date, etc.)
+    """
+    title = models.CharField(max_length=30)
+    description = models.CharField(max_length=500, blank=True)
+    documents = models.ManyToManyField(Document)
+
+    class Meta:
+        verbose_name_plural = "Corpora"
+
+    def __str__(self):
+        """Returns the title of the corpus"""
+        return self.title
+
+    def __len__(self):
+        """Returns the number of documents associated with this corpus"""
+        return len(self.document_set.all())
+
+    def __iter__(self):
+        """Yields each document associated with the corpus"""
+        for this_document in self.document_set.all():
+            yield this_document
+
+    def __eq__(self, other):
+        """Returns true if both of the corpora are associated with the same documents"""
+        if not isinstance(other, Corpus):
+            raise NotImplementedError("Only a Corpus can be compared to another Corpus.")
+
+        if len(self) != len(other):
+            return False
+
+        if set(self.document_set.all()) == set(other.document_set.all()):
+            return True
+        else:
+            return False
