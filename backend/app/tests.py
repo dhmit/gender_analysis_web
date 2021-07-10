@@ -203,8 +203,8 @@ class CorpusTestCase(TestCase):
         doc1 = Document.objects.get(title='doc1')
         doc2 = Document.objects.get(title='doc2')
         doc3 = Document.objects.get(title='doc3')
-        doc1.corpora.add(corpus1)
-        self.assertEqual(list(corpus1.document_set.all()), [doc1])
-        corpus1.document_set.add(doc2, doc3)
-        self.assertEqual(list(corpus1.document_set.all()), [doc1, doc2, doc3])
+        doc1.corpus_set.add(corpus1)
+        self.assertEqual(list(corpus1.documents.all()), [doc1])
+        corpus1.documents.add(doc2, doc3)
+        self.assertEqual(list(corpus1.documents.all()), [doc1, doc2, doc3])
 
