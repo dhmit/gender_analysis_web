@@ -8,7 +8,7 @@ from collections import Counter
 from more_itertools import windowed
 from django.db import models
 from .fields import LowercaseCharField
-from .managers import DocumentManager
+from .managers import DocumentManager, AliasManager, CharacterManager
 from .common import HONORIFICS, PRONOUN_COLLECTIONS
 from .analysis.ner import filter_honr
 
@@ -290,6 +290,8 @@ class Alias(models.Model):
     pronoun_rates = models.JSONField(null=True, blank=True, default=list)
     sanitized_pronoun_rates = models.JSONField(null=True, blank=True, default=list)
 
+    objects = AliasManager()
+
     def __str__(self):
         return self.name
 
@@ -363,6 +365,7 @@ class Character(models.Model):
     """
     aliases = models.ManyToManyField(Alias)
 
+    common_name = models.CharField(max_length=255, blank=True)
     first_name = models.CharField(max_length=255, blank=True)
     middle_name = models.CharField(max_length=255, blank=True)
     last_name = models.CharField(max_length=255, blank=True)
@@ -376,6 +379,8 @@ class Character(models.Model):
 
     mentions = models.JSONField(null=True, blank=True, default=list)
     coref_clusters = models.JSONField(null=True, blank=True, default=list)
+
+    objects = CharacterManager()
 
     def __repr__(self):
         return self.common_name
@@ -394,7 +399,7 @@ class Character(models.Model):
         print("Total Count:", self.count)
         print("Alias Makeup:",
               [(alias.get_name(), (str(round((alias.count / self.count) * 100, 2)) + "%")) for alias in
-               self.aliases])
+               list(self.aliases.all())])
         print("Gender Probabilities:", self.gender)
 
     def set_first_name(self, first_name):
@@ -420,7 +425,7 @@ class Character(models.Model):
         # Separate out honorifics and other words, which we presume are names.
         # Keep them in tuples with how often they occur.
 
-        for alias in self.aliases:
+        for alias in list(self.aliases.all()):
             name = alias.get_name()
             names.append(name)
             words = name.split(" ")
@@ -527,7 +532,7 @@ class Character(models.Model):
         overall_pronoun_count = 0
 
         for pronoun in raw_pronoun_dict.keys():
-            for alias in self.aliases:
+            for alias in list(self.aliases.all()):
                 raw_alias_pronouns = alias.raw_pronouns
                 if pronoun in raw_alias_pronouns.keys():
                     raw_pronoun_dict[pronoun] += raw_alias_pronouns[pronoun]
@@ -559,7 +564,7 @@ class Character(models.Model):
     def collate_mentions(self):
         all_mentions = []
 
-        for alias in self.aliases:
+        for alias in list(self.aliases.all()):
             all_mentions.extend(alias.get_mentions())
 
         return all_mentions
@@ -567,7 +572,7 @@ class Character(models.Model):
     def collate_coref_clusters(self):
         all_coref_clusters = []
 
-        for alias in self.aliases:
+        for alias in list(self.aliases.all()):
             all_coref_clusters.extend(alias.get_coref_clusters())
 
         return all_coref_clusters
@@ -582,14 +587,14 @@ class Character(models.Model):
         self.coref_clusters = self.collate_coref_clusters()
         self.gender = self.guess_gender()
         self.full_name = self.guess_full_name()
-        self.count = sum([alias.count for alias in self.aliases])
+        self.count = sum([alias.count for alias in list(self.aliases.all())])
         self.save()
 
     def add_alias(self, alias):
         # (Mostly) reversable function that nondestructibly
         # merges a character into another character.
 
-        if alias.name in self.aliases:
+        if alias.name in list(self.aliases.all()):
             print("Cannot merge", alias.name, "with", self.common_name, "because they're already here!")
             return False
 
@@ -598,7 +603,7 @@ class Character(models.Model):
             self.common_name = alias.get_name()
             self.count = alias.get_count()
 
-        self.aliases.append(alias)
+        self.aliases.add(alias)
 
         self.update_character()
 
@@ -777,6 +782,7 @@ class Document(models.Model):
                 if name in self.sentences[x]:
                     name_dict[name].append(x)
 
+        self.name_dict = name_dict
         return name_dict
 
     def get_name_corefs(self):
@@ -798,15 +804,16 @@ class Document(models.Model):
         for name in self.name_dict.keys():
             name_coref_dict[name] = []
             for mention in self.name_dict[name]:
-                coref = nlp(self.sentences[mention])
+                mention_string = self.sentences[mention]
+                coref = nlp(mention_string)
                 for cluster in coref._.coref_clusters:
                     if cluster.main.text == name:
                         name_coref_dict[name].append(cluster)
 
-        name_coref_dict = name_coref_dict
+        self.name_coref_dict = name_coref_dict
         return name_coref_dict
 
-    def make_alias_dict(self, get_corefs = False):
+    def get_aliases(self, get_corefs = False):
         """
         Makes a dictionary of Alias objects for the document, so we know all of the Aliases within the character.
 
@@ -814,24 +821,28 @@ class Document(models.Model):
         :param get_corefs: Whether or not we want to get the corefs for each alias. Getting corefs is expensive,
         but we need them to guess genders.
         """
-        alias_dict = {}
+
         mention_dict = self.get_mentions_full_charlist()
+
         if get_corefs:
             if not self.name_coref_dict:
                 name_coref_dict = self.get_name_corefs()
             for name_and_count in self.name_list:
                 name = name_and_count[0]
                 count = name_and_count[1]
-                alias_dict[name] = Alias(name, count, mentions = mention_dict[name], coref_clusters = name_coref_dict[name])
+                alias = Alias.objects.create_alias(name=name, count=count, mentions=mention_dict[name],
+                                                   coref_clusters = self.name_coref_dict[name])
+                alias.save()
+                self.aliases.add(alias)
         else:
             for name_and_count in self.name_list:
                 name = name_and_count[0]
                 count = name_and_count[1]
-                alias_dict[name] = Alias(name, count, mentions = mention_dict[name])
+                alias = Alias.objects.create_alias(name=name, count=count, mentions=mention_dict[name])
+                alias.save()
+                self.aliases.add(alias)
 
-        self.alias_dict = alias_dict
         self.save()
-        return alias_dict
 
     def get_disambiguated_characters(self, cutoff_num=20):
         """
@@ -839,25 +850,21 @@ class Document(models.Model):
         Output: A list of disambiguated Character objects.
         """
 
-        if not self.alias_dict:
-            self.make_alias_dict()
-
-        alias_list = list(self.alias_dict.values())
-        characters = {}
+        alias_list = list(self.aliases.all())
 
         for i in range(len(alias_list) - 1):
-            new_character = Character(alias_list[i])
+            new_character = Character.objects.create_character(alias_list[i])
             for j in range(i + 1, len(alias_list)):
                 if set(filter_honr(alias_list[i].get_name())).intersection(
                         set(filter_honr(alias_list[j].get_name()))):
                     new_character.add_alias(alias_list[j])
 
-            if sum(alias.count for alias in new_character.aliases) > cutoff_num:
-                characters[new_character.common_name] = new_character
+            if sum(alias.count for alias in list(new_character.aliases.all())) > cutoff_num:
+                new_character.save()
+                self.characters.add(new_character)
 
-        self.character_dict = characters
         self.save()
-        return characters
+
 
     def get_count_of_word(self, word):
         """

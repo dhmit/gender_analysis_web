@@ -15,7 +15,8 @@ class DocumentManager(models.Manager):
 class CharacterManager(models.Manager):
     def create_character(self, alias):
         # operations that would have occurred within the init function occur here instead.
-        character = self.create(alias)
+        character = self.create()
+        character.aliases.add(alias)
         character.common_name = alias.get_name()
         character.count = alias.get_count()
         character.full_name = character.guess_full_name()
