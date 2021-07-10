@@ -95,11 +95,11 @@ const Documents = () => {
                     <div className="card-body">
                         <h6 className="mb-0">{doc.title}</h6>
                         <p>
-                            {doc.author}
+                            {doc.author ? doc.author : "Unknown"}
                             <br/>
                             Year Published: {doc.year ? doc.year : "Unknown"}
                             <br/>
-                            Word Count: {doc.word_count.toLocaleString()}
+                            Word Count: {doc.word_count ? doc.word_count : "Unknown"}
                         </p>
 
                     </div>
