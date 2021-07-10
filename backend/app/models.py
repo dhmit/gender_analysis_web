@@ -490,10 +490,6 @@ class Document(models.Model):
             self.get_tokenized_text_wc_and_pos()
         self.save()
 
-    def __str__(self):
-        """Prints the title of the document"""
-        return self.title
-
 
 class Corpus(models.Model):
     """
