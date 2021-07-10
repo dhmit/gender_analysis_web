@@ -276,6 +276,9 @@ class Corpus(models.Model):
     title = models.CharField(max_length=30)
     description = models.CharField(max_length=500, blank=True)
 
+    class Meta:
+        verbose_name_plural = "Corpora"
+
     def __str__(self):
         """Returns the title of the corpus"""
         return self.title
