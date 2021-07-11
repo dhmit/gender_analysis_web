@@ -47,19 +47,21 @@ def generate_gender_token_counters(text_query, gender_ids, word_window):
     results = {}
 
     for gender_id in gender_ids:
-        doc_result = generate_token_counter(text_query, gender_id, word_window)
-        results.update({Gender.objects.values_list('label', flat=True).get(pk=gender_id): doc_result})
+        gender = Gender.objects.get(pk=gender_id)
+
+        doc_result = generate_token_counter(text_query, gender, word_window)
+        results[gender.label] = doc_result
 
     return results
 
 
-def generate_token_counter(text_query, gender_id, word_window):
+def generate_token_counter(text_query, gender, word_window):
     # pylint: disable=too-many-locals
     """
     Generates a 'Counter' instance mapping words to their frequency within a text.
 
     :param text_query: An unevaluated, length-1 `QuerySet` that returns a list of strings when evaluated
-    :param gender_id: An int representing a the id of some `Gender` object in the database
+    :param gender: A `Gender` object
     :param word_window: an integer describing the number of words to look at of each side of a gendered word
 
     :return: A 'Counter' instance showcasing the numbered occurrences of words around a gendered pronoun
@@ -67,8 +69,6 @@ def generate_token_counter(text_query, gender_id, word_window):
     """
 
     output = Counter()
-
-    gender = Gender.objects.get(pk=gender_id)
 
     for words in windowed(text_query.get(), 2 * word_window + 1):
         if words[word_window].lower() in gender.pronouns:
