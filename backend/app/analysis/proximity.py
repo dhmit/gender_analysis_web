@@ -5,21 +5,24 @@ from more_itertools import windowed
 from ..models import (
     Document,
     Gender,
+    Corpus,
 )
 
 
-def run_analysis(doc_ids, gender_ids, word_window):
+def run_analysis(corpus_id, gender_ids, word_window):
     """
     Generates a dictionary of dictionaries for each `Document` object. Each dictionary maps a `Gender` to a word count
     of words within a specified window of that `Gender`'s pronouns.
 
-    :param doc_ids: A list of ints representing `Document` ids
+    :param corpus_id: An int representing a `Corpus` instance
     :param gender_ids: A list of ints representing `Gender` ids
     :param word_window: An integer describing the number of words to look at of each side of a gendered word
 
     :return: A dict mapping `Document` ids to a dict mapping strings (`Gender` labels) to a `Counter` instance.
     """
     results = {}
+
+    doc_ids = Corpus.objects.filter(pk=corpus_id).values_list('documents__pk', flat=True)
 
     for key in doc_ids:
         results[key] = generate_gender_token_counters(
