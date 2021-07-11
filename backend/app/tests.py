@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import (
     PronounSeries,
     Document,
+    Corpus
 )
 
 
@@ -186,19 +187,24 @@ class DocumentTestCase(TestCase):
         self.assertEqual(doc.word_count, 9)
 
 
-class MainTests(TestCase):
+class CorpusTestCase(TestCase):
     """
-    Backend TestCase
+    Test Cases for the Corpus Model
     """
 
-    # def setUp(self):
-    #     super().setUp()
-    #     do any setup here
+    def setUp(self):
+        Corpus.objects.create(title='corpus1', description='testing corpus save')
+        Document.objects.create_document(title='doc1', year=2021, text='The quick brown fox jumped over the lazy dog.')
+        Document.objects.create_document(title='doc2', text='She really likes to eat chocolate!')
+        Document.objects.create_document(title='doc3', text='Do you like ice cream as much as I do?')
 
-    def test_sample(self):
-        """
-        Remove me once we have real tests here.
-        """
-        two = 2
-        another_two = 2
-        self.assertEqual(two + another_two, 4)
+    def test_add_document_to_corpus(self):
+        corpus1 = Corpus.objects.get(title='corpus1')
+        doc1 = Document.objects.get(title='doc1')
+        doc2 = Document.objects.get(title='doc2')
+        doc3 = Document.objects.get(title='doc3')
+        doc1.corpus_set.add(corpus1)
+        self.assertEqual(list(corpus1.documents.all()), [doc1])
+        corpus1.documents.add(doc2, doc3)
+        self.assertEqual(list(corpus1.documents.all()), [doc1, doc2, doc3])
+
