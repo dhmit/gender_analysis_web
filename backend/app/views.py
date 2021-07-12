@@ -199,9 +199,9 @@ def update_corpus_docs(request):
     """
     corpus_data = request.data
     corpus_id = corpus_data['id']
-    docs_list = corpus_data['documents']
+    doc_ids = corpus_data['documents']
     corpus_obj = Corpus.objects.get(id=corpus_id)
-    corpus_obj.documents.set(docs_list)
+    corpus_obj.documents.set(Document.objects.filter(id__in=doc_ids))
     serializer = CorpusSerializer(corpus_obj)
     return Response(serializer.data)
 
