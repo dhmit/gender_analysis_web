@@ -498,7 +498,7 @@ class Corpus(models.Model):
     """
     title = models.CharField(max_length=30)
     description = models.CharField(max_length=500, blank=True)
-    documents = models.ManyToManyField(Document)
+    documents = models.ManyToManyField(Document, blank=True)
 
     class Meta:
         verbose_name_plural = "Corpora"
@@ -509,7 +509,7 @@ class Corpus(models.Model):
 
     def __len__(self):
         """Returns the number of documents associated with this corpus"""
-        return len(self.document_set.all())
+        return len(self.documents.all())
 
     def __iter__(self):
         """Yields each document associated with the corpus"""
@@ -524,7 +524,7 @@ class Corpus(models.Model):
         if len(self) != len(other):
             return False
 
-        if set(self.document_set.all()) == set(other.document_set.all()):
+        if set(self.documents.all()) == set(other.documents.all()):
             return True
         else:
             return False
