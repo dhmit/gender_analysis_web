@@ -41,13 +41,9 @@ NLTK_TAGS = {
     'WRB': 'Wh-adverb',
 }
 
-NLTK_TAGS_ADJECTIVES = ["JJ", "JJR", "JJS"]
-
-def print_header(header_str):
+def compute_bin_year(year, time_frame_start, bin_size):
     """
-    Print a header -- mostly for our command line tools.
+    Given an input year, the start of a time frame, and bin size,
+    computes which bin start date this year belongs to.
     """
-    print(dedent(f'''
-        ################################################################################
-        # {header_str}
-        ################################################################################'''))
+    return ((year - time_frame_start) // bin_size) * bin_size + time_frame_start
