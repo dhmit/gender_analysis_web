@@ -271,7 +271,7 @@ class Gender(models.Model):
 class Document(models.Model):
     """
     This model will hold the full text and
-    metadata (author, title, publication date, etc.) of a document
+    metadata (author, title, publication date, etc.) of a document.
     """
     author = models.CharField(max_length=255, blank=True)
     year = models.IntegerField(null=True, blank=True)
@@ -494,7 +494,7 @@ class Document(models.Model):
 class Corpus(models.Model):
     """
     This model will hold associations to other Documents and their
-    metadata (author, title, publication date, etc.)
+    metadata (author, title, publication date, etc.).
     """
     title = models.CharField(max_length=30)
     description = models.CharField(max_length=500, blank=True)
