@@ -11,6 +11,7 @@ models_to_register = [
     models.Gender,
     models.Character,
     models.Alias,
+    models.Corpus
 ]
 
 for model in models_to_register:

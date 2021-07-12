@@ -11,6 +11,7 @@ from .models import (
     Document,
     Character,
     Alias,
+    Corpus
 )
 
 
@@ -75,3 +76,12 @@ class SimpleDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = ['id', 'author', 'title', 'year', 'word_count']
+
+class CorpusSerializer(serializers.ModelSerializer):
+    """
+    Serializes a Corpus object
+    """
+
+    class Meta:
+        model = Corpus
+        fields = ['id', 'title', 'description']

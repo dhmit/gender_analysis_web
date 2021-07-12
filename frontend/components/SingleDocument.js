@@ -47,7 +47,7 @@ const SingleDocument = ({id}) => {
                     <p>
                         Author: {docData.author}
                         <br/>
-                        Year Published {docData.year ? docData : "Unknown"}
+                        Year Published {docData.year ? docData.year : "Unknown"}
                         <br/>
                         Word Count: {docData.word_count.toLocaleString()}
                     </p>
