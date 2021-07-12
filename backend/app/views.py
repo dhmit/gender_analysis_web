@@ -225,18 +225,3 @@ def all_corpora(request):
     corpus_objs = Corpus.objects.all()
     serializer = CorpusSerializer(corpus_objs, many=True)
     return Response(serializer.data)
-
-
-def corpora(request):
-    """
-    Corpora page
-    """
-
-    context = {
-        'page_metadata': {
-            'title': 'Corpora'
-        },
-        'component_name': 'Corpora'
-    }
-
-    return render(request, 'index.html', context)
