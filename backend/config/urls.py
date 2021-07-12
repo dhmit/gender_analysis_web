@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/add_corpus', views.add_corpus),
     path('api/update_corpus_docs', views.update_corpus_docs),
     path('api/delete_corpus', views.delete_corpus),
+    path('api/corpus/<int:corpus_id>', views.get_corpus),
 
     # View paths
     path('', views.index, name='index'),
@@ -41,5 +42,4 @@ urlpatterns = [
     path('example/<int:example_id>', views.example_id, name='example_id'),
     path('documents', views.documents, name='documents'),
     path('document/<int:doc_id>', views.single_document, name='document'),
-    path('corpora', views.corpora, name='corpora')
 ]

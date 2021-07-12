@@ -220,8 +220,18 @@ def delete_corpus(request):
 @api_view(['GET'])
 def all_corpora(request):
     """
-    API Endpoint to get all the corpora
+    API endpoint to get all the corpora
     """
     corpus_objs = Corpus.objects.all()
     serializer = CorpusSerializer(corpus_objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_corpus(request, corpus_id):
+    """
+    API endpoint to get a corpus based on id
+    """
+    corpus_obj = Corpus.objects.get(id=corpus_id)
+    serializer = CorpusSerializer(corpus_obj)
     return Response(serializer.data)
