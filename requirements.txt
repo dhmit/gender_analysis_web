@@ -4,10 +4,8 @@ django-cors-headers==3.6.0
 django-webpack-loader==1.0.0
 djangorestframework==3.12.2
 joblib==1.0.1
-memory_profiler==0.58.0
 more-itertools==8.8.0
 nltk==3.6.2
-psutil==5.8.0
 pytz==2020.5
 regex==2021.4.4
 sqlparse==0.4.1
