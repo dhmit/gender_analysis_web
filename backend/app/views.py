@@ -206,6 +206,17 @@ def update_corpus_docs(request):
     return Response(serializer.data)
 
 
+@api_view(['POST'])
+def delete_corpus(request):
+    """
+    API endpoint for deleting a corpus
+    """
+    corpus_id = request.data['id']
+    corpus_obj = Corpus.objects.get(id=corpus_id)
+    corpus_obj.delete()
+    return Response()
+
+
 @api_view(['GET'])
 def all_corpora(request):
     """
