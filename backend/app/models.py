@@ -533,20 +533,20 @@ class Corpus(models.Model):
 
     def __len__(self):
         """
-        :return: The number of documents associated with this corpus as an int.
+        :return: The number of documents associated with this `Corpus` object as an int.
         """
         return self.documents.count()
 
     def __iter__(self):
         """
-        Yields each `Document` associated with the `Corpus` instance.
+        Yields each `Document` associated with the `Corpus` object.
         """
         for doc_id in self.documents.values_list('pk', flat=True):
             yield self.documents.get(pk=doc_id)
 
     def __eq__(self, other):
         """
-        :return: True if both of the corpora are associated with the same `Document`s
+        :return: True if both of the corpora are associated with the same `Document`s.
         """
         if not isinstance(other, Corpus):
             raise NotImplementedError("Only a Corpus can be compared to another Corpus.")
