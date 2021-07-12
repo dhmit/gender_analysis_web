@@ -509,12 +509,12 @@ class Corpus(models.Model):
 
     def __len__(self):
         """Returns the number of documents associated with this corpus"""
-        return len(self.document_set.all())
+        return self.documents.count()
 
     def __iter__(self):
         """Yields each document associated with the corpus"""
-        for this_document in self.document_set.all():
-            yield this_document
+        for doc_id in self.documents.values_list('pk', flat=True):
+            yield self.documents.get(pk=doc_id)
 
     def __eq__(self, other):
         """Returns true if both of the corpora are associated with the same documents"""
@@ -524,7 +524,4 @@ class Corpus(models.Model):
         if len(self) != len(other):
             return False
 
-        if set(self.document_set.all()) == set(other.document_set.all()):
-            return True
-        else:
-            return False
+        return list(self.documents.values_list('pk', flat=True)) == list(other.documents.values_list('pk', flat=True))
