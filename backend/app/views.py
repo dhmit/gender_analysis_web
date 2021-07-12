@@ -192,6 +192,20 @@ def add_corpus(request):
     return Response(serializer.data)
 
 
+@api_view(['POST'])
+def update_corpus_docs(request):
+    """
+    API endpoint for updating the documents in a corpus
+    """
+    corpus_data = request.data
+    corpus_id = corpus_data['id']
+    docs_list = corpus_data['documents']
+    corpus_obj = Corpus.objects.get(id=corpus_id)
+    corpus_obj.documents.set(docs_list)
+    serializer = CorpusSerializer(corpus_obj)
+    return Response(serializer.data)
+
+
 @api_view(['GET'])
 def all_corpora(request):
     """
