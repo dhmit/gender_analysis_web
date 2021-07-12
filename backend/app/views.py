@@ -173,3 +173,18 @@ def all_genders(request):
     gender_objs = Gender.objects.all()
     serializer = GenderSerializer(gender_objs, many=True)
     return Response(serializer.data)
+
+
+def corpora(request):
+    """
+    Corpora page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Corpora'
+        },
+        'component_name': 'Corpora'
+    }
+
+    return render(request, 'index.html', context)

@@ -36,5 +36,6 @@ urlpatterns = [
     path('example', views.example, name='example'),
     path('example/<int:example_id>', views.example_id, name='example_id'),
     path('documents', views.documents, name='documents'),
-    path('document/<int:doc_id>', views.single_document, name='document')
+    path('document/<int:doc_id>', views.single_document, name='document'),
+    path('corpora', views.corpora, name='corpora')
 ]
