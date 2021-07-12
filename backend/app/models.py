@@ -270,7 +270,7 @@ class Gender(models.Model):
 
 class Document(models.Model):
     """
-    This model will hold the full text and
+    This model holds the full text and
     metadata (author, title, publication date, etc.) of a document.
     """
     author = models.CharField(max_length=255, blank=True)
@@ -284,6 +284,19 @@ class Document(models.Model):
     part_of_speech_tags = models.JSONField(null=True, blank=True, default=list)
 
     objects = DocumentManager()
+
+    def __repr__(self):
+        """
+        :return: A console-friendly representation of a `Document` object.
+        """
+        return f'<Document {self.pk}>'
+
+    def __str__(self):
+        """
+        :return: A string representation of a `Document` object.
+        """
+        title = self.title if self.title else '(No title)'
+        return f'Document {self.pk}: {title}'
 
     def _clean_quotes(self):
         """
@@ -303,7 +316,7 @@ class Document(models.Model):
         and converting everything to lowercase.
 
         :param self: The Document to tokenize
-        :return: none
+        :return: None
         """
         self._clean_quotes()
         tokens = nltk.word_tokenize(self.text)
@@ -493,7 +506,7 @@ class Document(models.Model):
 
 class Corpus(models.Model):
     """
-    This model will hold associations to other Documents and their
+    This model holds associations to other Documents and their
     metadata (author, title, publication date, etc.).
     """
     title = models.CharField(max_length=30)
@@ -503,21 +516,38 @@ class Corpus(models.Model):
     class Meta:
         verbose_name_plural = "Corpora"
 
+
+    def __repr__(self):
+        """
+        :return: A console-friendly representation of a `Corpus` object.
+        """
+        return f'<Corpus {self.pk}: {self.title}>'
+
+
     def __str__(self):
-        """Returns the title of the corpus"""
+        """
+        Specifies the `Corpus`'s title as its string representation.
+        :return: A string representation of a `Corpus` object.
+        """
         return self.title
 
     def __len__(self):
-        """Returns the number of documents associated with this corpus"""
+        """
+        :return: The number of documents associated with this corpus as an int.
+        """
         return self.documents.count()
 
     def __iter__(self):
-        """Yields each document associated with the corpus"""
+        """
+        Yields each `Document` associated with the `Corpus` instance.
+        """
         for doc_id in self.documents.values_list('pk', flat=True):
             yield self.documents.get(pk=doc_id)
 
     def __eq__(self, other):
-        """Returns true if both of the corpora are associated with the same documents"""
+        """
+        :return: True if both of the corpora are associated with the same `Document`s
+        """
         if not isinstance(other, Corpus):
             raise NotImplementedError("Only a Corpus can be compared to another Corpus.")
 
