@@ -1,3 +1,46 @@
 .docText {
     white-space: pre-wrap;
 }
+
+.characterObject {
+    padding: 20px;
+    background: #EFF0F6;
+    border-radius: 16px;
+    margin-top: 32px;
+    margin-bottom: 32px;
+}
+
+.characterTitle {
+    border-radius: 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 29px;
+    text-align: left;
+}
+
+.buttons {
+    font-size: 14px;
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: white;
+    margin-left: 20px;
+}
+
+.blue_button {
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-left: 20px;
+    background: rgba(47, 128, 237, 1);
+
+}
+
+.red_button {
+    border-radius: 10px;
+    padding: 8px 12px;
+    background: rgba(235, 87, 87, 1);
+}

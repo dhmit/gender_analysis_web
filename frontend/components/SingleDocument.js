@@ -9,22 +9,43 @@ const SingleDocument = ({id}) => {
     const [showText, setShowText] = useState(false);
     const [getCharacters, setGetCharacters] = useState(false);
 
-    function renderGender(gender) {
-        return gender.map((one_gender)=><span key={one_gender[0]}><b>{one_gender[0]}: {one_gender[1]}%   </b></span>);
-    }
-    function listAliases(character) {
-        return character.aliases.map((alias)=><li key={alias.name}>{alias.name}, {alias.count}</li>);
-    }
+    const charList = (characters) => {
+        return (
+            <div className="Characters">
+                {characters.map((character, i) => (
+                    <div key={character.common_name}>{SingleCharacter(character, i)}
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
-    function listCharacters() {
-        return docData.characters.map((char) => <p key={char.common_name}><h3>{char.common_name}</h3>
-            Full Name: {char.full_name}<br/>
-            Count: {char.count}<br/>
-            Gender: {renderGender(char.gender)}<br/>
-            Aliases: {listAliases(char)}
-        </p>);
-    }
+    const SingleCharacter = (character) => {
 
+        function renderGender(gender) {
+            return gender.map((one_gender)=><span key={one_gender[0]}>{one_gender[0]}: {one_gender[1]}% </span>);
+        }
+        function listAliases(character) {
+            return character.aliases.map((alias)=><li key={alias.name}>{alias.name}, {alias.count}</li>);
+        }
+
+        return (
+            <div key={character.common_name} className = {STYLES.characterObject}>
+                <div className = {STYLES.characterTitle}>
+                    <span>{character.common_name ? character.common_name : "Unknown"}</span>
+                    <span className = {STYLES.buttons}>
+                        <span className = {STYLES.red_button}>Merge</span>
+                        <span className = {STYLES.blue_button}>Delete</span>
+                    </span>
+                </div>
+                <hr className="solid"></hr>
+                <b>Full Name:</b> {character.full_name? character.full_name : "Unknown"}<br/>
+                <b>Count:</b> {character.count? character.count : "Unknown"}<br/>
+                <b>Gender:</b> {renderGender(character.gender)}<br/>
+                <b>Aliases:</b> {listAliases(character)}<br/>
+            </div>
+        );
+    };
 
     useEffect(() => {
         fetch(`/api/document/${id}`)
@@ -51,12 +72,13 @@ const SingleDocument = ({id}) => {
                         <br/>
                         Word Count: {docData.word_count.toLocaleString()}
                     </p>
-                    <p>
+                    <div>
                         <button className="btn btn-outline-primary mb3" onClick={handleGetCharacters}>
-                        {getCharacters ? "Hide Characters" : "Show Characters"}
+                            {getCharacters ? "Hide Characters" : "Show Characters"}
                         </button>
-                        {getCharacters && <p className={STYLES.docText}>{listCharacters()}</p>}
-                    </p>
+                        {getCharacters && <div className={STYLES.docText}>{charList(docData.characters)}</div>}
+                    </div>
+                    <br/>
                     <button className="btn btn-outline-primary mb-3" onClick={handleShowText}>
                         {showText ? "Hide Full Text" : "Show Full Text"}
                     </button>
