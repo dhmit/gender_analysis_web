@@ -21,11 +21,13 @@ def by_date(corpus_id,
 
 
     output = {}
-    # Results is the model for persistence of anaylsis results
+    # Results is the model for persistence of anaylsis results 
+    # Results model to be finalized
     results = Results.objects.all()[-1].results_dict
+    
+    all_gender_labels = [each_gender.label for each_gender in list(Gender.objects.all())]
 
     for bin_start_year in range(time_frame[0], time_frame[1], bin_size):
-        all_gender_labels = [each_gender.label for each_gender in list(Gender.objects.all())]
 
         output[bin_start_year] = {label: Counter() for label in all_gender_labels}
 
