@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import STYLES from "./Corpora.module.scss";
+// import STYLES from "./Corpora.module.scss";
 import {getCookie} from "../common";
 import {Modal} from "react-bootstrap";
 
@@ -91,8 +91,8 @@ const Corpora = () => {
                             <div className="row">
                                 <div className="col">
                                     <textarea row="4" className="form-control"
-                                id="description" value={newCorpusData.description}
-                                onChange={handleDescriptionInputChange}/>
+                                        id="description" value={newCorpusData.description}
+                                        onChange={handleDescriptionInputChange}/>
                                 </div>
                             </div>
                         </Modal.Body>
@@ -133,7 +133,7 @@ const Corpora = () => {
             {
                 addingCorpus && <div className="alert alert-warning" role="alert">
                         Currently adding corpus...Please do not close this tab.
-                    </div>
+                </div>
             }
             {addCorpusModal()}
             {
