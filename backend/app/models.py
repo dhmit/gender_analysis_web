@@ -95,13 +95,6 @@ class PronounSeries(models.Model):
 
         return self.identifier + '-series'
 
-    def __hash__(self):
-        """
-        Makes the `PronounSeries` class hashable
-        """
-
-        return self.identifier.__hash__()
-
     def __eq__(self, other):
         """
         Determines whether two `PronounSeries` are equal. Note that they are only equal if
@@ -170,13 +163,6 @@ class Gender(models.Model):
         """
 
         return self.label
-
-    def __hash__(self):
-        """
-        Allows the Gender object to be hashed
-        """
-
-        return self.label.__hash__()
 
     def __eq__(self, other):
         """
@@ -516,13 +502,11 @@ class Corpus(models.Model):
     class Meta:
         verbose_name_plural = "Corpora"
 
-
     def __repr__(self):
         """
         :return: A console-friendly representation of a `Corpus` object.
         """
         return f'<Corpus {self.pk}: {self.title}>'
-
 
     def __str__(self):
         """
