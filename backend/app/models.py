@@ -150,10 +150,10 @@ class Gender(models.Model):
         """
         :return: A console-friendly representation of the gender
         >>> Gender('Female')
-        <Female>
+        <Female (id=1)>
         """
 
-        return f'<{self.label}>'
+        return f'<{self.label} (id={self.pk})>'
 
     def __str__(self):
         """
