@@ -25,7 +25,7 @@ def run_analysis(corpus_id, gender_ids, word_window):
     doc_ids = Corpus.objects.filter(pk=corpus_id).values_list('documents__pk', flat=True)
 
     for key in doc_ids:
-        results[key] = generate_gender_token_counters(
+        results[key] = _generate_gender_token_counters(
             Document.objects.values_list('tokenized_text', flat=True).filter(pk=key),
             gender_ids,
             word_window
@@ -34,7 +34,7 @@ def run_analysis(corpus_id, gender_ids, word_window):
     return results
 
 
-def generate_gender_token_counters(text_query, gender_ids, word_window):
+def _generate_gender_token_counters(text_query, gender_ids, word_window):
     """
     Generates a dictionary mapping `Gender`s to a word count of words within a specified window of the `Gender`'s
     pronouns.
@@ -52,13 +52,13 @@ def generate_gender_token_counters(text_query, gender_ids, word_window):
     for gender_id in gender_ids:
         gender = Gender.objects.get(pk=gender_id)
 
-        doc_result = generate_token_counter(text_query, gender, word_window)
+        doc_result = _generate_token_counter(text_query, gender, word_window)
         results[gender.label] = doc_result
 
     return results
 
 
-def generate_token_counter(text_query, gender, word_window):
+def _generate_token_counter(text_query, gender, word_window):
     # pylint: disable=too-many-locals
     """
     Generates a 'Counter' instance mapping words to their frequency within a text.

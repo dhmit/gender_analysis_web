@@ -123,12 +123,12 @@ def all_documents(request):
 
 
 @api_view(['GET'])
-def get_document(request, doc_id):
+def all_genders(request):
     """
-    API Endpoint to get a document based on the ID
+    API Endpoint to get all gender instances.
     """
-    doc_obj = Document.objects.get(id=doc_id)
-    serializer = DocumentSerializer(doc_obj)
+    gender_objs = Gender.objects.all()
+    serializer = GenderSerializer(gender_objs, many=True)
     return Response(serializer.data)
 
 
@@ -147,6 +147,16 @@ def documents(request):
     return render(request, 'index.html', context)
 
 
+@api_view(['GET'])
+def get_document(request, doc_id):
+    """
+    API Endpoint to get a document based on the ID
+    """
+    doc_obj = Document.objects.get(id=doc_id)
+    serializer = DocumentSerializer(doc_obj)
+    return Response(serializer.data)
+
+
 def single_document(request, doc_id):
     """
     Single Document page
@@ -163,13 +173,3 @@ def single_document(request, doc_id):
     }
 
     return render(request, 'index.html', context)
-
-
-@api_view(['GET'])
-def all_genders(request):
-    """
-    API Endpoint to get all gender instances.
-    """
-    gender_objs = Gender.objects.all()
-    serializer = GenderSerializer(gender_objs, many=True)
-    return Response(serializer.data)
