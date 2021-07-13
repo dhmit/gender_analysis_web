@@ -528,3 +528,17 @@ class Corpus(models.Model):
             return True
         else:
             return False
+
+
+class NewResults(models.Model):
+    """
+    This model will persist the results from various proximity analysis functions.
+    """
+
+    results = models.JSONField()
+    by_date = models.JSONField()
+    by_document = models.JSONField()
+    by_gender = models.JSONField()
+    by_metadata = models.JSONField()
+    by_overlap = models.JSONField()
+
