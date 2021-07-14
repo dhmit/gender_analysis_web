@@ -6,10 +6,15 @@ import {getCookie} from "../common";
 const Corpus = ({id}) => {
 
     const [corpusData, setCorpusData] = useState({});
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch(`/api/corpus/${id}`)
+          .then(response => response.json())
+          .then(data => {
+              setCorpusData(data);
+              setLoading(false);
+          });
     }, []);
 
     return (
