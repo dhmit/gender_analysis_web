@@ -3,9 +3,86 @@ Tests for the gender analysis web app.
 """
 from collections import Counter
 from django.test import TestCase
+from django.core.exceptions import ObjectDoesNotExist
 from .models import (
+    PronounSeries,
     Document,
+    Corpus
 )
+
+
+class PronounSeriesTestCase(TestCase):
+    """
+    TestCase for the Pronoun model
+    """
+
+    def setUp(self):
+        PronounSeries.objects.create(
+            identifier='Masc_1',
+            subj='he',
+            obj='him',
+            pos_det='his',
+            pos_pro='HIS',
+            reflex='himself'
+        )
+
+        PronounSeries.objects.create(
+            identifier='Masc_2',
+            subj='HE',
+            obj='HIM',
+            pos_det='HIS',
+            pos_pro='HIS',
+            reflex='HIMSELF'
+        )
+
+        PronounSeries.objects.create(
+            identifier='Fem',
+            subj='she',
+            obj='her',
+            pos_det='her',
+            pos_pro='hers',
+            reflex='herself'
+        )
+
+    def test_PronounSeries_save(self):
+        """
+        Tests the __str__, __repr__, and __iter__ methods on the PronounSeries model.
+        By testing the model's .save() mechanism, this also tests that LowercaseCharField works
+        as expected.
+        """
+        masc_1 = PronounSeries.objects.get(pk=1)
+        masc_2 = PronounSeries.objects.get(pk=2)
+        self.assertEqual(str(masc_1), 'Masc_1-series')
+        self.assertEqual(repr(masc_2), "<Masc_2: ['he', 'him', 'himself', 'his']>")
+
+        with self.assertRaises(ObjectDoesNotExist):
+            was_converted_to_lowercase = PronounSeries.objects.get(reflex='HIMSELF')
+
+        has_caps_until_saving = PronounSeries(
+            identifier='Masc_2',
+            subj='HE',
+            obj='HIM',
+            pos_det='HIS',
+            pos_pro='HIS',
+            reflex='HIMSELF'
+        )
+
+        self.assertNotEqual(masc_2, has_caps_until_saving)
+
+        has_caps_until_saving.save()
+        self.assertEqual(masc_2, has_caps_until_saving)
+
+    def test_PronounSeries_methods(self):
+        """
+        Tests all other PronounSeries methods explicitly specified in the class not already tested
+        in test_PronounSeries_save.
+        """
+        fem = PronounSeries.objects.get(pk=3)
+
+        self.assertEqual(fem.all_pronouns, {'she', 'her', 'hers', 'herself'})
+        self.assertTrue('SHE' in fem)
+
+        should_be_hashable = {fem}
 
 
 class DocumentTestCase(TestCase):
@@ -110,19 +187,24 @@ class DocumentTestCase(TestCase):
         self.assertEqual(doc.word_count, 9)
 
 
-class MainTests(TestCase):
+class CorpusTestCase(TestCase):
     """
-    Backend TestCase
+    Test Cases for the Corpus Model
     """
 
-    # def setUp(self):
-    #     super().setUp()
-    #     do any setup here
+    def setUp(self):
+        Corpus.objects.create(title='corpus1', description='testing corpus save')
+        Document.objects.create_document(title='doc1', year=2021, text='The quick brown fox jumped over the lazy dog.')
+        Document.objects.create_document(title='doc2', text='She really likes to eat chocolate!')
+        Document.objects.create_document(title='doc3', text='Do you like ice cream as much as I do?')
 
-    def test_sample(self):
-        """
-        Remove me once we have real tests here.
-        """
-        two = 2
-        another_two = 2
-        self.assertEqual(two + another_two, 4)
+    def test_add_document_to_corpus(self):
+        corpus1 = Corpus.objects.get(title='corpus1')
+        doc1 = Document.objects.get(title='doc1')
+        doc2 = Document.objects.get(title='doc2')
+        doc3 = Document.objects.get(title='doc3')
+        doc1.corpus_set.add(corpus1)
+        self.assertEqual(list(corpus1.documents.all()), [doc1])
+        corpus1.documents.add(doc2, doc3)
+        self.assertEqual(list(corpus1.documents.all()), [doc1, doc2, doc3])
+

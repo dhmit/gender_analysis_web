@@ -107,7 +107,7 @@ class PronounSeries(models.Model):
         Determines whether two `PronounSeries` are equal. Note that they are only equal if
         they have the same identifier and the exact same set of pronouns.
 
-        >>> fem_series = PronounSeries.create(
+        >>> fem_series = PronounSeries.objects.create(
         ...     identifier='Fem',
         ...     subj='she',
         ...     obj='her',
@@ -115,7 +115,7 @@ class PronounSeries(models.Model):
         ...     pos_pro='hers',
         ...     reflex='herself'
         ... )
-        >>> second_fem_series = PronounSeries.create(
+        >>> second_fem_series = PronounSeries.objects.create(
         ...     identifier='Fem',
         ...     subj='she',
         ...     obj='her',
@@ -125,7 +125,7 @@ class PronounSeries(models.Model):
         ... )
         >>> fem_series == second_fem_series
         True
-        >>> masc_series = PronounSeries.create(
+        >>> masc_series = PronounSeries.objects.create(
         ...     identifier='Masc',
         ...     subj='he',
         ...     obj='him',
@@ -489,3 +489,42 @@ class Document(models.Model):
             self.text = new_metadata['text']
             self.get_tokenized_text_wc_and_pos()
         self.save()
+
+
+class Corpus(models.Model):
+    """
+    This model will hold associations to other Documents and their
+    metadata (author, title, publication date, etc.)
+    """
+    title = models.CharField(max_length=30)
+    description = models.CharField(max_length=500, blank=True)
+    documents = models.ManyToManyField(Document)
+
+    class Meta:
+        verbose_name_plural = "Corpora"
+
+    def __str__(self):
+        """Returns the title of the corpus"""
+        return self.title
+
+    def __len__(self):
+        """Returns the number of documents associated with this corpus"""
+        return len(self.document_set.all())
+
+    def __iter__(self):
+        """Yields each document associated with the corpus"""
+        for this_document in self.document_set.all():
+            yield this_document
+
+    def __eq__(self, other):
+        """Returns true if both of the corpora are associated with the same documents"""
+        if not isinstance(other, Corpus):
+            raise NotImplementedError("Only a Corpus can be compared to another Corpus.")
+
+        if len(self) != len(other):
+            return False
+
+        if set(self.document_set.all()) == set(other.document_set.all()):
+            return True
+        else:
+            return False

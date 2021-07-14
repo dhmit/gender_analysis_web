@@ -1,17 +1,8 @@
 """
-Miscellaneous utility functions useful throughout the system
+Miscellaneous utility functions and variables useful throughout the system
 """
 from textwrap import dedent
-from app.models import Gender
-
 from nltk.corpus import stopwords
-
-FEMALE = Gender.objects.all().filter(label="Female")
-MALE = Gender.objects.all().filter(label="Male")
-NONBINARY = Gender.objects.all().filter(label="Neo")
-
-BINARY_GROUP = [FEMALE, MALE]
-TRINARY_GROUP = [FEMALE, MALE, NONBINARY]
 
 SWORDS_ENG = stopwords.words('english')
 
