@@ -8,6 +8,7 @@ from ..models import (
     Document,
     Gender,
     Corpus,
+    ProximityAnalyses,
 )
 
 
@@ -18,17 +19,14 @@ def by_date(corpus_id,
             diff,
             limit,
             remove_swords):
-
-
     output = {}
     # Results is the model for persistence of anaylsis results 
     # Results model to be finalized
     results = Results.objects.all()[-1].results_dict
-    
+
     all_gender_labels = [each_gender.label for each_gender in list(Gender.objects.all())]
 
     for bin_start_year in range(time_frame[0], time_frame[1], bin_size):
-
         output[bin_start_year] = {label: Counter() for label in all_gender_labels}
 
     doc_ids = Corpus.objects.filter(pk=corpus_id).values_list('documents__pk', flat=True)
@@ -46,17 +44,17 @@ def by_date(corpus_id,
             )
 
     return apply_result_filters(output,
-                                 sort=sort,
-                                 diff=diff,
-                                 limit=limit,
-                                 remove_swords=remove_swords)
+                                sort=sort,
+                                diff=diff,
+                                limit=limit,
+                                remove_swords=remove_swords)
+
 
 def by_document(
-                sort,
-                diff,
-                limit,
-                remove_swords):
-
+        sort,
+        diff,
+        limit,
+        remove_swords):
     """
     Return analysis organized by Document.
     :param sort: Optional[bool], return Dict[int, Sequence[Tuple[str, int]]]
@@ -87,16 +85,17 @@ def by_document(
         output[Document.objects.values_list('title', flat=True).filter(pk=document_id)] = results[document_id]
 
     return apply_result_filters(output,
-                                 sort=sort,
-                                 diff=diff,
-                                 limit=limit,
-                                 remove_swords=remove_swords)
+                                sort=sort,
+                                diff=diff,
+                                limit=limit,
+                                remove_swords=remove_swords)
+
 
 def by_gender(
-              sort,
-              diff,
-              limit,
-              remove_swords):
+        sort,
+        diff,
+        limit,
+        remove_swords):
     """
     Return analysis organized by Document. Merges all words across texts
     into dictionaries sorted by gender.
@@ -154,12 +153,13 @@ def by_gender(
 
     return output
 
+
 def by_metadata(
-                metadata_field,
-                sort,
-                diff,
-                limit,
-                remove_swords):
+        metadata_field,
+        sort,
+        diff,
+        limit,
+        remove_swords):
     """
     Return analysis organized by Document metadata. Merges all words across texts
     into dictionaries sorted by provided metadata_key.
@@ -205,10 +205,11 @@ def by_metadata(
             ])
 
     return apply_result_filters(output,
-                                 sort=sort,
-                                 diff=diff,
-                                 limit=limit,
-                                 remove_swords=remove_swords)
+                                sort=sort,
+                                diff=diff,
+                                limit=limit,
+                                remove_swords=remove_swords)
+
 
 def by_overlap():
     """
@@ -241,7 +242,8 @@ def by_overlap():
 
     return output
 
-def apply_result_filters(key_gender_token_counters,diff,sort,limit,remove_swords):
+
+def apply_result_filters(key_gender_token_counters, diff, sort, limit, remove_swords):
     """
     A helper function for applying optional keyword arguments to the output of
     GenderProximityAnalysis methods, allowing the user to sort, diff, limit, and remove stopwords
@@ -280,6 +282,7 @@ def apply_result_filters(key_gender_token_counters,diff,sort,limit,remove_swords
 
     return output
 
+
 def diff_gender_token_counters(gender_token_counters):
     """
     A helper function that determines the difference of token occurrences
@@ -313,6 +316,7 @@ def diff_gender_token_counters(gender_token_counters):
 
     return difference_dict
 
+
 def remove_swords(gender_token_counters):
     """
     A helper function for removing stop words from a GenderTokenCounters dictionary.
@@ -337,7 +341,7 @@ def remove_swords(gender_token_counters):
 
 
 def sort_gender_token_counters(gender_token_counters,
-                                limit):
+                               limit):
     """
     A helper function for transforming a dictionary of token instances keyed by
     Gender.label into a sorted list of tuples.
@@ -364,6 +368,7 @@ def sort_gender_token_counters(gender_token_counters,
 
     return output_gender_token_counters
 
+
 def merge_token_counters(token_counters):
     """
     A helper function for combining multiple dictionaries of the shape token_frequency
@@ -379,57 +384,68 @@ def merge_token_counters(token_counters):
     """
     return reduce(lambda token_counter, total: token_counter + total, token_counters)
 
-def run_analysis(corpus_id, gender_ids, word_window):
+
+def run_analysis(corpus_id, word_window):
     """
     Generates a dictionary of dictionaries for each `Document` object. Each dictionary maps a `Gender` to a word count
     of words within a specified window of that `Gender`'s pronouns.
     :param corpus_id: An int representing a `Corpus` instance
-    :param gender_ids: A list of ints representing `Gender` ids
     :param word_window: An integer describing the number of words to look at of each side of a gendered word
     :return: A dict mapping `Document` ids to a dict mapping strings (`Gender` labels) to a `Counter` instance.
     """
-    results = {}
 
+    analysis_cache = ProximityAnalyses.objects.filter(corpus__pk=corpus_id, word_window=word_window)
+    if analysis_cache.exists():
+        return analysis_cache[0]
+
+    results = {}
     doc_ids = Corpus.objects.filter(pk=corpus_id).values_list('documents__pk', flat=True)
 
     for key in doc_ids:
-        results[key] = generate_gender_token_counters(
-            Document.objects.values_list('tokenized_text', flat=True).filter(pk=key),
-            gender_ids,
-            word_window
-        )
+        results[key] = _generate_gender_token_counters(
+            Document.objects.values_list('tokenized_text', flat=True).filter(pk=key), word_window)
 
-    return results
+    analysis = ProximityAnalyses.objects.create(results=results, word_window=word_window)
+
+    corpus_query = Corpus.objects.filter(pk=corpus_id)
+    analysis.corpus = corpus_query.get()
+    analysis.save()
+
+    return analysis
 
 
-def generate_gender_token_counters(text_query, gender_ids, word_window):
+def _generate_gender_token_counters(text_query, word_window):
     """
-    Generates a dictionary mapping `Gender`s to a word count of words within a specified window of the `Gender`'s
+    A private function generating a dictionary mapping `Gender`s to a word count of words within a specified window of the `Gender`'s
     pronouns.
+
     :param text_query: An unevaluated, length-1 `QuerySet` that returns a list of strings when evaluated
-    :param gender_ids: A list of ints representing `Gender` ids
     :param word_window: An integer describing the number of words to look at of each side of a gendered word
+
     :return: A dict mapping strings (`Gender` labels) to a `Counter` instance.
     """
 
     results = {}
+    gender_ids = Gender.objects.values_list('pk', flat=True)
 
     for gender_id in gender_ids:
         gender = Gender.objects.get(pk=gender_id)
 
-        doc_result = generate_token_counter(text_query, gender, word_window)
+        doc_result = _generate_token_counter(text_query, gender, word_window)
         results[gender.label] = doc_result
 
     return results
 
 
-def generate_token_counter(text_query, gender, word_window):
+def _generate_token_counter(text_query, gender, word_window):
     # pylint: disable=too-many-locals
     """
-    Generates a 'Counter' instance mapping words to their frequency within a text.
+    A private function generating a 'Counter' instance mapping words to their frequency within a text.
+
     :param text_query: An unevaluated, length-1 `QuerySet` that returns a list of strings when evaluated
     :param gender: A `Gender` object
     :param word_window: an integer describing the number of words to look at of each side of a gendered word
+
     :return: A 'Counter' instance showcasing the numbered occurrences of words around a gendered pronoun
     """
 

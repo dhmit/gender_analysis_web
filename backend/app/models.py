@@ -11,6 +11,7 @@ from .fields import LowercaseCharField
 from .managers import DocumentManager
 
 
+
 class PronounSeries(models.Model):
     """
     A class that allows users to define a custom series of pronouns to be used in
@@ -530,15 +531,26 @@ class Corpus(models.Model):
             return False
 
 
-class NewResults(models.Model):
+class ProximityAnalyses(models.Model):
     """
     This model will persist the results from various proximity analysis functions.
     """
 
+    corpus = models.ForeignKey(Corpus, related_name='proximity', on_delete=models.CASCADE)
+    word_window = models.PositiveIntegerField()
     results = models.JSONField()
-    by_date = models.JSONField()
-    by_document = models.JSONField()
-    by_gender = models.JSONField()
-    by_metadata = models.JSONField()
-    by_overlap = models.JSONField()
+
+    by_date = models.JSONField(default=dict)
+    by_document = models.JSONField(default=dict)
+    by_gender = models.JSONField(default=dict)
+    by_metadata = models.JSONField(default=dict)
+    by_overlap = models.JSONField(default=dict)
+
+
+
+# obj1 = ProximityAnalyses.objects.create(data=None)
+# ProximityAnalyses.objects.filter() # JSON null
+# ProximityAnalyses.objects.filter(results__isnull=True)
+#
+# obj2 = ProximityAnalyses.objects.create(Value('null')) #from django.db.models import Value
 
