@@ -139,11 +139,11 @@ def by_document(corpus_id,
 
 
 def by_gender(corpus_id,
-            word_window,
-            sort=False,
-            diff=False,
-            limit=10,
-            remove_swords=False):
+              word_window,
+              sort=False,
+              diff=False,
+              limit=10,
+              remove_swords=False):
     """
     Return analysis organized by Document. Merges all words across texts
     into dictionaries sorted by gender.
