@@ -13,18 +13,45 @@ from ..models import (
 
 
 def by_date(corpus_id,
+            word_window,
             time_frame,
             bin_size,
             sort,
             diff,
             limit,
             remove_swords):
-    output = {}
-    # Results is the model for persistence of anaylsis results 
-    # Results model to be finalized
-    results = Results.objects.all()[-1].results_dict
+    """
+    Return analysis organized by date.
 
-    all_gender_labels = [each_gender.label for each_gender in list(Gender.objects.all())]
+    :param corpus_id: An int representing a `Corpus` instance
+    :param word_window: An integer describing the number of words to look at of each side of a gendered word
+    :param time_frame: a tuple of the format (start_date, end_date).
+    :param bin_size: int for the number of years represented in each list of frequencies
+    :param sort: Optional[bool], return Dict[int, Sequence[Tuple[str, int]]]
+    :param diff: return the differences between genders.
+    :param limit: Optional[int], if sort=True, return n=limit number of items in desc order.
+    :param remove_swords: Optional[bool], remove stop words from return
+
+    :return: a dictionary of the shape { str(Gender.label): { str(token): int } } or
+             { str(Gender.label): [(str(token), int)] }
+    """
+
+    output = {}
+
+    analysis_query = ProximityAnalyses.objects.filter(
+        corpus__pk='corpus_id',
+        word_window=word_window
+    )
+
+    if not analysis_query.filter(by_date=dict()).exists():
+        # TENTATIVE! Debating whether or not to return the dictionary or the whole model to the view
+        return analysis_query.values_list('by_date', flat=True).get()
+
+    results_query = analysis_query.values_list(
+        'results', flat=True
+    )
+
+    all_gender_labels = Gender.objects.values_list('label', flat=True)
 
     for bin_start_year in range(time_frame[0], time_frame[1], bin_size):
         output[bin_start_year] = {label: Counter() for label in all_gender_labels}
@@ -40,49 +67,62 @@ def by_date(corpus_id,
 
         for gender_label in all_gender_labels:
             output[bin_year][gender_label] = merge_token_counters(
-                [results[each_id][gender_label], output[bin_year][gender_label]]
+                [results_query.get()[each_id][gender_label], output[bin_year][gender_label]]
             )
 
-    return apply_result_filters(output,
-                                sort=sort,
-                                diff=diff,
-                                limit=limit,
-                                remove_swords=remove_swords)
+    by_date_results = apply_result_filters(output,
+                                           sort=sort,
+                                           diff=diff,
+                                           limit=limit,
+                                           remove_swords=remove_swords)
+
+    analysis = analysis_query.get()
+    analysis.by_date = by_date_results
+    analysis.save()
+
+    # TENTATIVE! Debating whether or not to return the dictionary or the whole model to the view
+    return by_date_results
 
 
 def by_document(
+        corpus_id,
+        word_window,
         sort,
         diff,
         limit,
         remove_swords):
     """
     Return analysis organized by Document.
+
+    :param corpus_id: An int representing a `Corpus` instance
+    :param word_window: An integer describing the number of words to look at of each side of a gendered word
     :param sort: Optional[bool], return Dict[int, Sequence[Tuple[str, int]]]
     :param diff: return the differences between genders.
     :param limit: Optional[int], if sort=True, return n=limit number of items in desc order.
     :param remove_swords: Optional[bool], remove stop words from return
+
     :return: a dictionary of the shape { str(Gender.label): { str(token): int } } or
              { str(Gender.label): [(str(token), int)] }
-    >>> from gender_analysis.testing.common import DOCUMENT_TEST_PATH, DOCUMENT_TEST_CSV
-    >>> from gender_analysis import Corpus
-    >>> analyzer = GenderProximityAnalyzer(file_path=DOCUMENT_TEST_PATH,
-    ...                                    csv_path=DOCUMENT_TEST_CSV)
-    >>> doc = analyzer.corpus.documents[7]
-    >>> analyzer_document_labels = list(analyzer.by_document().keys())
-    >>> document_labels = list(map(lambda d: d.label, analyzer.corpus.documents))
-    >>> analyzer_document_labels == document_labels
-    True
-    >>> analyzer.by_document().get(doc.label)
-    {'Female': Counter({'sad': 6, 'died': 1}), 'Male': Counter()}
     """
 
     output = {}
 
-    # Results is the model for persistence of anaylsis results
-    results = Results.objects.all()[-1].results_dict
+    analysis_query = ProximityAnalyses.objects.filter(
+        corpus__pk='corpus_id',
+        word_window=word_window
+    )
 
-    for document_id in results:
-        output[Document.objects.values_list('title', flat=True).filter(pk=document_id)] = results[document_id]
+    if not analysis_query.filter(by_document=dict()).exists():
+        return analysis_query.values_list('by_document', flat=True).get()
+
+    results_query = analysis_query.values_list(
+        'results', flat=True
+    )
+
+    doc_ids = Corpus.objects.filter(pk=corpus_id).values_list('documents__pk', flat=True)
+
+    for document_id in doc_ids:
+        output[Document.objects.values_list('title', flat=True).filter(pk=document_id)] = results_query.get()[document_id]
 
     return apply_result_filters(output,
                                 sort=sort,
@@ -248,23 +288,14 @@ def apply_result_filters(key_gender_token_counters, diff, sort, limit, remove_sw
     A helper function for applying optional keyword arguments to the output of
     GenderProximityAnalysis methods, allowing the user to sort, diff, limit, and remove stopwords
     from the output. These transformations do not mutate the input.
+
     :param key_gender_token_counters: a dictionary shaped Dict[Union[str, int], GenderTokenCounters]
     :param diff: return the difference in token occurrences across Genders.
     :param sort: return an array of the shape Sequence[Tuple[str, int]]
     :param limit: if sort==True, return only n=limit token occurrences.
     :param remove_swords: remove stop words from output.
+
     :return: a dictionary of the shape Dict[Union[str, int], GenderTokenResponse]
-    >>> test_counter_1 = Counter({'foo': 1, 'bar': 2, 'own': 2})
-    >>> test_counter_2 = Counter({'foo': 5, 'baz': 2})
-    >>> test = {'doc': {'Male': test_counter_1, 'Female': test_counter_2}}
-    >>> _apply_result_filters(test, diff=True, sort=False, limit=10, remove_swords=False).get('doc')
-    {'Male': Counter({'bar': 2, 'own': 2, 'foo': -4}), 'Female': Counter({'foo': 4, 'baz': 2})}
-    >>> _apply_result_filters(test, diff=False, sort=True, limit=10, remove_swords=False).get('doc')
-    {'Male': [('bar', 2), ('own', 2), ('foo', 1)], 'Female': [('foo', 5), ('baz', 2)]}
-    >>> _apply_result_filters(test, diff=False, sort=False, limit=10, remove_swords=True).get('doc')
-    {'Male': Counter({'bar': 2, 'foo': 1}), 'Female': Counter({'foo': 5, 'baz': 2})}
-    >>> _apply_result_filters(test, diff=True, sort=True, limit=10, remove_swords=False).get('doc')
-    {'Male': [('bar', 2), ('own', 2), ('foo', -4)], 'Female': [('foo', 4), ('baz', 2)]}
     """
 
     output = {}
