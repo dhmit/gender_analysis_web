@@ -9,7 +9,8 @@ from .models import (
     PronounSeries,
     Gender,
     Document,
-    Corpus
+    Corpus,
+    ProximityAnalyses,
 )
 
 
@@ -53,6 +54,7 @@ class SimpleDocumentSerializer(serializers.ModelSerializer):
         model = Document
         fields = ['id', 'author', 'title', 'year', 'word_count']
 
+
 class CorpusSerializer(serializers.ModelSerializer):
     """
     Serializes a Corpus object
@@ -61,3 +63,22 @@ class CorpusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Corpus
         fields = ['id', 'title', 'description']
+
+
+class ProximityAnalysesSerializer(serializers.ModelSerializer):
+    """
+    Serializes a ProximityAnalyses object
+    """
+
+    class Meta:
+        model = ProximityAnalyses
+        fields = [
+            'id',
+            'word_window',
+            'results',
+            'by_date',
+            'by_document',
+            'by_gender',
+            'by_metadata',
+            'by_overlap'
+        ]
