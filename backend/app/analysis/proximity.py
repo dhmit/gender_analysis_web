@@ -124,14 +124,23 @@ def by_document(
     for document_id in doc_ids:
         output[Document.objects.values_list('title', flat=True).filter(pk=document_id)] = results_query.get()[document_id]
 
-    return apply_result_filters(output,
-                                sort=sort,
-                                diff=diff,
-                                limit=limit,
-                                remove_swords=remove_swords)
+    by_document_results = apply_result_filters(output,
+                                               sort=sort,
+                                               diff=diff,
+                                               limit=limit,
+                                               remove_swords=remove_swords)
+
+    analysis = analysis_query.get()
+    analysis.by_document = by_document_results
+    analysis.save()
+
+    # TENTATIVE! Debating whether or not to return the dictionary or the whole model to the view
+    return by_document_results
 
 
 def by_gender(
+        corpus_id,
+        word_window,
         sort,
         diff,
         limit,
@@ -139,43 +148,37 @@ def by_gender(
     """
     Return analysis organized by Document. Merges all words across texts
     into dictionaries sorted by gender.
+
+    :param corpus_id: An int representing a `Corpus` instance
+    :param word_window: An integer describing the number of words to look at of each side of a gendered word
     :param sort: Optional[bool], return Dict[str, Sequence[Tuple[str, int]]]
     :param diff: return the differences between genders.
     :param limit: Optional[int], if sort=True, return n=limit number of items in desc order.
     :param remove_swords: Optional[bool], remove stop words from return
+
     :return: a dictionary of the shape {Gender.label: {str: int, ...}, ...}
-    >>> from gender_analysis.testing.common import DOCUMENT_TEST_PATH, DOCUMENT_TEST_CSV
-    >>> from gender_analysis import Corpus
-    >>> analyzer = GenderProximityAnalyzer(file_path=DOCUMENT_TEST_PATH,
-    ...                                    csv_path=DOCUMENT_TEST_CSV)
-    >>> analyzer.by_gender().keys()
-    dict_keys(['Female', 'Male'])
-    >>> analyzer.by_gender().get('Female')
-    Counter({'sad': 14, 'beautiful': 3, 'died': 1})
-    >>> analyzer.by_gender(sort=True).get('Female')
-    [('sad', 14), ('beautiful', 3), ('died', 1)]
-    >>> analyzer.by_gender(diff=True).get('Female')
-    Counter({'beautiful': 3, 'died': 1, 'sad': 0})
-    >>> analyzer.by_gender(diff=True, sort=True).get('Female')
-    [('beautiful', 3), ('died', 1), ('sad', 0)]
     """
 
-    hashed_arguments = f"{str(sort)}{str(diff)}{str(limit)}{remove_swords}"
-
-    all_stored_hashed_arguments = Results.objects.values_list('gender_hashed_arguments', flat=True)
-
-    if hashed_arguments in all_stored_hashed_arguments:
-        return all_stored_hashed_arguments[hashed_arguments]
-
     merged_results = {}
-    all_gender_labels = [each_gender.label for each_gender in list(Gender.objects.all())]
 
-    # Results is the model for persistence of anaylsis results
-    results = Results.objects.all()[-1].results_dict
+    all_gender_labels = Gender.objects.values_list('label', flat=True)
+    doc_ids = Corpus.objects.filter(pk=corpus_id).values_list('documents__pk', flat=True)
+
+    analysis_query = ProximityAnalyses.objects.filter(
+        corpus__pk='corpus_id',
+        word_window=word_window
+    )
+
+    if not analysis_query.filter(by_gender=dict()).exists():
+        return analysis_query.values_list('by_gender', flat=True).get()
+
+    results_query = analysis_query.values_list(
+        'results', flat=True
+    )
 
     for gender_label in all_gender_labels:
         new_gender_token_counters = [
-            results[document_id][gender_label] for document_id in results
+            results_query.get()[document_id][gender_label] for document_id in doc_ids
         ]
         merged_results[gender_label] = {}
         merged_results[gender_label] = merge_token_counters(new_gender_token_counters)
@@ -191,10 +194,16 @@ def by_gender(
     if sort:
         output = sort_gender_token_counters(output, limit=limit)
 
+    analysis = analysis_query.get()
+    analysis.by_gender = output
+    analysis.save()
+
+    # TENTATIVE! Debating whether or not to return the dictionary or the whole model to the view
     return output
 
-
 def by_metadata(
+        corpus_id,
+        word_window,
         metadata_field,
         sort,
         diff,
@@ -203,34 +212,35 @@ def by_metadata(
     """
     Return analysis organized by Document metadata. Merges all words across texts
     into dictionaries sorted by provided metadata_key.
-    :param metadata_key: a string.
+
+    :param corpus_id: An int representing a `Corpus` instance
+    :param word_window: An integer describing the number of words to look at of each side of a gendered word
+    :param metadata_field: a string.
     :param sort: Optional[bool], return Dict[str, Sequence[Tuple[str, int]]]
     :param diff: return the differences between genders.
     :param limit: Optional[int], if sort=True, return n=limit number of items in desc order.
     :param remove_swords: Optional[bool], remove stop words from return
+
     :return: a dictionary of the shape {Gender.label: {str: int , ...}, ...}.
-    >>> from gender_analysis.testing.common import DOCUMENT_TEST_PATH, DOCUMENT_TEST_CSV
-    >>> from gender_analysis import Corpus
-    >>> analyzer = GenderProximityAnalyzer(file_path=DOCUMENT_TEST_PATH,
-    ...                                    csv_path=DOCUMENT_TEST_CSV)
-    >>> analyzer.by_metadata('author_gender').keys()
-    dict_keys(['male', 'female'])
-    >>> analyzer.by_metadata('author_gender').get('female')
-    {'Female': Counter({'sad': 7}), 'Male': Counter({'sad': 12, 'deep': 1})}
-    >>> analyzer.by_metadata('author_gender', sort=True).get('female')
-    {'Female': [('sad', 7)], 'Male': [('sad', 12), ('deep', 1)]}
-    >>> analyzer.by_metadata('author_gender', diff=True).get('female')
-    {'Female': Counter({'sad': -5}), 'Male': Counter({'sad': 5, 'deep': 1})}
     """
 
     output = {}
 
-    # Results is the model for persistence of anaylsis results
-    results = Results.objects.all()[-1].results_dict
+    analysis_query = ProximityAnalyses.objects.filter(
+        corpus__pk='corpus_id',
+        word_window=word_window
+    )
 
-    all_gender_labels = [each_gender.label for each_gender in list(Gender.objects.all())]
+    if not analysis_query.filter(by_metadata=dict()).exists():
+        return analysis_query.values_list('by_metadata', flat=True).get()
 
-    for document_id, gender_token_counters in results.items():
+    results_query = analysis_query.values_list(
+        'results', flat=True
+    )
+
+    all_gender_labels = Gender.objects.values_list('label', flat=True)
+
+    for document_id, gender_token_counters in results_query.get().items():
         matching_field = Document.objects.values_list(metadata_field, flat=True).filter(pk=document_id)
 
         if matching_field not in output:
@@ -244,30 +254,44 @@ def by_metadata(
                 output[matching_field][gender_label]
             ])
 
-    return apply_result_filters(output,
-                                sort=sort,
-                                diff=diff,
-                                limit=limit,
-                                remove_swords=remove_swords)
+    by_metadata_results = apply_result_filters(output,
+                                               sort=sort,
+                                               diff=diff,
+                                               limit=limit,
+                                               remove_swords=remove_swords)
+
+    analysis = analysis_query.get()
+    analysis.by_metadata = by_metadata_results
+    analysis.save()
+
+    # TENTATIVE! Debating whether or not to return the dictionary or the whole model to the view
+    return by_metadata_results
 
 
-def by_overlap():
+def by_overlap(corpus_id,word_window):
     """
     Looks through the gendered words across the corpus and extracts words that overlap
     across all genders and their occurrences sorted.
+
+    :param corpus_id: An int representing a `Corpus` instance
+    :param word_window: An integer describing the number of words to look at of each side of a gendered word
+
     :return: {str: [gender1, gender2, ...], ...}
-    >>> from gender_analysis.testing.common import DOCUMENT_TEST_PATH, DOCUMENT_TEST_CSV
-    >>> from gender_analysis import Corpus
-    >>> analyzer = GenderProximityAnalyzer(file_path=DOCUMENT_TEST_PATH,
-    ...                                    csv_path=DOCUMENT_TEST_CSV)
-    >>> analyzer.by_overlap()
-    {'sad': {'Female': 14, 'Male': 14}}
     """
 
     output = {}
+
+    analysis_query = ProximityAnalyses.objects.filter(
+        corpus__pk='corpus_id',
+        word_window=word_window
+    )
+
+    if not analysis_query.filter(by_overlap=dict()).exists():
+        return analysis_query.values_list('by_overlap', flat=True).get()
+
     sets_of_adjectives = {}
 
-    all_gender_labels = [each_gender.label for each_gender in list(Gender.objects.all())]
+    all_gender_labels = Gender.objects.values_list('label', flat=True)
 
     for gender_label in all_gender_labels:
         sets_of_adjectives[gender_label] = set(list(by_gender()[gender_label].keys()))
@@ -279,6 +303,10 @@ def by_overlap():
         for gender_label in all_gender_labels:
             results_by_gender[gender_label] = by_gender().get(gender_label).get(adj)
         output[adj] = results_by_gender
+
+    analysis = analysis_query.get()
+    analysis.by_overlap = output
+    analysis.save()
 
     return output
 
