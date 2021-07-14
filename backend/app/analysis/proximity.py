@@ -200,6 +200,8 @@ def by_gender(corpus_id,
     # TENTATIVE! Debating whether or not to return the dictionary or the whole model to the view
     return output
 
+    # TENTATIVE! Debating whether or not to return the dictionary or the whole model to the view
+    return output
 
 def by_metadata(corpus_id,
                 word_window,
@@ -287,6 +289,15 @@ def by_overlap(corpus_id, word_window):
         return analysis_query.values_list('by_overlap', flat=True).get()
 
     output = {}
+
+    analysis_query = ProximityAnalyses.objects.filter(
+        corpus__pk='corpus_id',
+        word_window=word_window
+    )
+
+    if not analysis_query.filter(by_overlap=dict()).exists():
+        return analysis_query.values_list('by_overlap', flat=True).get()
+
     sets_of_adjectives = {}
 
     all_gender_labels = Gender.objects.values_list('label', flat=True)
