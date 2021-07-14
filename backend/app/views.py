@@ -25,6 +25,10 @@ import json
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import render
+
+from .analysis import (
+    proximity,
+)
 from .models import (
     Document,
     Gender
@@ -32,7 +36,8 @@ from .models import (
 from .serializers import (
     DocumentSerializer,
     SimpleDocumentSerializer,
-    GenderSerializer
+    GenderSerializer,
+    ProximityAnalysesSerializer,
 )
 
 
@@ -122,16 +127,6 @@ def all_documents(request):
     return Response(serializer.data)
 
 
-@api_view(['GET'])
-def get_document(request, doc_id):
-    """
-    API Endpoint to get a document based on the ID
-    """
-    doc_obj = Document.objects.get(id=doc_id)
-    serializer = DocumentSerializer(doc_obj)
-    return Response(serializer.data)
-
-
 def documents(request):
     """
     All Documents page
@@ -145,6 +140,29 @@ def documents(request):
     }
 
     return render(request, 'index.html', context)
+
+
+@api_view(['GET'])
+def get_document(request, doc_id):
+    """
+    API Endpoint to get a document based on the ID
+    """
+    doc_obj = Document.objects.get(id=doc_id)
+    serializer = DocumentSerializer(doc_obj)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_proximity_base_analysis(request, corpus_id, word_window):
+    """
+    API endpoint to run and retrieve results of analyses
+    defined in `app.analysis.proximity.py`.
+    """
+
+    analysis_results = proximity.run_analysis(corpus_id, word_window)
+    serializer = ProximityAnalysesSerializer(analysis_results)
+
+    return Response(serializer.data)
 
 
 def single_document(request, doc_id):
