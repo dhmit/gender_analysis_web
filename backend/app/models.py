@@ -545,12 +545,3 @@ class ProximityAnalyses(models.Model):
     by_gender = models.JSONField(default=dict)
     by_metadata = models.JSONField(default=dict)
     by_overlap = models.JSONField(default=dict)
-
-
-
-# obj1 = ProximityAnalyses.objects.create(data=None)
-# ProximityAnalyses.objects.filter() # JSON null
-# ProximityAnalyses.objects.filter(results__isnull=True)
-#
-# obj2 = ProximityAnalyses.objects.create(Value('null')) #from django.db.models import Value
-
