@@ -59,10 +59,11 @@ const Documents = () => {
 
     const handleAttributeInputChange = (event, index) => {
         const {name, value} = event.target;
-        console.log(name, value);
-        const attributesList = [...newAttributes];
-        attributesList[index][name] = value;
-        setNewAttributes(attributesList);
+        setNewAttributes(prevAttributes => {
+            return prevAttributes.map((attribute, i) => {
+                return i === index ? {...attribute, [name]:value} : attribute;
+            });
+        });
     };
 
     const handleAddAttribute = () => {
