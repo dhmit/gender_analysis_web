@@ -9,6 +9,8 @@ class DocumentManager(models.Manager):
         doc = self.create(**attributes)
         doc.get_tokenized_text_wc_and_pos()
         doc.get_tokenized_sentences()
+        doc.get_aliases(get_corefs=True)
+        doc.get_disambiguated_characters(cutoff_num=25)
         return doc
 
 
