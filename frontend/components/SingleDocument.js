@@ -4,7 +4,7 @@ import STYLES from "./SingleDocument.module.scss";
 import {MergeTypeRounded} from "@material-ui/icons";
 import {DeleteRounded} from "@material-ui/icons";
 import {CloseRounded} from "@material-ui/icons";
-import {PeopleAltRounded} from "@material-ui/icons";
+import SectionNavbar from './SectionNavbar';
 
 const SingleDocument = ({id}) => {
 
@@ -12,6 +12,9 @@ const SingleDocument = ({id}) => {
     const [loading, setLoading] = useState(true);
     const [showText, setShowText] = useState(false);
     const [getCharacters, setGetCharacters] = useState(false);
+
+    const tabs = ['Overview', 'Characters', 'Full Text'];
+    const [tab, setTab] = useState(tabs[0]);
 
     const charList = (characters) => {
         return (
@@ -39,7 +42,8 @@ const SingleDocument = ({id}) => {
 
 
         function renderGender(gender) {
-            return gender.map((one_gender)=><span key={one_gender[0]}>{one_gender[0]}: {one_gender[1]}% </span>);
+            return gender.map((one_gender)=>
+                <span key={one_gender[0]}>{one_gender[0]}: {one_gender[1]}% </span>);
         }
 
         return (
@@ -88,37 +92,56 @@ const SingleDocument = ({id}) => {
             });
     }, []);
 
-    const handleShowText = () => setShowText(prevShowText => !prevShowText);
-    const handleGetCharacters = () => setGetCharacters(prevGetCharacters => !prevGetCharacters);
+
 
     return (
-        <div className="container-fluid">
-            {loading
-                ? <p>Currently Loading Documents...</p>
-                : <div>
-                    <h1>{docData.title}</h1>
-                    <p>
-                        Author: {docData.author}
-                        <br/>
-                        Year Published {docData.year ? docData.year : "Unknown"}
-                        <br/>
-                        Word Count: {docData.word_count.toLocaleString()}
-                    </p>
-                    <div>
-                        <button className="btn btn-outline-primary mb3" onClick={handleGetCharacters}>
-                            {getCharacters ? "Hide Characters" : "Show Characters"}
-                        </button>
-                        {getCharacters && <div className={STYLES.docText}>{charList(docData.characters)}</div>}
+        <div className={"container-fluid"}>
+
+            <SectionNavbar tabs = {tabs} tab = {tab} onTabChange = {setTab} PageTitle={docData.title}/>
+
+            <div className = "document-content">
+                { loading
+                    ? <p>Currently Loading Document...</p>
+                    : <div className = {STYLES.docText}>
+                        {tab === 'Overview' && "Overview Goes Here"}
+                        {tab === 'Characters' && <div>{charList(docData.characters)}</div>}
+                        {tab === 'Full Text' && <div>{docData.text}</div>}
                     </div>
-                    <br/>
-                    <button className="btn btn-outline-primary mb-3" onClick={handleShowText}>
-                        {showText ? "Hide Full Text" : "Show Full Text"}
-                    </button>
-                    {showText && <p className={STYLES.docText}>{docData.text}</p>}
-                </div>
-            }
+                }
+
+            </div>
         </div>
     );
+
+
+    // return (
+    //     <div className="container-fluid">
+    //         {loading
+    //             ? <p>Currently Loading Documents...</p>
+    //             : <div>
+    //                 <h1>{docData.title}</h1>
+    //                 <p>
+    //                     Author: {docData.author}
+    //                     <br/>
+    //                     Year Published {docData.year ? docData.year : "Unknown"}
+    //                     <br/>
+    //                     Word Count: {docData.word_count.toLocaleString()}
+    //                 </p>
+    //                 <div>
+    //                     <button className="btn btn-outline-primary mb3" onClick={handleGetCharacters}>
+    //                         {getCharacters ? "Hide Characters" : "Show Characters"}
+    //                     </button>
+    //                     {getCharacters && <div className={STYLES.docText}>{charList(docData.characters)}</div>}
+    //                 </div>
+    //                 <br/>
+    //                 <button className="btn btn-outline-primary mb-3" onClick={handleShowText}>
+    //                     {showText ? "Hide Full Text" : "Show Full Text"}
+    //                 </button>
+    //                 {showText && <p className={STYLES.docText}>{docData.text}</p>}
+    //             </div>
+    //         }
+    //     </div>
+    // );
 };
 
 
