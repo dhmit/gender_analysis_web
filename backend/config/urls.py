@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/example/<int:example_id>', views.get_example),
     path('api/all_documents', views.all_documents),
     path('api/add_document', views.add_document),
+    path('api/delete_document', views.delete_document),
 
     # View paths
     path('', views.index, name='index'),

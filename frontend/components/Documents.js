@@ -19,6 +19,14 @@ const Documents = () => {
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
+    const [deletingDoc, setDeletingDoc] = useState(false);
+    const [newDeletingDocData, setNewDeletingDocData] = useState({
+        "id": ""
+    });
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const handleShowDeleteModal = () => setShowDeleteModal(true);
+    const handleCloseDeleteModal = () => setShowDeleteModal(false);
+
     useEffect(() => {
         fetch("/api/all_documents")
             .then(response => response.json())
@@ -56,6 +64,13 @@ const Documents = () => {
 	    }));
     };
 
+    const handleIDInputChange = (event) => {
+	    setNewDeletingDocData((values) => ({
+		    ...values,
+		    id: event.target.value
+	    }));
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
         setAddingDoc(true);
@@ -84,6 +99,31 @@ const Documents = () => {
                     "text": ""
                 });
                 setAddingDoc(false);
+            });
+    };
+
+    const handleDeleteSubmit = (event) => {
+        event.preventDefault();
+        setDeletingDoc(true);
+        const csrftoken = getCookie("csrftoken");
+        const requestOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken
+            },
+            body: JSON.stringify({
+                id: newDeletingDocData.id
+            })
+        };
+        fetch("api/delete_document", requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                setDocData(docData => docData.filter(item => item.id !== Number(newDeletingDocData.id)));
+                setNewDeletingDocData({
+                    "id": ""
+                });
+                setDeletingDoc(false);
             });
     };
 
@@ -164,6 +204,37 @@ const Documents = () => {
         );
     };
 
+    const deleteDocModal = () => {
+        return (
+            <>
+                <button className="btn btn-primary"
+                    onClick={handleShowDeleteModal}>Delete Document</button>
+                <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+                    <Modal.Header closeButton>Delete Document</Modal.Header>
+                    <form onSubmit={handleDeleteSubmit}>
+                        <Modal.Body>
+                            <div className="row mb-3">
+                                <label htmlFor="id"
+                                    className="col-2 col-form-label">Id Number</label>
+                                <div className="col">
+                                    <input type="text" className="form-control"
+                                        id="id" value={newDeletingDocData.id}
+                                        onChange={handleIDInputChange}/>
+                                </div>
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <button className="btn btn-secondary"
+                                onClick={handleCloseDeleteModal}>Close</button>
+                            <button className="btn btn-primary"
+                                type="submit" onClick={handleCloseDeleteModal}>Delete</button>
+                        </Modal.Footer>
+                    </form>
+                </Modal>
+            </>
+        );
+    };
+
     return (
         <div>
             <h1>This is the Documents page.</h1>
@@ -177,7 +248,17 @@ const Documents = () => {
                     </div>
                     : null
             }
+            {
+                deletingDoc
+                    ? <div className="alert alert-warning" role="alert">
+                        Currently deleting document... Please do not close this tab.
+                    </div>
+                    : null
+            }
             {addDocModal()}
+            <p></p>
+            {deleteDocModal()}
+            <p></p>
             {
                 loading
                     ? <p>Currently Loading Documents...</p>
