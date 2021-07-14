@@ -22,9 +22,13 @@ context = {
 """
 import json
 
+from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.shortcuts import render
+
+from analysis import (
+    proximity,
+)
 from .models import (
     Document,
     Gender
@@ -155,6 +159,19 @@ def get_document(request, doc_id):
     doc_obj = Document.objects.get(id=doc_id)
     serializer = DocumentSerializer(doc_obj)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_proximity_analysis(request, corpus_id, word_window):
+    """
+    API endpoint to run and retrieve results of analyses
+    defined in `app.analysis.proximity.py`.
+    """
+    gender_ids = Gender.objects.values_list('pk', flat=True)
+
+    analysis_results = proximity.run_analysis(corpus_id, gender_ids, word_window)
+
+    return Response(json.dumps(analysis_results))
 
 
 def single_document(request, doc_id):
