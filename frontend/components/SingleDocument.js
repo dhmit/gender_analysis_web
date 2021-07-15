@@ -5,6 +5,8 @@ import {MergeTypeRounded} from "@material-ui/icons";
 import {DeleteRounded} from "@material-ui/icons";
 import {CloseRounded} from "@material-ui/icons";
 import {PeopleAltRounded} from "@material-ui/icons";
+import {getCookie} from "../common";
+import {Modal} from "react-bootstrap";
 
 const SingleDocument = ({id}) => {
 
