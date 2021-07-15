@@ -29,18 +29,17 @@ const Corpus = ({id}) => {
     }, []);
 
     const handleCheckBoxChange = (event) => {
-      setDocCheckbox((values) => ({
-          ...values,
-          [event.target.id]: !docCheckbox[event.target.id]
-      }));
+        setDocCheckbox((values) => ({
+            ...values,
+            [event.target.id]: !docCheckbox[event.target.id]
+        }));
     };
 
     const updateDocs = (event) => {
         event.preventDefault();
-        const docList = [];
-        Object.entries(docCheckbox).map(([id, value]) => {
-            if (value) docList.push(id);
-        });
+        const docList = Object.keys(docCheckbox).filter((id) => {
+            return docCheckbox[id];
+        }).map(id => parseInt(id));
         const csrftoken = getCookie("csrftoken");
         const requestOptions = {
             method: "POST",
@@ -63,7 +62,7 @@ const Corpus = ({id}) => {
     const allDocsList = () => {
         return (
             <form onSubmit={updateDocs}>
-                <h3>Documents in Corpus:</h3>
+                <h3>Documents:</h3>
                 {allDocData.map((doc, i) => (
                     <div key={i} className="custom-control custom-checkbox">
                         <input type="checkbox"
@@ -72,10 +71,10 @@ const Corpus = ({id}) => {
                             onChange={handleCheckBoxChange}/>
                         <label className="custom-control-label"
                             htmlFor={doc.id}>
-                            {doc.title}, by {doc.author} {doc.year ? `(${doc.year})` : null}</label>
+                            {doc.title}, by {doc.author} {doc.year && `(${doc.year})`}</label>
                     </div>
                 ))}
-                <button className="btn btn-primary" type="submit">Update</button>
+                <button className="btn btn-primary mt-3" type="submit">Update documents</button>
             </form>
         );
     };
