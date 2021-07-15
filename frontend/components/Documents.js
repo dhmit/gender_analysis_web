@@ -71,9 +71,9 @@ const Documents = () => {
     };
 
     const handleRemoveAttribute = (index) => {
-        const attributesList = [...newAttributes];
-        attributesList.splice(index, 1);
-        setNewAttributes(attributesList);
+        setNewAttributes(previousAttributes => (
+            previousAttributes.filter((attribute, idx) => idx !== index)
+        ));
     };
 
     const handleSubmit = (event) => {
