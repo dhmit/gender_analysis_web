@@ -23,7 +23,7 @@ const SingleCharacter = (character) => {
 
     const SingleAlias = (alias) => {
         return (
-            <span key = {alias.name} className = {STYLES.SingleAlias}>{alias.name}
+            <span key = {alias.name} className = {STYLES.SingleAlias}> {alias.name}
                 | {alias.count} <CloseRounded textSize = "inherit"/></span>
         );
     };

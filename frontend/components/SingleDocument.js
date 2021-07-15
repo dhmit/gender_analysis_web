@@ -56,15 +56,16 @@ const SingleDocument = ({id}) => {
     return (
         <div className={"container-fluid"}>
 
-            <SectionNavbar tabs = {tabs} tab = {tab} onTabChange = {setTab} PageTitle={docData.title}/>
+            <SectionNavbar tabs = {tabs} tab = {tab} onTabChange =
+                {setTab} PageTitle={docData.title}/>
 
             <div className = "document-content">
                 { loading
                     ? <p>Currently Loading Document...</p>
                     : <div className = {STYLES.docText}>
-                        {tab === 'Overview' && <DocumentOverview />}
-                        {tab === 'Characters' && <div>{charList(docData.characters)}</div>}
-                        {tab === 'Full Text' && <div>{docData.text}</div>}
+                        {tab === "Overview" && <DocumentOverview />}
+                        {tab === "Characters" && <div>{charList(docData.characters)}</div>}
+                        {tab === "Full Text" && <div>{docData.text}</div>}
                     </div>
                 }
 
