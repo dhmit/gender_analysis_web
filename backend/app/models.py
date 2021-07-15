@@ -845,7 +845,7 @@ class Document(models.Model):
                 self.aliases.add(alias)
         self.save()
 
-    def get_disambiguated_characters(self, cutoff_num=10):
+    def get_disambiguated_characters(self, cutoff_num=20):
         """
         Input: A dictionary of aliases.
         Output: A list of disambiguated Character objects.
