@@ -20,7 +20,7 @@ class PronounSeriesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PronounSeries
-        fields = ['identifier', 'subj', 'obj', 'pos_det', 'pos_pro', 'reflex', 'all_pronouns']
+        fields = ['id', 'identifier', 'subj', 'obj', 'pos_det', 'pos_pro', 'reflex', 'all_pronouns']
 
 
 class GenderSerializer(serializers.ModelSerializer):
@@ -31,7 +31,7 @@ class GenderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Gender
-        fields = ['label', 'pronoun_series', 'pronouns', 'subj', 'obj']
+        fields = ['id', 'label', 'pronoun_series', 'pronouns', 'subj', 'obj']
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -53,6 +53,7 @@ class SimpleDocumentSerializer(serializers.ModelSerializer):
         model = Document
         fields = ['id', 'author', 'title', 'year', 'word_count']
 
+
 class CorpusSerializer(serializers.ModelSerializer):
     """
     Serializes a Corpus object
@@ -60,4 +61,4 @@ class CorpusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Corpus
-        fields = ['id', 'title', 'description']
+        fields = ['id', 'title', 'description', 'documents']
