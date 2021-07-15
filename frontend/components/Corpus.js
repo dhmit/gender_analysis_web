@@ -22,7 +22,7 @@ const Corpus = ({id}) => {
                 setAllDocData(data);
                 data.map((doc) => setDocCheckbox((values) => ({
           		    ...values,
-          		    [doc.id]: corpusData.documents.include(doc.id)
+          		    [doc.id]: corpusData.documents.includes(doc.id)
           	    })));
                 setLoading(false);
             });
