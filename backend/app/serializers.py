@@ -61,4 +61,4 @@ class CorpusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Corpus
-        fields = ['id', 'title', 'description']
+        fields = ['id', 'title', 'description', 'documents']

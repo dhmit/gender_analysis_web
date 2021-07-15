@@ -497,7 +497,7 @@ class Corpus(models.Model):
     """
     title = models.CharField(max_length=30)
     description = models.CharField(max_length=500, blank=True)
-    documents = models.ManyToManyField(Document)
+    documents = models.ManyToManyField(Document, blank=True)
 
     class Meta:
         verbose_name_plural = "Corpora"
