@@ -18,7 +18,7 @@ const SectionNavbar = ({tabs, tab, onTabChange, PageTitle}) => {
                         key={tab_name} onClick={() => onTabChange(tab_name)}>{tab_name}</button>
                     ))
                 }
-                <hr className = "solid" />
+                <hr className = {STYLES.Divider} />
             </div>
         </div>
     );

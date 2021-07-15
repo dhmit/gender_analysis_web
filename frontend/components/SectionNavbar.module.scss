@@ -1,8 +1,10 @@
 .ActiveTabButton {
-  border: transparent;
   background-color: transparent;
   color: blue;
-  text-underline-style: dash;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-left-color: transparent;
+  border-bottom-color: blue;
 }
 
 .InactiveTabButton {
@@ -17,4 +19,9 @@
   padding-top: 16px;
   padding-bottom: 16px;
   font-style: italic;
+}
+
+.Divider {
+  margin-top: -2px;
+  margin-bottom: 20px;
 }

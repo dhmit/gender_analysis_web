@@ -1,19 +1,15 @@
 import React, {useEffect, useState} from "react";
 import * as PropTypes from "prop-types";
 import STYLES from "./SingleDocument.module.scss";
-import {MergeTypeRounded} from "@material-ui/icons";
-import {DeleteRounded} from "@material-ui/icons";
-import {CloseRounded} from "@material-ui/icons";
-import SectionNavbar from './SectionNavbar';
+import SectionNavbar from "./SectionNavbar";
+import SingleCharacter from "./SingleCharacter.js";
 
 const SingleDocument = ({id}) => {
 
     const [docData, setDocData] = useState({});
     const [loading, setLoading] = useState(true);
-    const [showText, setShowText] = useState(false);
-    const [getCharacters, setGetCharacters] = useState(false);
 
-    const tabs = ['Overview', 'Characters', 'Full Text'];
+    const tabs = ["Overview", "Characters", "Full Text"];
     const [tab, setTab] = useState(tabs[0]);
 
     const charList = (characters) => {
@@ -27,59 +23,22 @@ const SingleDocument = ({id}) => {
         );
     };
 
-    const aliasList = (aliases) => {
+    const DocumentOverview = () => {
         return (
-            <div className={STYLES.AliasList}>
-                {aliases.map((alias, i) => (
-                    <div key={alias.name}>{SingleAlias(alias, i)}
-                    </div>
-                ))}
-            </div>
-        );
-    };
-
-    const SingleCharacter = (character) => {
-
-
-        function renderGender(gender) {
-            return gender.map((one_gender)=>
-                <span key={one_gender[0]}>{one_gender[0]}: {one_gender[1]}% </span>);
-        }
-
-        return (
-            <div key={character.common_name} className = {STYLES.characterObject}>
-                <div className = {STYLES.characterTitle}>
-                    <span>{character.common_name ? character.common_name : "Unknown"}</span>
-                    <span className = {STYLES.buttons}>
-                        <span className = {STYLES.red_button}><MergeTypeRounded /> Merge</span>
-                        <span className = {STYLES.blue_button}><DeleteRounded />Delete</span>
-                    </span>
+            <div className = "document-overview">
+                <div className = "document-title">
+                    <b>Title: </b>{docData.title ? docData.title: "Unknown"}
                 </div>
-
-                <hr className="solid" />
-
-                <div className = {STYLES.characterMetadata}>
-                    <div className = {STYLES.characterStats}>
-                        <b>Full Name:</b> {character.full_name? character.full_name : "Unknown"}<br/>
-                        <b>Count:</b> {character.count? character.count : "Unknown"}<br/>
-                        <b>Gender:</b> {renderGender(character.gender)}<br/>
-                    </div>
-                    <div className = {STYLES.characterAliases}>
-                        <div className = {STYLES.aliasWordContainer}>
-                            <b>Aliases:</b>
-                        </div>
-                        <div className = {STYLES.aliasListContainer}>
-                            {aliasList(character.aliases)}
-                        </div>
-                    </div>
+                <div className = "document-author">
+                    <b>Author: </b>{docData.author ? docData.author: "Unknown"}
+                </div>
+                <div className = "document-year">
+                    <b>Year of Publication: </b>{docData.year ? docData.year: "Unknown"}
+                </div>
+                <div className = "document-word-count">
+                    <b>Word Count: </b>{docData.word_count.toLocaleString()}
                 </div>
             </div>
-        );
-    };
-
-    const SingleAlias = (alias) => {
-        return (
-            <span key = {alias.name} className = {STYLES.SingleAlias}>{alias.name} | {alias.count} <CloseRounded textSize = "inherit"/></span>
         );
     };
 
@@ -103,7 +62,7 @@ const SingleDocument = ({id}) => {
                 { loading
                     ? <p>Currently Loading Document...</p>
                     : <div className = {STYLES.docText}>
-                        {tab === 'Overview' && "Overview Goes Here"}
+                        {tab === 'Overview' && <DocumentOverview />}
                         {tab === 'Characters' && <div>{charList(docData.characters)}</div>}
                         {tab === 'Full Text' && <div>{docData.text}</div>}
                     </div>
@@ -113,35 +72,6 @@ const SingleDocument = ({id}) => {
         </div>
     );
 
-
-    // return (
-    //     <div className="container-fluid">
-    //         {loading
-    //             ? <p>Currently Loading Documents...</p>
-    //             : <div>
-    //                 <h1>{docData.title}</h1>
-    //                 <p>
-    //                     Author: {docData.author}
-    //                     <br/>
-    //                     Year Published {docData.year ? docData.year : "Unknown"}
-    //                     <br/>
-    //                     Word Count: {docData.word_count.toLocaleString()}
-    //                 </p>
-    //                 <div>
-    //                     <button className="btn btn-outline-primary mb3" onClick={handleGetCharacters}>
-    //                         {getCharacters ? "Hide Characters" : "Show Characters"}
-    //                     </button>
-    //                     {getCharacters && <div className={STYLES.docText}>{charList(docData.characters)}</div>}
-    //                 </div>
-    //                 <br/>
-    //                 <button className="btn btn-outline-primary mb-3" onClick={handleShowText}>
-    //                     {showText ? "Hide Full Text" : "Show Full Text"}
-    //                 </button>
-    //                 {showText && <p className={STYLES.docText}>{docData.text}</p>}
-    //             </div>
-    //         }
-    //     </div>
-    // );
 };
 
 
