@@ -53,6 +53,7 @@ class SimpleDocumentSerializer(serializers.ModelSerializer):
         model = Document
         fields = ['id', 'author', 'title', 'year', 'word_count']
 
+
 class CorpusSerializer(serializers.ModelSerializer):
     """
     Serializes a Corpus object
@@ -60,4 +61,4 @@ class CorpusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Corpus
-        fields = ['id', 'title', 'description']
+        fields = ['id', 'title', 'description', 'documents']
