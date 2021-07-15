@@ -15,10 +15,12 @@ const SingleDocument = ({id}) => {
     const charList = (characters) => {
         return (
             <div className="Characters">
-                {characters.map((character, i) => (
-                    <div key={character.common_name}>{SingleCharacter(character, i)}
-                    </div>
-                ))}
+                {characters.length
+                    ? characters.map(character => <div key={character.common_name}>
+                        {SingleCharacter(character)}</div>)
+                    : <div> No characters found. <br />
+                        <button className = {STYLES.button}>Generate Character List</button></div>
+                }
             </div>
         );
     };
@@ -52,7 +54,6 @@ const SingleDocument = ({id}) => {
     }, []);
 
 
-
     return (
         <div className={"container-fluid"}>
 
@@ -72,7 +73,6 @@ const SingleDocument = ({id}) => {
             </div>
         </div>
     );
-
 };
 
 
