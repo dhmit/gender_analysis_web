@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from "react";
 import * as PropTypes from "prop-types";
-import STYLES from "./SingleDocument.module.scss";
+import STYLES from "../scss/SingleDocument.module.scss";
 import SectionNavbar from "./SectionNavbar";
 import SingleCharacter from "./SingleCharacter.js";
-
 const SingleDocument = ({id}) => {
 
     const [docData, setDocData] = useState({});
@@ -18,8 +17,9 @@ const SingleDocument = ({id}) => {
                 {characters.length
                     ? characters.map(character => <div key={character.common_name}>
                         {SingleCharacter(character)}</div>)
-                    : <div> No characters found. <br />
-                        <button className = {STYLES.button}>Generate Character List</button></div>
+                    : <div> <button className = {STYLES.button}>
+                        Generate Character List
+                    </button></div>
                 }
             </div>
         );

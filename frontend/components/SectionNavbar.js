@@ -1,5 +1,5 @@
 import * as PropTypes from "prop-types";
-import STYLES from "./SectionNavbar.module.scss";
+import STYLES from "../scss/SectionNavbar.module.scss";
 import React from "react";
 
 

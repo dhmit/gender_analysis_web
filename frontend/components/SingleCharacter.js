@@ -1,4 +1,4 @@
-import STYLES from "./SingleCharacter.module.scss";
+import STYLES from "../scss/SingleCharacter.module.scss";
 import {CloseRounded, DeleteRounded, MergeTypeRounded} from "@material-ui/icons";
 
 import React from "react";

@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import * as PropTypes from "prop-types";
-import STYLES from "./ExampleId.module.scss";
+import STYLES from "../scss/ExampleId.module.scss";
 
 const ExampleId = ({id}) => {
 

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 // import * as PropTypes from "prop-types";
-import STYLES from "./Documents.module.scss";
+import STYLES from "../scss/Documents.module.scss";
 import {getCookie} from "../common";
 import {Modal} from "react-bootstrap";
 
