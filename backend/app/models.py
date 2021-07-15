@@ -181,7 +181,7 @@ class Gender(models.Model):
     def __eq__(self, other):
         """
         Performs a check to see whether two `Gender` objects are equivalent. This is true if and
-        only if the `Gender` identifiers, pronoun series, and names are identical.
+        only if the `Gender` labels and pronoun series are identical.
 
         Note that this comparison works:
         >>> fem_pronouns = PronounSeries.objects.create('Fem', *['she', 'her', 'her', 'hers', 'herself'])
