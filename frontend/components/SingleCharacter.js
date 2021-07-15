@@ -1,6 +1,23 @@
 import STYLES from "./SingleCharacter.module.scss";
 import {CloseRounded, DeleteRounded, MergeTypeRounded} from "@material-ui/icons";
+
 import React from "react";
+
+import { createTheme } from '@material-ui/core/styles';
+import purple from '@material-ui/core/colors/purple';
+import green from '@material-ui/core/colors/green';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: purple[500],
+    },
+    secondary: {
+      main: green[500],
+    },
+  },
+});
+
 
 const SingleCharacter = (character) => {
 
@@ -20,11 +37,11 @@ const SingleCharacter = (character) => {
         );
     };
 
-
     const SingleAlias = (alias) => {
         return (
-            <span key = {alias.name} className = {STYLES.SingleAlias}> {alias.name}
-                | {alias.count} <CloseRounded textSize = "inherit"/></span>
+            <button key = {alias.name} className = {STYLES.SingleAlias}>
+                {alias.name} ({alias.count})
+                <CloseRounded /></button>
         );
     };
 
@@ -33,8 +50,8 @@ const SingleCharacter = (character) => {
             <div className = {STYLES.characterTitle}>
                 <span>{character.common_name ? character.common_name : "Unknown"}</span>
                 <span className = {STYLES.buttons}>
-                    <span className = {STYLES.red_button}><MergeTypeRounded /> Merge</span>
-                    <span className = {STYLES.blue_button}><DeleteRounded />Delete</span>
+                    <button className = {STYLES.blue_button}><MergeTypeRounded />Merge</button>
+                    <button className = {STYLES.red_button}><DeleteRounded />Delete</button>
                 </span>
             </div>
 
