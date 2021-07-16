@@ -7,39 +7,41 @@ const Corpus = ({id}) => {
 
     const [corpusData, setCorpusData] = useState({});
     const [allDocData, setAllDocData] = useState([]);
-    const [docCheckbox, setDocCheckbox] = useState({});
+    const [containsDoc, setContainsDoc] = useState({});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let docsList;
         fetch(`/api/corpus/${id}`)
             .then(response => response.json())
             .then(data => {
                 setCorpusData(data);
+                docsList = data.documents;
             });
         fetch("/api/all_documents")
             .then(response => response.json())
             .then(data => {
                 setAllDocData(data);
-                data.map((doc) => setDocCheckbox((values) => ({
+                data.map((doc) => setContainsDoc((values) => ({
           		    ...values,
-          		    [doc.id]: corpusData.documents.includes(doc.id)
+          		    [doc.id]: docsList.includes(doc.id)
           	    })));
                 setLoading(false);
             });
     }, []);
 
     const handleCheckBoxChange = (event) => {
-        setDocCheckbox((values) => ({
+        setContainsDoc((values) => ({
             ...values,
-            [event.target.id]: !docCheckbox[event.target.id]
+            [event.target.id]: !containsDoc[event.target.id]
         }));
     };
 
     const updateDocs = (event) => {
         event.preventDefault();
-        const docList = Object.keys(docCheckbox).filter((id) => {
-            return docCheckbox[id];
-        }).map(id => parseInt(id));
+        const docList = Object.keys(containsDoc).filter((id) => {
+            return containsDoc[id];
+        });
         const csrftoken = getCookie("csrftoken");
         const requestOptions = {
             method: "POST",
@@ -52,7 +54,7 @@ const Corpus = ({id}) => {
                 documents: docList
             })
         };
-        fetch("api/update_corpus_docs", requestOptions)
+        fetch("/api/update_corpus_docs", requestOptions)
             .then(response => response.json())
             .then(data => {
                 setCorpusData(data);
@@ -67,7 +69,7 @@ const Corpus = ({id}) => {
                     <div key={i} className="custom-control custom-checkbox">
                         <input type="checkbox"
                             className="custom-control-input"
-                            id={doc.id} checked={docCheckbox[doc.id]}
+                            id={doc.id} checked={containsDoc[doc.id]}
                             onChange={handleCheckBoxChange}/>
                         <label className="custom-control-label"
                             htmlFor={doc.id}>
