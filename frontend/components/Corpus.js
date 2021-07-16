@@ -68,21 +68,22 @@ const Corpus = ({id}) => {
     const docsList = () => {
         return (
             <>
-                <h6>Documents:</h6>
+                <h5>Documents:</h5>
                 {
                     corpusData.documents.length
-                    ? <ul>
-                        {allDocData.map((doc, i) => {
-                            if (corpusData.documents.includes(doc.id)) {
-                                return (
-                                    <li key={i}>
-                                        {doc.title}, by {doc.author} {doc.year && `(${doc.year})`}
-                                    </li>
-                                );
-                            }
-                        })}
-                    </ul>
-                    : <p><i>There are no documents in this corpus.</i></p>
+                        ? <ul>
+                            {allDocData.map((doc, i) => {
+                                if (corpusData.documents.includes(doc.id)) {
+                                    return (
+                                        <li key={i}>
+                                            <i>{doc.title}</i>, by {doc.author} {doc.year &&
+                                                `(${doc.year})`}
+                                        </li>
+                                    );
+                                }
+                            })}
+                        </ul>
+                        : <p><i>There are no documents in this corpus.</i></p>
                 }
 
             </>
@@ -92,7 +93,8 @@ const Corpus = ({id}) => {
     const updateDocsList = () => {
         return (
             <>
-                <button className="btn btn-outline-secondary" onClick={handleOpenModal}>Update Documents</button>
+                <button className="btn btn-outline-secondary"
+                    onClick={handleOpenModal}>Update Documents</button>
                 <Modal show={showModal} onHide={handleCloseModal}>
                     <Modal.Header closeButton>Update Documents</Modal.Header>
                     <form onSubmit={updateDocs}>
@@ -105,7 +107,8 @@ const Corpus = ({id}) => {
                                         onChange={handleCheckBoxChange}/>
                                     <label className="custom-control-label"
                                         htmlFor={doc.id}>
-                                        {doc.title}, by {doc.author} {doc.year && `(${doc.year})`}</label>
+                                        <i>{doc.title}</i>, by {doc.author} {doc.year &&
+                                            `(${doc.year})`}</label>
                                 </div>
                             ))}
                         </Modal.Body>
@@ -126,8 +129,8 @@ const Corpus = ({id}) => {
             {loading
                 ? <p>Currently loading Corpus...</p>
                 : <div>
-                    <h1>{corpusData.title}</h1>
-                    <h6>Description</h6>
+                    <h1>Corpus: {corpusData.title}</h1>
+                    <h5>Description</h5>
                     <p>{corpusData.description}</p>
                     {docsList()}
                     {updateDocsList()}
