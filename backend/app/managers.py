@@ -9,9 +9,18 @@ class DocumentManager(models.Manager):
         doc = self.create(**attributes)
         doc.get_tokenized_text_wc_and_pos()
         doc.get_tokenized_sentences()
-        doc.get_aliases(get_corefs=True)
-        doc.get_disambiguated_characters(cutoff_num=10)
+        # doc.get_aliases(get_corefs=False)
+        # doc.get_disambiguated_characters(cutoff_num=10)
         return doc
+
+
+class DocumentWithCharacterManager(models.Manager):
+    def create_document_with_character(self, **attributes):
+        doc = self.create(**attributes)
+        doc.get_tokenized_text_wc_and_pos()
+        doc.get_tokenized_sentences()
+        doc.get_aliases(True)
+        doc.get_disambiguated_characters(cutoff_num=10)
 
 
 class CharacterManager(models.Manager):
