@@ -45,7 +45,7 @@ const Corpora = () => {
         const csrftoken = getCookie("csrftoken");
         const requestOptions = {
             method: "POST",
-            header: {
+            headers: {
                 "Content-Type": "application/json",
                 "X-CRSFToken": csrftoken
             },
