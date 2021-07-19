@@ -243,6 +243,21 @@ def get_corpus(request, corpus_id):
     return Response(serializer.data)
 
 
+def corpora(request):
+    """
+    Corpora page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Corpora'
+        },
+        'component_name': 'Corpora'
+    }
+
+    return render(request, 'index.html', context)
+
+
 def corpus(request, corpus_id):
     """
     Corpus Page
@@ -259,3 +274,4 @@ def corpus(request, corpus_id):
     }
 
     return render(request, 'index.html', context)
+    
