@@ -30,6 +30,11 @@ urlpatterns = [
     path('api/add_document', views.add_document),
     path('api/document/<int:doc_id>', views.get_document),
     path('api/all_genders', views.all_genders),
+    path('api/all_corpora', views.all_corpora),
+    path('api/add_corpus', views.add_corpus),
+    path('api/update_corpus_docs', views.update_corpus_docs),
+    path('api/delete_corpus', views.delete_corpus),
+    path('api/corpus/<int:corpus_id>', views.get_corpus),
 
     # View paths
     path('', views.index, name='index'),

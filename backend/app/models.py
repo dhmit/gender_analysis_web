@@ -539,3 +539,6 @@ class Corpus(models.Model):
             return False
 
         return list(self.documents.values_list('pk', flat=True)) == list(other.documents.values_list('pk', flat=True))
+
+    def __hash__(self):
+        return super().__hash__()
