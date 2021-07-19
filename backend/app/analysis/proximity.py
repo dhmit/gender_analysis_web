@@ -1,4 +1,3 @@
-import nltk
 from collections import Counter
 from more_itertools import windowed
 
@@ -6,6 +5,7 @@ from ..models import (
     Document,
     Gender,
     Corpus,
+    PronounSeries,
 )
 
 
@@ -44,38 +44,44 @@ def generate_gender_token_counters(pos_tags, genders, word_window):
     :param genders: A set of Gender objects
     :param word_window: An integer describing the number of words to look at of each side of a gendered word
 
-    :return: A dict mapping strings (`Gender` labels) to a `Counter` instance.
+    :return: A dict mapping a `Gender` instance to a dict mapping a 'PRONOUN_TYPE' to a dict instance
+     mapping part of speech tag to a `Counter` instance.
 
     """
 
     results = {}
 
     for gender in genders:
-        doc_result = generate_token_counter(pos_tags, gender, word_window)
-        results[gender.label] = doc_result
+        results[gender] = dict()
+
+        for PRONOUN_TYPE in PronounSeries.PRONOUN_TYPES:
+            pronoun_set = gender.pronoun_series.values_list(PRONOUN_TYPE, flat=True)
+            doc_result = generate_token_counter(pos_tags, pronoun_set, word_window)
+            results[gender][PRONOUN_TYPE] = doc_result
 
     return results
 
 
-def generate_token_counter(pos_tags, gender, word_window):
+def generate_token_counter(pos_tags, pronoun_set, word_window):
     # pylint: disable=too-many-locals
     """
     Generates a 'Counter' instance mapping words to their frequency within a text.
 
     :param pos_tags: A list of 2-element tuples: the first element is a word (str), and the second element is a
         part-of-speech tag (str).
-    :param gender: A `Gender` object
+    :param pronoun_set: A QuerySet that returns a set of strings (pronouns) when evaluated, filtered by the type of
+        pronoun
     :param word_window: An integer describing the number of words to look at on each side of a gendered word
 
     :return: A 'Dict' instance mapping the part of speech tag to a 'Counter' instance,
-        which features the numbered occurrences of words around a gendered pronoun
+        which features the numbered occurrences of words around a gendered pronoun. The dict is of the following form:
+        {int: {Gender: {str, {str, Counter(str, int)}}}}
 
     """
-
     output = {}
 
     for tagged_tokens in windowed(pos_tags, 2 * word_window + 1):
-        if tagged_tokens[word_window][0].lower() in gender.pronouns:
+        if tagged_tokens[word_window][0].lower() in pronoun_set:
 
             for index, tagged_token in enumerate(tagged_tokens):
                 word = tagged_token[0].lower()
