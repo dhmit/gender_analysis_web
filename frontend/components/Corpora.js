@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-// import STYLES from "./Corpora.module.scss";
+import STYLES from "./Corpora.module.scss";
 import {getCookie} from "../common";
 import {Modal} from "react-bootstrap";
 
@@ -114,7 +114,7 @@ const Corpora = () => {
                     <div className="col-6 mb-3" key={i}>
                         <div className="card">
                             <div className="card-body">
-                                <h6>{corpus.title}</h6>
+                                <h2 className={STYLES.title}>{corpus.title}</h2>
                                 <p>{corpus.description}</p>
                             </div>
                         </div>
