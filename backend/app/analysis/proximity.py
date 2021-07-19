@@ -75,7 +75,7 @@ def generate_token_counter(pos_tags, pronoun_set, word_window):
 
     :return: A 'Dict' instance mapping the part of speech tag to a 'Counter' instance,
         which features the numbered occurrences of words around a gendered pronoun. The dict is of the following form:
-        {int: {Gender: {str, {str, Counter(str, int)}}}}
+        {int: {Gender: {str: {str, Counter(str, int)}}}}
 
     """
     output = {}

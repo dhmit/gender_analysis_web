@@ -2,13 +2,17 @@
 Tests for the gender analysis web app.
 """
 from collections import Counter
+
 from django.test import TestCase
 from django.core.exceptions import ObjectDoesNotExist
+
 from .models import (
     PronounSeries,
     Document,
-    Corpus
+    Corpus,
+    Gender,
 )
+from analysis import proximity
 
 
 class PronounSeriesTestCase(TestCase):
@@ -208,3 +212,147 @@ class CorpusTestCase(TestCase):
         corpus1.documents.add(doc2, doc3)
         self.assertEqual(list(corpus1.documents.all()), [doc1, doc2, doc3])
 
+
+class ProximityTestCase(TestCase):
+    """
+    Test Cases for the analysis functions in `proximity.py`
+    """
+
+    def setUp(self):
+        text_1 = "He went to get himself an ice cream for her. She was happy."
+        text_2 = "Fairest Cordelia, that art most rich being poor; Most choice, forsaken; and most loved her, despised, " \
+                 "herself and himself virtues here I hers hers seize upon. Lear then banishes his daughter to France."
+        text_3 = "She sells seashells by the seashore. He he reads books. She likes math. His father is scared of spiders. "
+
+        Document.objects.create_document(title='Text 1', year=2021, text=text_1)
+        Document.objects.create_document(title='Text 2', year=2021, text=text_2)
+        Document.objects.create_document(title='Text 3', year=2021, text=text_3)
+
+        corpus = Corpus.objects.create(
+            title='Test Corpus',
+            description='Testing the analysis functions in `proximity.py`'
+        )
+        corpus.documents.add(1, 2, 3)
+
+    def test_proximity(self):
+        male = Gender.objects.get(pk=1)
+        female = Gender.objects.get(pk=2)
+
+        #  MALE --> (identifier = "Masc",subj = "he",obj = "him",pos_det = "his",pos_pro = "his",reflex = "himself")
+        #  FEMALE --> (identifier = "Fem",subj = "she",obj = "her",pos_det = "hers",pos_pro = "her",reflex = "herself")
+
+        results = proximity.run_analysis(1, 3)
+        expected = {
+            1: {
+                male: {
+                    'subj': {'PRP': Counter({"he": 1}),
+                             'VBD': Counter({"went": 1}),
+                             'PRT': Counter({"to": 1}),
+                             'VB': Counter({"get": 1}),
+                             },
+                    'obj': {},
+                    'pos_det': {},
+                    'pos_pro': {},
+                    'reflex': {'PRP': Counter({"himself": 1}),
+                               'VBD': Counter({"went": 1}),
+                               'PRT': Counter({"to": 1}),
+                               'VB': Counter({"get": 1}),
+                               'DT': Counter({"an": 1}),
+                               'NN': Counter({"ice": 1}),
+                               'NN': Counter({"cream": 1}),
+                    }
+                },
+                female: {
+                    'subj': {'PRP': Counter({"she": 1}),
+                             'NN': Counter({"cream": 1}),
+                             'IN': Counter({"for": 1}),
+                             'PRP': Counter({"her": 1}),
+                             'VBD': Counter({"was": 1}),
+                             'JJ': Counter({"happy": 1})
+                             },
+                    'obj': {'PRP': Counter({"her": 1}),
+                             'NN': Counter({"ice": 1}),
+                             'NN': Counter({"cream": 1}),
+                             'IN': Counter({"for": 1}),
+                             'PRP': Counter({"she": 1}),
+                             'VBD': Counter({"was": 1}),
+                             'JJ': Counter({"happy": 1})
+                             },
+                    'pos_det': {},
+                    'pos_pro': {},
+                    'reflex': {}
+                }
+            },
+            2: {
+                male: {
+                    'subj': {},
+                    'obj': {},
+                    'pos_det': {},
+                    'pos_pro': {},
+                    'reflex': {
+                        'VBN': Counter(['despised']),
+                        'PRP': Counter(['herself', 'i']),
+                        'CC': Counter(['and']),
+                        'NNS': Counter(['virtues']),
+                        'RB': Counter(['here'])
+                    }
+                },
+                female: {
+                    'subj': {},
+                    'obj': {
+                        'CC': Counter(['and', 'and']),
+                        'RBS': Counter(['most']),
+                        'VBD': Counter(['loved', 'despised']),
+                        'PRP': Counter(['herself']),
+                        },
+                    'pos_det': {},
+                    'pos_pro': {
+                        'NNS': Counter(['virtues', 'hers', 'hers']),
+                        'RB': Counter(['here', 'here']),
+                        'PRP': Counter(['I', 'I']),
+                        'VB': Counter(['seize', 'seize']),
+                        'IN': Counter(['upon']),
+                        'NNP': Counter(['lear']),
+                    },
+                    'reflex': {
+                        'PRP': Counter(['her', 'himself']),
+                        'VBD': Counter(['loved']),
+                        'VBN': Counter(['despised']),
+                        'CC': Counter(['and']),
+                        'NNS': Counter(['virtues'])
+                    }
+                }
+            },
+            3: {
+                male: {
+                    'subj': {
+                        'IN': Counter(['by']),
+                        'DT': Counter(['the']),
+                        'NN': Counter(['seashore']),
+                        'PRP': Counter(['he']),
+                        'VBZ': Counter(['reads']),
+                        'NNS': Counter(['books'])
+                    },
+                    'obj': {},
+                    'pos_det': {},
+                    'pos_pro': {},
+                    'reflex': {}
+                },
+                female: {
+                    'subj': {
+                        'VBZ': Counter(['sells', 'reads', 'likes']),
+                        'NN': Counter(['math']),
+                        'NNS': Counter(['seashells', 'books']),
+                        'IN': Counter(['by']),
+                        'PRP': Counter(['he']),
+                        'PRP$': Counter(['his'])
+                    },
+                    'obj': {},
+                    'pos_det': {},
+                    'pos_pro': {},
+                    'reflex': {}
+                }
+            }
+        }
+
+        self.assertEqual(results, expected)
