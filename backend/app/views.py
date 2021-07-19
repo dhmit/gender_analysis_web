@@ -101,11 +101,17 @@ def add_document(request):
     API endpoint for adding a piece of document
     """
     attributes = request.data
+    new_attributes = {}
+    for attribute in attributes['newAttributes']:
+        key, value = attribute['name'], attribute['value']
+        if key and value:
+            new_attributes[key] = value
     fields = {
         'title': attributes['title'],
         'author': attributes['author'],
         'year': attributes['year'] if attributes['year'] != '' else None,
-        'text': attributes['text']
+        'text': attributes['text'],
+        'new_attributes': new_attributes
     }
     new_text_obj = Document.objects.create_document(**fields)
     serializer = DocumentSerializer(new_text_obj)
