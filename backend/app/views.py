@@ -206,15 +206,15 @@ def update_corpus_docs(request):
     return Response(serializer.data)
 
 
-@api_view(['POST'])
+@api_view(['DELETE'])
 def delete_corpus(request):
     """
     API endpoint for deleting a corpus
     """
     corpus_id = request.data['id']
     corpus_obj = Corpus.objects.get(id=corpus_id)
-    corpus_obj.delete()
-    return Response()
+    res = corpus_obj.delete()
+    return Response(res)
 
 
 @api_view(['GET'])
