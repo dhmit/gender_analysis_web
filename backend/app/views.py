@@ -27,12 +27,14 @@ from rest_framework.response import Response
 from django.shortcuts import render
 from .models import (
     Document,
-    Gender
+    Gender,
+    Corpus
 )
 from .serializers import (
     DocumentSerializer,
     SimpleDocumentSerializer,
-    GenderSerializer
+    GenderSerializer,
+    CorpusSerializer
 )
 
 
@@ -178,4 +180,64 @@ def all_genders(request):
     """
     gender_objs = Gender.objects.all()
     serializer = GenderSerializer(gender_objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def add_corpus(request):
+    """
+    API endpoint for adding a corpus instance
+    """
+    attributes = request.data
+    fields = {
+        'title': attributes['title'],
+        'description': attributes['description']
+    }
+    new_corpus_obj = Corpus.objects.create(**fields)
+    serializer = CorpusSerializer(new_corpus_obj)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def update_corpus_docs(request):
+    """
+    API endpoint for updating the documents in a corpus
+    """
+    corpus_data = request.data
+    corpus_id = corpus_data['id']
+    doc_ids = corpus_data['documents']
+    corpus_obj = Corpus.objects.get(id=corpus_id)
+    corpus_obj.documents.set(Document.objects.filter(id__in=doc_ids))
+    serializer = CorpusSerializer(corpus_obj)
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+def delete_corpus(request):
+    """
+    API endpoint for deleting a corpus
+    """
+    corpus_id = request.data['id']
+    corpus_obj = Corpus.objects.get(id=corpus_id)
+    res = corpus_obj.delete()
+    return Response(res)
+
+
+@api_view(['GET'])
+def all_corpora(request):
+    """
+    API endpoint to get all the corpora
+    """
+    corpus_objs = Corpus.objects.all()
+    serializer = CorpusSerializer(corpus_objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_corpus(request, corpus_id):
+    """
+    API endpoint to get a corpus based on id
+    """
+    corpus_obj = Corpus.objects.get(id=corpus_id)
+    serializer = CorpusSerializer(corpus_obj)
     return Response(serializer.data)
