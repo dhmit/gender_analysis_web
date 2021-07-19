@@ -241,3 +241,18 @@ def get_corpus(request, corpus_id):
     corpus_obj = Corpus.objects.get(id=corpus_id)
     serializer = CorpusSerializer(corpus_obj)
     return Response(serializer.data)
+
+
+def corpora(request):
+    """
+    Corpora page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Corpora'
+        },
+        'component_name': 'Corpora'
+    }
+
+    return render(request, 'index.html', context)
