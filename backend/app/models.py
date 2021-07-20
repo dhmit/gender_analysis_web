@@ -141,6 +141,9 @@ class PronounSeries(models.Model):
                 and sorted(self) == sorted(other)
         )
 
+    def __hash__(self):
+        return super().__hash__()
+
 
 class Gender(models.Model):
     """
@@ -205,6 +208,9 @@ class Gender(models.Model):
                 self.label == other.label
                 and list(self.pronoun_series.all()) == list(other.pronoun_series.all())
         )
+
+    def __hash__(self):
+        return super().__hash__()
 
     @property
     def pronouns(self):

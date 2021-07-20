@@ -219,6 +219,8 @@ class ProximityTestCase(TestCase):
     """
 
     def setUp(self):
+        self.maxDiff = None
+
         text_1 = "He went to get himself an ice cream, and he also got one for her. She was happy."
         text_2 = "Fairest Cordelia, that art most rich being poor; Most choice, forsaken; and most loved her, despised, " \
                  "herself and himself virtues here I hers hers seize upon. Lear then banishes his daughter to France."
@@ -238,8 +240,24 @@ class ProximityTestCase(TestCase):
         male = Gender.objects.get(pk=1)
         female = Gender.objects.get(pk=2)
 
-        #  MALE --> (identifier = "Masc",subj = "he",obj = "him",pos_det = "his",pos_pro = "his",reflex = "himself")
-        #  FEMALE --> (identifier = "Fem",subj = "she",obj = "her",pos_det = "hers",pos_pro = "her",reflex = "herself")
+        # Tagged tokens for text_1: [('he', 'PRP'), ('went', 'VBD'), ('to', 'TO'), ('get', 'VB'), ('himself', 'PRP'),
+        # ('an', 'DT'), ('ice', 'NN'), ('cream', 'NN'), ('and', 'CC'), ('he', 'PRP'), ('also', 'RB'), ('got', 'VBD'),
+        # ('one', 'CD'), ('for', 'IN'), ('her', 'PRP$'), ('she', 'PRP'), ('was', 'VBD'), ('happy', 'JJ')]
+
+        # Tagged tokens for text_2: [('fairest', 'JJS'), ('cordelia', 'NN'), ('that', 'IN'), ('art', 'VBZ'),
+        # ('most', 'RBS'), ('rich', 'JJ'), ('being', 'VBG'), ('poor', 'JJ'), ('most', 'RBS'), ('choice', 'NN'),
+        # ('forsaken', 'VBN'), ('and', 'CC'), ('most', 'JJS'), ('loved', 'VBD'), ('her', 'PRP'), ('despised', 'VBD'),
+        # ('herself', 'PRP'), ('and', 'CC'), ('himself', 'PRP'), ('virtues', 'NNS'), ('here', 'RB'), ('i', 'VBP'),
+        # ('hers', 'NNS'), ('hers', 'NNS'), ('seize', 'VBP'), ('upon', 'IN'), ('lear', 'JJ'), ('then', 'RB'),
+        # ('banishes', 'VBZ'), ('his', 'PRP$'), ('daughter', 'NN'), ('to', 'TO'), ('france', 'VB')]
+
+        # Tagged tokens for text_3: [('she', 'PRP'), ('sells', 'VBZ'), ('seashells', 'NNS'), ('by', 'IN'),
+        # ('the', 'DT'), ('seashore', 'NN'), ('he', 'PRP'), ('he', 'PRP'), ('reads', 'VBZ'), ('books', 'NNS'),
+        # ('she', 'PRP'), ('likes', 'VBZ'), ('math', 'NN'), ('his', 'PRP$'), ('father', 'NN'), ('is', 'VBZ'),
+        # ('scared', 'VBN'), ('of', 'IN'), ('spiders', 'NNS')]
+
+        #  MALE: (identifier = "Masc",subj = "he",obj = "him",pos_det = "his",pos_pro = "his",reflex = "himself")
+        #  FEMALE: (identifier = "Fem",subj = "she",obj = "her",pos_det = "her",pos_pro = "hers",reflex = "herself")
 
         results = proximity.run_analysis(1, 3)
         expected = {
@@ -247,7 +265,7 @@ class ProximityTestCase(TestCase):
                 male: {
                     'subj': {'PRP': Counter(['he', 'he']),
                              'VBD': Counter(['went', 'got']),
-                             'PRT': Counter(['to']),
+                             'TO': Counter(['to']),
                              'VB': Counter(['get']),
                              'NN': Counter(['ice', 'cream']),
                              'CC': Counter(['and']),
@@ -259,7 +277,7 @@ class ProximityTestCase(TestCase):
                     'pos_pro': {},
                     'reflex': {'PRP': Counter(['himself']),
                                'VBD': Counter(['went']),
-                               'PRT': Counter(['to']),
+                               'TO': Counter(['to']),
                                'VB': Counter(['get']),
                                'DT': Counter(['an']),
                                'NN': Counter(['ice', 'cream']),
