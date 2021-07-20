@@ -156,10 +156,16 @@ class DocumentTestCase(TestCase):
     def test_get_word_windows(self):
         doc = Document.objects.get(title='doc6')
         windows_1 = Counter(
-            {'he': 1, 'lit': 1, 'cigarette': 1, 'and': 1, 'then': 1, 'began': 1, 'speech': 1, 'which': 1})
+            {'he': 1, 'lit': 1, 'cigarette': 1, 'and': 1, 'then': 1, 'began': 1, 'speech': 1, 'which': 1}
+        )
         windows_2 = Counter({'her': 2, 'of': 1, 'and': 1, 'handed': 1, 'proposal': 1, 'drowned': 1, 'the': 1})
+        windows_3 = Counter({'tears': 1, 'drowned': 1, 'the': 1})
+        windows_4 = Counter({'she': 1, 'a': 2, 'lighter': 1, 'cigarette': 1, 'and': 1, 'deep': 1})
+
         self.assertEqual(doc.get_word_windows('his', window_size=2), windows_1)
         self.assertEqual(doc.get_word_windows(['purse', 'tears']), windows_2)
+        self.assertEqual(doc.get_word_windows('ring', window_size=3), windows_3)
+        self.assertEqual(doc.get_word_windows('took'), windows_4)
 
     def test_get_word_freq(self):
         doc = Document.objects.get(title='doc7')
