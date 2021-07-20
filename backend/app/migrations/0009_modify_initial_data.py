@@ -8,6 +8,7 @@ def modify_db_seed(apps, schema):
     Resolves the pos_det/pos_pro mix-up with the `PronounSeries` constants defined in migration 0006.
     """
     PronounSeries = apps.get_model('app', 'PronounSeries')
+
     for she_series in PronounSeries.objects.filter(identifier='Fem'):
         she_series.pos_det = 'her'
         she_series.pos_pro = 'hers'
