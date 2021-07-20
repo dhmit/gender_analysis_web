@@ -13,6 +13,7 @@ const Documents = () => {
         "year": "",
         "text": ""
     });
+    const [newAttributes, setNewAttributes] = useState([{"name": "", "value": ""}]);
     const [loading, setLoading] = useState(true);
     const [addingDoc, setAddingDoc] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -56,6 +57,25 @@ const Documents = () => {
 	    }));
     };
 
+    const handleAttributeInputChange = (event, index) => {
+        const {name, value} = event.target;
+        setNewAttributes(prevAttributes => {
+            return prevAttributes.map((attribute, i) => {
+                return i === index ? {...attribute, [name]:value} : attribute;
+            });
+        });
+    };
+
+    const handleAddAttribute = () => {
+        setNewAttributes([...newAttributes, {"name": "", "value": ""}]);
+    };
+
+    const handleRemoveAttribute = (index) => {
+        setNewAttributes(previousAttributes => (
+            previousAttributes.filter((attribute, idx) => idx !== index)
+        ));
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
         setAddingDoc(true);
@@ -71,7 +91,8 @@ const Documents = () => {
                 title: newDocData.title,
                 year: newDocData.year,
                 author: newDocData.author,
-                text: newDocData.text
+                text: newDocData.text,
+                newAttributes: newAttributes
             })
         };
         fetch("api/add_document", requestOptions)
@@ -95,7 +116,7 @@ const Documents = () => {
                     <div className="card-body">
                         <h6 className="mb-0">{doc.title}</h6>
                         <p>
-                            {doc.author}
+                            {doc.author ? doc.author : "Unknown"}
                             <br/>
                             Year Published: {doc.year ? doc.year : "Unknown"}
                             <br/>
@@ -144,7 +165,7 @@ const Documents = () => {
                                 <div className="col">
                                     <input type="text" className="form-control"
                                         id="title" value={newDocData.title}
-                                        onChange={handleTitleInputChange}/>
+                                        onChange={handleTitleInputChange} required/>
                                 </div>
                             </div>
                             <div className="row mb-3">
@@ -166,9 +187,47 @@ const Documents = () => {
                                         onChange={handleTextInputChange} required></textarea>
                                 </div>
                             </div>
+                            <p>Attributes</p>
+                            {
+                                newAttributes.map((attribute, i) => {
+                                    return (
+                                        <div key={i} className="row mb-3">
+                                            <div className="col-4">
+                                                <input type="text" className="form-control"
+                                                    name="name" onChange={event =>
+                                                        handleAttributeInputChange(event,i)}
+                                                    placeholder="name" value={attribute.name}
+                                                    required={newAttributes[i]["value"]
+                                                        ? true : false}/>
+                                            </div>
+                                            <div className="col-3">
+                                                <input type="text" className="form-control"
+                                                    name="value" onChange={event =>
+                                                        handleAttributeInputChange(event,i)}
+                                                    placeholder="value" value={attribute.value}
+                                                    required={newAttributes[i]["name"]
+                                                        ? true : false}/>
+                                            </div>
+                                            {newAttributes.length !== 1 &&
+                                                <div className="col">
+                                                    <button type="button"
+                                                        onClick={() => handleRemoveAttribute(i)}
+                                                        className="btn btn-secondary">
+                                                        Remove </button>
+                                                </div>}
+                                            {newAttributes.length - 1 === i &&
+                                                <div className="col">
+                                                    <button type="button"
+                                                        onClick={handleAddAttribute}
+                                                        className="btn btn-primary">Add</button>
+                                                </div>}
+                                        </div>
+                                    );
+                                })
+                            }
                         </Modal.Body>
                         <Modal.Footer>
-                            <button className="btn btn-secondary"
+                            <button className="btn btn-secondary" type="button"
                                 onClick={handleCloseModal}>Close</button>
                             <button className="btn btn-primary"
                                 type="submit">Add</button>
@@ -185,12 +244,9 @@ const Documents = () => {
             <p>
                 This page displays all the documents stored in backend.
             </p>
-            {
-                addingDoc
-                    ? <div className="alert alert-warning" role="alert">
-                        Currently adding document... Please do not close this tab.
-                    </div>
-                    : null
+            {addingDoc && <div className="alert alert-warning" role="alert">
+                Currently adding document... Please do not close this tab.
+            </div>
             }
             {addDocModal()}
             {
