@@ -84,10 +84,11 @@ def generate_token_counter(pos_tags, pronoun_set, word_window):
         if tagged_tokens[word_window][0].lower() in pronoun_set:
 
             for index, tagged_token in enumerate(tagged_tokens):
-                word = tagged_token[0].lower()
-                pos_tag = tagged_token[1]
+                if index != word_window:
+                    word = tagged_token[0].lower()
+                    pos_tag = tagged_token[1]
 
-                output.setdefault(pos_tag, Counter())
-                output[pos_tag][word] += 1
+                    output.setdefault(pos_tag, Counter())
+                    output[pos_tag][word] += 1
 
     return output
