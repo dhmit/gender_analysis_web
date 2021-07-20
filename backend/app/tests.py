@@ -308,6 +308,7 @@ class ProximityTestCase(TestCase):
                       'reflex': {}
                       }
             },
+
             # Tagged tokens for text_2: [('fairest', 'JJS'), ('cordelia', 'NN'), ('that', 'IN'), ('art', 'VBZ'),
             # ('most', 'RBS'), ('rich', 'JJ'), ('being', 'VBG'), ('poor', 'JJ'), ('most', 'RBS'), ('choice', 'NN'),
             # ('forsaken', 'VBN'), ('and', 'CC'), ('most', 'JJS'), ('loved', 'VBD'), ('her', 'PRP'),
@@ -320,39 +321,50 @@ class ProximityTestCase(TestCase):
                 male: {
                     'subj': {},
                     'obj': {},
-                    'pos_det': {},
-                    'pos_pro': {},
-                    'reflex': {'PRP': Counter(['herself', 'i']),
-                               'VBN': Counter(['despised']),
+                    'pos_det': {'JJ': Counter(['lear']),
+                                'RB': Counter(['then']),
+                                'VBZ': Counter(['banishes']),
+                                'NN': Counter(['daughter']),
+                                'TO': Counter(['to']),
+                                'VB': Counter(['france'])
+                                },
+                    'pos_pro': {'JJ': Counter(['lear']),
+                                'RB': Counter(['then']),
+                                'VBZ': Counter(['banishes']),
+                                'NN': Counter(['daughter']),
+                                'TO': Counter(['to']),
+                                'VB': Counter(['france'])
+                                },
+                    'reflex': {'VBD': Counter(['despised']),
+                               'PRP': Counter(['herself']),
                                'CC': Counter(['and']),
                                'NNS': Counter(['virtues']),
                                'RB': Counter(['here']),
+                               'VBP': Counter(['i'])
                                }
                 },
                 female: {
                     'subj': {},
-                    'obj': {'CC': Counter(['and', 'and']),
+                    'obj': {'CC': Counter({'and': 2}),
                             'RBS': Counter(['most']),
                             'VBD': Counter(['loved', 'despised']),
                             'PRP': Counter(['herself']),
                             },
-                    'pos_det': {'CC': Counter(['and', 'and']),
+                    'pos_det': {'CC': Counter({'and': 2}),
                                 'RBS': Counter(['most']),
                                 'VBD': Counter(['loved', 'despised']),
                                 'PRP': Counter(['herself']),
                                 },
                     'pos_pro': {
                         'NNS': Counter(['virtues']),
-                        'RB': Counter(['here', 'here']),
-                        'PRP': Counter(['I', 'I']),
-                        'VB': Counter(['seize', 'seize']),
-                        'IN': Counter(['upon']),
-                        'NNP': Counter(['lear']),
+                        'RB': Counter({'here': 2}),
+                        'VBP': Counter({'i': 2, 'seize': 2}),
+                        'IN': Counter({'upon': 2}),
+                        'JJ': Counter(['lear']),
                     },
                     'reflex': {
                         'PRP': Counter(['her', 'himself']),
-                        'VBD': Counter(['loved']),
-                        'VBN': Counter(['despised']),
+                        'VBD': Counter(['loved', 'despised']),
                         'CC': Counter(['and']),
                         'NNS': Counter(['virtues']),
                     }
@@ -370,6 +382,7 @@ class ProximityTestCase(TestCase):
                       'reflex': {}
                       }
             },
+
             # Tagged tokens for text_3: [('she', 'PRP'), ('sells', 'VBZ'), ('seashells', 'NNS'), ('by', 'IN'),
             # ('the', 'DT'), ('seashore', 'NN'), ('he', 'PRP'), ('he', 'PRP'), ('reads', 'VBZ'), ('books', 'NNS'),
             # ('she', 'PRP'), ('likes', 'VBZ'), ('math', 'NN'), ('his', 'PRP$'), ('father', 'NN'), ('is', 'VBZ'),
