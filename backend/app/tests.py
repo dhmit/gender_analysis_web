@@ -12,7 +12,7 @@ from .models import (
     Corpus,
     Gender,
 )
-from analysis import proximity
+from .analysis import proximity
 
 
 class PronounSeriesTestCase(TestCase):
@@ -219,7 +219,7 @@ class ProximityTestCase(TestCase):
     """
 
     def setUp(self):
-        text_1 = "He went to get himself an ice cream for her. She was happy."
+        text_1 = "He went to get himself an ice cream, and he also got one for her. She was happy."
         text_2 = "Fairest Cordelia, that art most rich being poor; Most choice, forsaken; and most loved her, despised, " \
                  "herself and himself virtues here I hers hers seize upon. Lear then banishes his daughter to France."
         text_3 = "She sells seashells by the seashore. He he reads books. She likes math. His father is scared of spiders. "
@@ -245,39 +245,39 @@ class ProximityTestCase(TestCase):
         expected = {
             1: {
                 male: {
-                    'subj': {'PRP': Counter({"he": 1}),
-                             'VBD': Counter({"went": 1}),
-                             'PRT': Counter({"to": 1}),
-                             'VB': Counter({"get": 1}),
+                    'subj': {'PRP': Counter(['he', 'he']),
+                             'VBD': Counter(['went', 'got']),
+                             'PRT': Counter(['to']),
+                             'VB': Counter(['get']),
+                             'NN': Counter(['ice', 'cream']),
+                             'CC': Counter(['and']),
+                             'RB': Counter(['also']),
+                             'CD': Counter(['one']),
                              },
                     'obj': {},
                     'pos_det': {},
                     'pos_pro': {},
-                    'reflex': {'PRP': Counter({"himself": 1}),
-                               'VBD': Counter({"went": 1}),
-                               'PRT': Counter({"to": 1}),
-                               'VB': Counter({"get": 1}),
-                               'DT': Counter({"an": 1}),
-                               'NN': Counter({"ice": 1}),
-                               'NN': Counter({"cream": 1}),
-                    }
+                    'reflex': {'PRP': Counter(['himself']),
+                               'VBD': Counter(['went']),
+                               'PRT': Counter(['to']),
+                               'VB': Counter(['get']),
+                               'DT': Counter(['an']),
+                               'NN': Counter(['ice', 'cream']),
+                               }
                 },
                 female: {
-                    'subj': {'PRP': Counter({"she": 1}),
-                             'NN': Counter({"cream": 1}),
-                             'IN': Counter({"for": 1}),
-                             'PRP': Counter({"her": 1}),
-                             'VBD': Counter({"was": 1}),
-                             'JJ': Counter({"happy": 1})
+                    'subj': {'PRP': Counter(['she', 'her']),
+                             'CD': Counter(['one']),
+                             'IN': Counter(['for']),
+                             'VBD': Counter(['was']),
+                             'JJ': Counter(['happy']),
                              },
-                    'obj': {'PRP': Counter({"her": 1}),
-                             'NN': Counter({"ice": 1}),
-                             'NN': Counter({"cream": 1}),
-                             'IN': Counter({"for": 1}),
-                             'PRP': Counter({"she": 1}),
-                             'VBD': Counter({"was": 1}),
-                             'JJ': Counter({"happy": 1})
-                             },
+                    'obj': {'PRP': Counter(['she', 'her']),
+                            'VBD': Counter(['got', 'was']),
+                            'CD': Counter(['one']),
+                            'IN': Counter(['for']),
+                            'JJ': Counter(['happy']),
+                            },
                     'pos_det': {},
                     'pos_pro': {},
                     'reflex': {}
@@ -289,22 +289,20 @@ class ProximityTestCase(TestCase):
                     'obj': {},
                     'pos_det': {},
                     'pos_pro': {},
-                    'reflex': {
-                        'VBN': Counter(['despised']),
-                        'PRP': Counter(['herself', 'i']),
-                        'CC': Counter(['and']),
-                        'NNS': Counter(['virtues']),
-                        'RB': Counter(['here'])
-                    }
+                    'reflex': {'PRP': Counter(['himself', 'herself', 'i']),
+                               'VBN': Counter(['despised']),
+                               'CC': Counter(['and']),
+                               'NNS': Counter(['virtues']),
+                               'RB': Counter(['here']),
+                               }
                 },
                 female: {
                     'subj': {},
-                    'obj': {
-                        'CC': Counter(['and', 'and']),
-                        'RBS': Counter(['most']),
-                        'VBD': Counter(['loved', 'despised']),
-                        'PRP': Counter(['herself']),
-                        },
+                    'obj': {'CC': Counter(['and', 'and']),
+                            'RBS': Counter(['most']),
+                            'VBD': Counter(['loved', 'despised']),
+                            'PRP': Counter(['herself']),
+                            },
                     'pos_det': {},
                     'pos_pro': {
                         'NNS': Counter(['virtues', 'hers', 'hers']),
@@ -319,7 +317,7 @@ class ProximityTestCase(TestCase):
                         'VBD': Counter(['loved']),
                         'VBN': Counter(['despised']),
                         'CC': Counter(['and']),
-                        'NNS': Counter(['virtues'])
+                        'NNS': Counter(['virtues']),
                     }
                 }
             },
@@ -331,7 +329,7 @@ class ProximityTestCase(TestCase):
                         'NN': Counter(['seashore']),
                         'PRP': Counter(['he']),
                         'VBZ': Counter(['reads']),
-                        'NNS': Counter(['books'])
+                        'NNS': Counter(['books']),
                     },
                     'obj': {},
                     'pos_det': {},
@@ -345,7 +343,7 @@ class ProximityTestCase(TestCase):
                         'NNS': Counter(['seashells', 'books']),
                         'IN': Counter(['by']),
                         'PRP': Counter(['he']),
-                        'PRP$': Counter(['his'])
+                        'PRP$': Counter(['his']),
                     },
                     'obj': {},
                     'pos_det': {},
