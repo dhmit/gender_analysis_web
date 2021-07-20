@@ -30,11 +30,13 @@ urlpatterns = [
     path('api/add_document', views.add_document),
     path('api/document/<int:doc_id>', views.get_document),
     path('api/all_genders', views.all_genders),
+    path('api/document/<int:doc_id>/characters/false', views.get_document_character),
 
     # View paths
     path('', views.index, name='index'),
     path('example', views.example, name='example'),
     path('example/<int:example_id>', views.example_id, name='example_id'),
     path('documents', views.documents, name='documents'),
-    path('document/<int:doc_id>', views.single_document, name='document')
+    path('document/<int:doc_id>', views.single_document, name='document'),
+    path('api/document/<int:doc_id>/characters/false', views.single_document_characters, name='document_with_chars')
 ]

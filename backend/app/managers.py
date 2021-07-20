@@ -13,14 +13,13 @@ class DocumentManager(models.Manager):
         # doc.get_disambiguated_characters(cutoff_num=10)
         return doc
 
-
-class DocumentWithCharacterManager(models.Manager):
-    def create_document_with_character(self, **attributes):
-        doc = self.create(**attributes)
+    def generate_characters(self, coref=False):
+        doc = self
         doc.get_tokenized_text_wc_and_pos()
         doc.get_tokenized_sentences()
-        doc.get_aliases(True)
-        doc.get_disambiguated_characters(cutoff_num=10)
+        doc.get_aliases(get_corefs=coref)
+        doc.get_disambiguated_characters(cutoff_num=1)
+        return doc
 
 
 class CharacterManager(models.Manager):

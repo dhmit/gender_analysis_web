@@ -132,6 +132,17 @@ def get_document(request, doc_id):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+def get_document_character(request, doc_id, coref=False):
+    """
+    API endpoint for getting the document's character info based on ID
+    """
+    # doc_obj = Document.objects.get(id=doc_id)
+    new_text_obj = Document.objects.get(id=doc_id).characters
+    serializer = DocumentSerializer(new_text_obj)
+    return Response(serializer.data)
+
+
 def documents(request):
     """
     All Documents page
@@ -165,6 +176,20 @@ def single_document(request, doc_id):
     return render(request, 'index.html', context)
 
 
+def single_document_characters(request,doc_id,coref=False):
+
+    context = {
+        'page_metadata': {
+            'title': 'Document with Characters'
+        },
+        'component_props': {
+            'id': doc_id
+        },
+        'component_name': 'SingleDocument'
+    }
+    return render(request, 'index.html', context)
+
+
 @api_view(['GET'])
 def all_genders(request):
     """
@@ -173,3 +198,5 @@ def all_genders(request):
     gender_objs = Gender.objects.all()
     serializer = GenderSerializer(gender_objs, many=True)
     return Response(serializer.data)
+
+

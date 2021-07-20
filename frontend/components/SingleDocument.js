@@ -4,18 +4,19 @@ import STYLES from "../scss/SingleDocument.module.scss";
 import SectionNavbar from "./SectionNavbar";
 import SingleCharacter from "./SingleCharacter.js";
 import {Modal} from "react-bootstrap";
+import {getCookie} from "../common";
 
 const SingleDocument = ({id}) => {
 
     const [docData, setDocData] = useState({});
     const [loading, setLoading] = useState(true);
-    //const [charData, setCharData] = useState({});
     const [showModal, setShowModal] = useState(false);
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
     const tabs = ["Overview", "Characters", "Full Text"];
     const [tab, setTab] = useState(tabs[0]);
     const [corefParam, setCorefParam] = useState(false);
+    const [charData, setCharData] = useState(false);
 
     const charList = (characters) => {
         return (
@@ -23,11 +24,9 @@ const SingleDocument = ({id}) => {
                 {characters.length
                     ? characters.map(character => <div key={character.common_name}>
                         {SingleCharacter(character)}</div>)
-                    : <div> <button className = {STYLES.button} onClick={handleGenerateCharacter}>
-                        Generate Character List: am working on it!
-                    </button></div>
+                    : <div> {getCharModal()}</div>
                 }
-                {getCharModal()}
+
             </div>
         );
     };
@@ -41,18 +40,6 @@ const SingleDocument = ({id}) => {
             });
     }, []);
 
-    useEffect(() => { //this is what I probably should delete
-        fetch().then(response => response.json())
-            .then(data => {
-                setCharData(data);
-                setLoading(false);
-            });
-    }, []);
-
-    const handleGenerateCharacter = () => {
-        alert("Funing is working hard to get the frontend-backend communication working!");
-        getCharModal();
-    };
 
     const getCharModal = () => {
         return (
@@ -64,11 +51,11 @@ const SingleDocument = ({id}) => {
                     <form onSubmit={handleSubmit}>
                         <Modal.Body>
                             <div className="row mb-3">
-                                <label htmlFor="author"
+                                <label htmlFor="coref"
                                     className="col-2 col-form-label">Would you like to calculate gender probabilities?</label>
                                 <div className="col">
                                     <input type="text" className="form-control"
-                                        id="author" value={corefParam.author}
+                                        id="coref" value={corefParam.author}
                                         onChange={handleCorefInputChange}/>
                                 </div>
                             </div>
@@ -89,7 +76,16 @@ const SingleDocument = ({id}) => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        //obviously, I'm going to add new things here
         handleCloseModal();
+        setCharData(true);
+        const csrftoken = getCookie("csrftoken");
+        fetch(`/api/document/${id}/characters/false`).then(response => response.json())
+            .then(data => {
+                setDocData(data);
+                setLoading(false);
+            });
+
     };
 
     const handleCorefInputChange = (event) => {
