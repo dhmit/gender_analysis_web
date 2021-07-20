@@ -1,4 +1,5 @@
 from collections import Counter
+from itertools import chain
 from more_itertools import windowed
 
 from ..models import (
@@ -79,16 +80,21 @@ def generate_token_counter(pos_tags, pronoun_set, word_window):
 
     """
     output = {}
+    padding = [None] * word_window
 
-    for tagged_tokens in windowed(pos_tags, 2 * word_window + 1):
-        if tagged_tokens[word_window][0].lower() in pronoun_set:
+    for tagged_tokens in windowed(chain(padding, pos_tags, padding), 2 * word_window + 1):
+        candidate = tagged_tokens[word_window][0].lower()
 
+        if candidate in pronoun_set:
+        
             for index, tagged_token in enumerate(tagged_tokens):
-                if index != word_window:
-                    word = tagged_token[0].lower()
-                    pos_tag = tagged_token[1]
+                if tagged_token is not None:
 
-                    output.setdefault(pos_tag, Counter())
-                    output[pos_tag][word] += 1
+                    word = tagged_token[0].lower()
+                    if word != candidate:
+
+                        pos_tag = tagged_token[1]
+                        output.setdefault(pos_tag, Counter())
+                        output[pos_tag][word] += 1
 
     return output
