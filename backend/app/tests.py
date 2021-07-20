@@ -222,9 +222,11 @@ class ProximityTestCase(TestCase):
         self.maxDiff = None
 
         text_1 = "He went to get himself an ice cream, and he also got one for her. She was happy."
-        text_2 = "Fairest Cordelia, that art most rich being poor; Most choice, forsaken; and most loved her, despised, " \
-                 "herself and himself virtues here I hers hers seize upon. Lear then banishes his daughter to France."
-        text_3 = "She sells seashells by the seashore. He he reads books. She likes math. His father is scared of spiders. "
+        text_2 = """Fairest Cordelia, that art most rich being poor; Most choice, forsaken; and most loved her,
+                 despised, herself and himself virtues here I hers hers seize upon. Lear then banishes his daughter
+                 to France."""
+        text_3 = """She sells seashells by the seashore. He he reads books. She likes math.
+                 His father is scared of spiders."""
 
         Document.objects.create_document(title='Text 1', year=2021, text=text_1)
         Document.objects.create_document(title='Text 2', year=2021, text=text_2)
@@ -237,34 +239,23 @@ class ProximityTestCase(TestCase):
         corpus.documents.add(1, 2, 3)
 
     def test_proximity(self):
-        male = Gender.objects.get(pk=1)
-        female = Gender.objects.get(pk=2)
-
-        # Tagged tokens for text_1: [('he', 'PRP'), ('went', 'VBD'), ('to', 'TO'), ('get', 'VB'), ('himself', 'PRP'),
-        # ('an', 'DT'), ('ice', 'NN'), ('cream', 'NN'), ('and', 'CC'), ('he', 'PRP'), ('also', 'RB'), ('got', 'VBD'),
-        # ('one', 'CD'), ('for', 'IN'), ('her', 'PRP$'), ('she', 'PRP'), ('was', 'VBD'), ('happy', 'JJ')]
-
-        # Tagged tokens for text_2: [('fairest', 'JJS'), ('cordelia', 'NN'), ('that', 'IN'), ('art', 'VBZ'),
-        # ('most', 'RBS'), ('rich', 'JJ'), ('being', 'VBG'), ('poor', 'JJ'), ('most', 'RBS'), ('choice', 'NN'),
-        # ('forsaken', 'VBN'), ('and', 'CC'), ('most', 'JJS'), ('loved', 'VBD'), ('her', 'PRP'), ('despised', 'VBD'),
-        # ('herself', 'PRP'), ('and', 'CC'), ('himself', 'PRP'), ('virtues', 'NNS'), ('here', 'RB'), ('i', 'VBP'),
-        # ('hers', 'NNS'), ('hers', 'NNS'), ('seize', 'VBP'), ('upon', 'IN'), ('lear', 'JJ'), ('then', 'RB'),
-        # ('banishes', 'VBZ'), ('his', 'PRP$'), ('daughter', 'NN'), ('to', 'TO'), ('france', 'VB')]
-
-        # Tagged tokens for text_3: [('she', 'PRP'), ('sells', 'VBZ'), ('seashells', 'NNS'), ('by', 'IN'),
-        # ('the', 'DT'), ('seashore', 'NN'), ('he', 'PRP'), ('he', 'PRP'), ('reads', 'VBZ'), ('books', 'NNS'),
-        # ('she', 'PRP'), ('likes', 'VBZ'), ('math', 'NN'), ('his', 'PRP$'), ('father', 'NN'), ('is', 'VBZ'),
-        # ('scared', 'VBN'), ('of', 'IN'), ('spiders', 'NNS')]
+        male = Gender.objects.get(pk=1, label='Male')
+        female = Gender.objects.get(pk=2, label='Female')
+        they = Gender.objects.get(pk=3, label='Nonbinary')
+        neo = Gender.objects.get(pk=4, label='Neo')
 
         #  MALE: (identifier = "Masc",subj = "he",obj = "him",pos_det = "his",pos_pro = "his",reflex = "himself")
         #  FEMALE: (identifier = "Fem",subj = "she",obj = "her",pos_det = "her",pos_pro = "hers",reflex = "herself")
 
         results = proximity.run_analysis(1, 3)
         expected = {
+            # Tagged tokens for text_1: [('he', 'PRP'), ('went', 'VBD'), ('to', 'TO'), ('get', 'VB'),
+            # ('himself', 'PRP'), ('an', 'DT'), ('ice', 'NN'), ('cream', 'NN'), ('and', 'CC'), ('he', 'PRP'),
+            # ('also', 'RB'), ('got', 'VBD'), ('one', 'CD'), ('for', 'IN'), ('her', 'PRP$'), ('she', 'PRP'),
+            # ('was', 'VBD'), ('happy', 'JJ')]
             1: {
                 male: {
-                    'subj': {'PRP': Counter(['he', 'he']),
-                             'VBD': Counter(['went', 'got']),
+                    'subj': {'VBD': Counter(['went', 'got']),
                              'TO': Counter(['to']),
                              'VB': Counter(['get']),
                              'NN': Counter(['ice', 'cream']),
@@ -275,8 +266,7 @@ class ProximityTestCase(TestCase):
                     'obj': {},
                     'pos_det': {},
                     'pos_pro': {},
-                    'reflex': {'PRP': Counter(['himself']),
-                               'VBD': Counter(['went']),
+                    'reflex': {'VBD': Counter(['went']),
                                'TO': Counter(['to']),
                                'VB': Counter(['get']),
                                'DT': Counter(['an']),
@@ -284,30 +274,55 @@ class ProximityTestCase(TestCase):
                                }
                 },
                 female: {
-                    'subj': {'PRP': Counter(['she', 'her']),
+                    'subj': {'PRP$': Counter(['her']),
                              'CD': Counter(['one']),
                              'IN': Counter(['for']),
                              'VBD': Counter(['was']),
                              'JJ': Counter(['happy']),
                              },
-                    'obj': {'PRP': Counter(['she', 'her']),
+                    'obj': {'PRP': Counter(['she']),
                             'VBD': Counter(['got', 'was']),
                             'CD': Counter(['one']),
                             'IN': Counter(['for']),
                             'JJ': Counter(['happy']),
                             },
-                    'pos_det': {},
+                    'pos_det': {'PRP': Counter(['she']),
+                                'VBD': Counter(['got', 'was']),
+                                'CD': Counter(['one']),
+                                'IN': Counter(['for']),
+                                'JJ': Counter(['happy']),
+                                },
                     'pos_pro': {},
                     'reflex': {}
-                }
+                },
+                they: {'subj': {},
+                       'obj': {},
+                       'pos_det': {},
+                       'pos_pro': {},
+                       'reflex': {}
+                       },
+                neo: {'subj': {},
+                      'obj': {},
+                      'pos_det': {},
+                      'pos_pro': {},
+                      'reflex': {}
+                      }
             },
+            # Tagged tokens for text_2: [('fairest', 'JJS'), ('cordelia', 'NN'), ('that', 'IN'), ('art', 'VBZ'),
+            # ('most', 'RBS'), ('rich', 'JJ'), ('being', 'VBG'), ('poor', 'JJ'), ('most', 'RBS'), ('choice', 'NN'),
+            # ('forsaken', 'VBN'), ('and', 'CC'), ('most', 'JJS'), ('loved', 'VBD'), ('her', 'PRP'),
+            # ('despised', 'VBD'), ('herself', 'PRP'), ('and', 'CC'), ('himself', 'PRP'), ('virtues', 'NNS'),
+            # ('here', 'RB'), ('i', 'VBP'), ('hers', 'NNS'), ('hers', 'NNS'), ('seize', 'VBP'), ('upon', 'IN'),
+            # ('lear', 'JJ'), ('then', 'RB'), ('banishes', 'VBZ'), ('his', 'PRP$'), ('daughter', 'NN'), ('to', 'TO'),
+            # ('france', 'VB')]
             2: {
+
                 male: {
                     'subj': {},
                     'obj': {},
                     'pos_det': {},
                     'pos_pro': {},
-                    'reflex': {'PRP': Counter(['himself', 'herself', 'i']),
+                    'reflex': {'PRP': Counter(['herself', 'i']),
                                'VBN': Counter(['despised']),
                                'CC': Counter(['and']),
                                'NNS': Counter(['virtues']),
@@ -321,9 +336,13 @@ class ProximityTestCase(TestCase):
                             'VBD': Counter(['loved', 'despised']),
                             'PRP': Counter(['herself']),
                             },
-                    'pos_det': {},
+                    'pos_det': {'CC': Counter(['and', 'and']),
+                                'RBS': Counter(['most']),
+                                'VBD': Counter(['loved', 'despised']),
+                                'PRP': Counter(['herself']),
+                                },
                     'pos_pro': {
-                        'NNS': Counter(['virtues', 'hers', 'hers']),
+                        'NNS': Counter(['virtues']),
                         'RB': Counter(['here', 'here']),
                         'PRP': Counter(['I', 'I']),
                         'VB': Counter(['seize', 'seize']),
@@ -337,21 +356,45 @@ class ProximityTestCase(TestCase):
                         'CC': Counter(['and']),
                         'NNS': Counter(['virtues']),
                     }
-                }
+                },
+                they: {'subj': {},
+                       'obj': {},
+                       'pos_det': {},
+                       'pos_pro': {},
+                       'reflex': {}
+                       },
+                neo: {'subj': {},
+                      'obj': {},
+                      'pos_det': {},
+                      'pos_pro': {},
+                      'reflex': {}
+                      }
             },
+            # Tagged tokens for text_3: [('she', 'PRP'), ('sells', 'VBZ'), ('seashells', 'NNS'), ('by', 'IN'),
+            # ('the', 'DT'), ('seashore', 'NN'), ('he', 'PRP'), ('he', 'PRP'), ('reads', 'VBZ'), ('books', 'NNS'),
+            # ('she', 'PRP'), ('likes', 'VBZ'), ('math', 'NN'), ('his', 'PRP$'), ('father', 'NN'), ('is', 'VBZ'),
+            # ('scared', 'VBN'), ('of', 'IN'), ('spiders', 'NNS')]
             3: {
                 male: {
                     'subj': {
                         'IN': Counter(['by']),
-                        'DT': Counter(['the']),
-                        'NN': Counter(['seashore']),
-                        'PRP': Counter(['he']),
-                        'VBZ': Counter(['reads']),
-                        'NNS': Counter(['books']),
+                        'DT': Counter({'the': 2}),
+                        'NN': Counter({'seashore': 2}),
+                        'VBZ': Counter({'reads': 2}),
+                        'NNS': Counter({'books': 2}),
+                        'PRP': Counter(['she'])
                     },
                     'obj': {},
-                    'pos_det': {},
-                    'pos_pro': {},
+                    'pos_det': {'PRP': Counter(['she']),
+                                'VBZ': Counter(['likes', 'is']),
+                                'NN': Counter(['math', 'father']),
+                                'VBN': Counter('scared')
+                                },
+                    'pos_pro': {'PRP': Counter(['she']),
+                                'VBZ': Counter(['likes', 'is']),
+                                'NN': Counter(['math', 'father']),
+                                'VBN': Counter('scared')
+                                },
                     'reflex': {}
                 },
                 female: {
@@ -367,7 +410,19 @@ class ProximityTestCase(TestCase):
                     'pos_det': {},
                     'pos_pro': {},
                     'reflex': {}
-                }
+                },
+                they: {'subj': {},
+                       'obj': {},
+                       'pos_det': {},
+                       'pos_pro': {},
+                       'reflex': {}
+                       },
+                neo: {'subj': {},
+                      'obj': {},
+                      'pos_det': {},
+                      'pos_pro': {},
+                      'reflex': {}
+                      }
             }
         }
 

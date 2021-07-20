@@ -19,6 +19,7 @@ def run_analysis(corpus_id, word_window):
     :param word_window: An integer describing the number of words to look at of each side of a gendered word
 
     :return: A dict mapping `Document` ids to a dict mapping strings (`Gender` labels) to a `Counter` instance.
+        The dict is of the following form: {int: {Gender: {str: {str, Counter(str, int)}}}}
     """
     results = {}
     genders = set(Gender.objects.all())
@@ -31,6 +32,7 @@ def run_analysis(corpus_id, word_window):
             genders,
             word_window
         )
+        breakpoint()
 
     return results
 
@@ -75,8 +77,7 @@ def generate_token_counter(pos_tags, pronoun_set, word_window):
     :param word_window: An integer describing the number of words to look at on each side of a gendered word
 
     :return: A 'Dict' instance mapping the part of speech tag to a 'Counter' instance,
-        which features the numbered occurrences of words around a gendered pronoun. The dict is of the following form:
-        {int: {Gender: {str: {str, Counter(str, int)}}}}
+        which features the numbered occurrences of words around a gendered pronoun.
 
     """
     output = {}
@@ -86,7 +87,7 @@ def generate_token_counter(pos_tags, pronoun_set, word_window):
         candidate = tagged_tokens[word_window][0].lower()
 
         if candidate in pronoun_set:
-        
+
             for index, tagged_token in enumerate(tagged_tokens):
                 if tagged_token is not None:
 
