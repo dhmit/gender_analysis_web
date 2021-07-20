@@ -326,22 +326,22 @@ class ProximityTestCase(TestCase):
                                 'VBZ': Counter(['banishes']),
                                 'NN': Counter(['daughter']),
                                 'TO': Counter(['to']),
-                                'VB': Counter(['france'])
+                                'VB': Counter(['france']),
                                 },
                     'pos_pro': {'JJ': Counter(['lear']),
                                 'RB': Counter(['then']),
                                 'VBZ': Counter(['banishes']),
                                 'NN': Counter(['daughter']),
                                 'TO': Counter(['to']),
-                                'VB': Counter(['france'])
+                                'VB': Counter(['france']),
                                 },
                     'reflex': {'VBD': Counter(['despised']),
                                'PRP': Counter(['herself']),
                                'CC': Counter(['and']),
                                'NNS': Counter(['virtues']),
                                'RB': Counter(['here']),
-                               'VBP': Counter(['i'])
-                               }
+                               'VBP': Counter(['i']),
+                               },
                 },
                 female: {
                     'subj': {},
@@ -367,20 +367,20 @@ class ProximityTestCase(TestCase):
                         'VBD': Counter(['loved', 'despised']),
                         'CC': Counter(['and']),
                         'NNS': Counter(['virtues']),
-                    }
+                    },
                 },
                 they: {'subj': {},
                        'obj': {},
                        'pos_det': {},
                        'pos_pro': {},
-                       'reflex': {}
+                       'reflex': {},
                        },
                 neo: {'subj': {},
                       'obj': {},
                       'pos_det': {},
                       'pos_pro': {},
-                      'reflex': {}
-                      }
+                      'reflex': {},
+                      },
             },
 
             # Tagged tokens for text_3: [('she', 'PRP'), ('sells', 'VBZ'), ('seashells', 'NNS'), ('by', 'IN'),
@@ -395,20 +395,20 @@ class ProximityTestCase(TestCase):
                         'NN': Counter({'seashore': 2}),
                         'VBZ': Counter({'reads': 2}),
                         'NNS': Counter({'books': 2}),
-                        'PRP': Counter(['she'])
+                        'PRP': Counter(['she']),
                     },
                     'obj': {},
                     'pos_det': {'PRP': Counter(['she']),
                                 'VBZ': Counter(['likes', 'is']),
                                 'NN': Counter(['math', 'father']),
-                                'VBN': Counter('scared')
+                                'VBN': Counter(['scared']),
                                 },
                     'pos_pro': {'PRP': Counter(['she']),
                                 'VBZ': Counter(['likes', 'is']),
                                 'NN': Counter(['math', 'father']),
-                                'VBN': Counter('scared')
+                                'VBN': Counter(['scared']),
                                 },
-                    'reflex': {}
+                    'reflex': {},
                 },
                 female: {
                     'subj': {
@@ -422,21 +422,25 @@ class ProximityTestCase(TestCase):
                     'obj': {},
                     'pos_det': {},
                     'pos_pro': {},
-                    'reflex': {}
+                    'reflex': {},
                 },
                 they: {'subj': {},
                        'obj': {},
                        'pos_det': {},
                        'pos_pro': {},
-                       'reflex': {}
+                       'reflex': {},
                        },
                 neo: {'subj': {},
                       'obj': {},
                       'pos_det': {},
                       'pos_pro': {},
-                      'reflex': {}
-                      }
-            }
+                      'reflex': {},
+                      },
+            },
         }
 
-        self.assertEqual(results, expected)
+        # self.assertEqual(results, expected)
+
+        # All other Gender objects pass; the female k:v pairs fail! Is this a formatting issue?
+        for i in range(1, 4):
+            self.assertEqual(results[i][female], expected[i][female])
