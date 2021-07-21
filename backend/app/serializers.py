@@ -71,7 +71,8 @@ class ProximitySerializer(serializers.ModelSerializer):
     """
 
     corpus = serializers.StringRelatedField()
+    genders = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
 
     class Meta:
         model = ProximityAnalysis
-        fields = ['id', 'corpus', 'word_window', 'results']
+        fields = ['id', 'corpus', 'genders', 'word_window', 'results']
