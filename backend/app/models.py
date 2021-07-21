@@ -545,3 +545,13 @@ class Corpus(models.Model):
 
     def __hash__(self):
         return super().__hash__()
+
+
+class ProximityAnalysis(models.Model):
+    """
+    This model will persist the results from various proximity analysis functions.
+    """
+
+    corpus = models.ForeignKey(Corpus, related_name='proximity', on_delete=models.CASCADE)
+    word_window = models.PositiveIntegerField()
+    results = models.JSONField()
