@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import STYLES from "./Corpora.module.scss";
 import {getCookie} from "../common";
-import {Modal} from "react-bootstrap";
+import {Modal, OverlayTrigger, Tooltip} from "react-bootstrap";
 
 const Corpora = () => {
     const [corporaData, setCorporaData] = useState([]);
