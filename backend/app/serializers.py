@@ -42,7 +42,7 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ['id', 'author', 'title', 'year', 'text', 'word_count']
+        fields = ['id', 'author', 'title', 'year', 'text', 'word_count', 'new_attributes']
 
 
 class SimpleDocumentSerializer(serializers.ModelSerializer):
