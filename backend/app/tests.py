@@ -323,7 +323,6 @@ class ProximityTestCase(TestCase):
             # ('lear', 'JJ'), ('then', 'RB'), ('banishes', 'VBZ'), ('his', 'PRP$'), ('daughter', 'NN'), ('to', 'TO'),
             # ('france', 'VB')]
             2: {
-
                 male: {
                     'subj': {},
                     'obj': {},
@@ -352,12 +351,12 @@ class ProximityTestCase(TestCase):
                 female: {
                     'subj': {},
                     'obj': {'CC': Counter({'and': 2}),
-                            'RBS': Counter(['most']),
+                            'JJS': Counter(['most']),
                             'VBD': Counter(['loved', 'despised']),
                             'PRP': Counter(['herself']),
                             },
                     'pos_det': {'CC': Counter({'and': 2}),
-                                'RBS': Counter(['most']),
+                                'JJS': Counter(['most']),
                                 'VBD': Counter(['loved', 'despised']),
                                 'PRP': Counter(['herself']),
                                 },
@@ -445,8 +444,4 @@ class ProximityTestCase(TestCase):
             },
         }
 
-        # self.assertEqual(results, expected)
-
-        # All other Gender objects pass; the female k:v pairs fail! Is this a formatting issue?
-        for i in range(1, 4):
-            self.assertEqual(results[i][female], expected[i][female])
+        self.assertEqual(results, expected)
