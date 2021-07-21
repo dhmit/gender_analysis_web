@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import * as PropTypes from "prop-types";
-// import STYLES from "./Corpus.module.scss";
+import STYLES from "./Corpus.module.scss";
 import {getCookie} from "../common";
 import {Modal} from "react-bootstrap";
 
@@ -9,7 +9,8 @@ const Corpus = ({id}) => {
     const [corpusData, setCorpusData] = useState({});
     const [allDocData, setAllDocData] = useState([]);
     const [containsDoc, setContainsDoc] = useState({});
-    const [loading, setLoading] = useState(true);
+    const [loadingCorpus, setLoadingCorpus] = useState(true);
+    const [loadingDocs, setLoadingDocs] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
@@ -19,15 +20,16 @@ const Corpus = ({id}) => {
             .then(response => response.json())
             .then(data => {
                 setCorpusData(data);
+                setLoadingCorpus(false);
                 fetch("/api/all_documents")
                     .then(response => response.json())
                     .then(docsData => {
                         setAllDocData(docsData);
-                        docsData.map((doc) => setContainsDoc((values) => ({
+                        docsData.forEach((doc) => setContainsDoc((values) => ({
                             ...values,
                             [doc.id]: data.documents.includes(doc.id)
                         })));
-                        setLoading(false);
+                        setLoadingDocs(false);
                     });
             });
 
@@ -43,6 +45,7 @@ const Corpus = ({id}) => {
     const updateDocs = (event) => {
         event.preventDefault();
         handleCloseModal();
+        setLoadingDocs(true);
         const docList = Object.keys(containsDoc).filter((id) => {
             return containsDoc[id];
         });
@@ -62,30 +65,28 @@ const Corpus = ({id}) => {
             .then(response => response.json())
             .then(data => {
                 setCorpusData(data);
+                setLoadingDocs(false);
             });
     };
 
     const docsList = () => {
         return (
             <>
-                <h5>Documents:</h5>
-                {
-                    corpusData.documents.length
-                        ? <ul>
-                            {allDocData.map((doc, i) => {
-                                if (corpusData.documents.includes(doc.id)) {
-                                    return (
-                                        <li key={i}>
-                                            <i>{doc.title}</i>, by {doc.author} {doc.year &&
-                                                `(${doc.year})`}
-                                        </li>
-                                    );
-                                }
-                            })}
-                        </ul>
-                        : <p><i>There are no documents in this corpus.</i></p>
+                {corpusData.documents.length
+                    ? <ul>
+                        {allDocData.map((doc, i) => {
+                            if (corpusData.documents.includes(doc.id)) {
+                                return (
+                                    <li key={i}>
+                                        <i>{doc.title}</i>, by {doc.author} {doc.year &&
+                                            `(${doc.year})`}
+                                    </li>
+                                );
+                            }
+                        })}
+                    </ul>
+                    : <p><i>There are no documents in this corpus.</i></p>
                 }
-
             </>
         );
     };
@@ -119,21 +120,25 @@ const Corpus = ({id}) => {
                         </Modal.Footer>
                     </form>
                 </Modal>
-
             </>
         );
     };
 
     return (
         <div className="container-fluid">
-            {loading
+            {loadingCorpus
                 ? <p>Currently loading Corpus...</p>
                 : <div>
                     <h1>Corpus: {corpusData.title}</h1>
-                    <h5>Description</h5>
+                    <h2 className={STYLES.title}>Description</h2>
                     <p>{corpusData.description}</p>
-                    {docsList()}
-                    {updateDocsList()}
+                    <h2 className={STYLES.title}>Documents:</h2>
+                    {loadingDocs
+                        ? <p>Currently loading documents list</p>
+                        : <>
+                            {docsList()} {updateDocsList()}
+                        </>
+                    }
                 </div>
             }
         </div>
