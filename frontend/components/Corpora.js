@@ -150,7 +150,9 @@ const Corpora = () => {
     const addProximityModal = (id) => {
         return (
             <>
-                <button className="btn btn-primary mb-3" onClick={handleShowProximityModal}>Run Proximity Analysis</button>
+                <button className="btn btn-primary mb-3" onClick={handleShowProximityModal}>
+                    Run Proximity Analysis
+                </button>
                 <Modal show={showProximityModal} onHide={handleCloseProximityModal}>
                     <Modal.Header closeButton>Proximity Analysis</Modal.Header>
                     <form onSubmit={handleProximitySubmit(id)}>
@@ -158,28 +160,28 @@ const Corpora = () => {
 
                             <div className="row mb-3">
                                 <label htmlFor="word_window"
-                                       className="col form-label">Word Window</label>
+                                    className="col form-label">Word Window</label>
                             </div>
 
                             <div className="row">
                                 <div className="col">
                                     <textarea row="4" className="form-control"
-                                              id="word_window" value={wordWindow}
-                                              onChange={handleWordWindowInputChange}/>
+                                        id="word_window" value={wordWindow}
+                                        onChange={handleWordWindowInputChange}/>
                                 </div>
                             </div>
                         </Modal.Body>
                         <Modal.Footer>
                             <button className="btn btn-secondary"
-                                    onClick={handleCloseProximityModal}>Close</button>
+                                onClick={handleCloseProximityModal}>Close</button>
                             <button className="btn btn-primary" type="submit">Run Analysis</button>
                         </Modal.Footer>
                     </form>
                 </Modal>
-                </>
-        )
+            </>
+        );
 
-    }
+    };
 
     const corporaList = () => {
         return (
