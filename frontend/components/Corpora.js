@@ -83,7 +83,6 @@ const Corpora = () => {
     };
 
     const handleProximitySubmit = (id) => {
-        event.preventDefault();
         setAddingCorpus(true);
         handleCloseProximityModal();
         const csrftoken = getCookie("csrftoken");
@@ -95,13 +94,16 @@ const Corpora = () => {
             },
             body: JSON.stringify({
                 corpus_id: id,
-                word_window: wordWindow
+                word_window: newWordWindow.word_window
             })
         };
         fetch("api/proximity_analysis", requestOptions)
             .then(response => response.json())
             .then(data => {
-                setWordWindow("");
+                setWordWindow(wordWindow => [...wordWindow, data]);
+                setNewWordWindow({
+                    "word_window": "",
+                });
                 setAddingCorpus(false);
             });
     };
@@ -150,23 +152,25 @@ const Corpora = () => {
     const addProximityModal = (id) => {
         return (
             <>
-                <button className="btn btn-primary mb-3" onClick={handleShowProximityModal}>
+                <button className="btn btn-danger btn-sm" onClick={handleShowProximityModal}>
                     Run Proximity Analysis
                 </button>
                 <Modal show={showProximityModal} onHide={handleCloseProximityModal}>
                     <Modal.Header closeButton>Proximity Analysis</Modal.Header>
-                    <form onSubmit={handleProximitySubmit(id)}>
-                        <Modal.Body>
+                    {/*<form onSubmit={handleProximitySubmit(id)}>*/}
+                    <form onSubmit = {console.log("for testing purposes without an implemented api endpoint")}>
+                    <Modal.Body>
 
                             <div className="row mb-3">
                                 <label htmlFor="word_window"
-                                    className="col form-label">Word Window</label>
+                                    className="col form-label">Please Enter A Word Window: </label>
                             </div>
 
                             <div className="row">
                                 <div className="col">
                                     <textarea row="4" className="form-control"
-                                        id="word_window" value={wordWindow}
+                                        id="word_window" value={newWordWindow.word_window} rows="1"
+                                              placeholder={"Ex: 2"}
                                         onChange={handleWordWindowInputChange}/>
                                 </div>
                             </div>
@@ -190,12 +194,12 @@ const Corpora = () => {
                     <div className="col-6 mb-3" key={i}>
                         <div className="card">
                             <div className="card-body">
+                                <h2 className={STYLES.title}>{corpus.title}</h2>
+                                <p>{corpus.description}</p>
                                 <OverlayTrigger
                                     overlay={<Tooltip>Run Proximity Analysis</Tooltip>}>
                                     {addProximityModal(corpus.id)}
                                 </OverlayTrigger>
-                                <h2 className={STYLES.title}>{corpus.title}</h2>
-                                <p>{corpus.description}</p>
                             </div>
                         </div>
                     </div>
