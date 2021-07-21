@@ -66,7 +66,9 @@ const SingleDocument = ({id}) => {
                         <Modal.Body>
                             <div className="row mb-3">
                                 <label htmlFor="author"
-                                    className="col-2 col-form-label">Would you like to calculate gender probabilities?</label>
+                                    className="col-2 col-form-label">
+                                    Would you like to calculate gender probabilities?
+                                </label>
                                 <div className="col">
                                     <input type="text" className="form-control"
                                         id="author" value={corefParam.author}
@@ -105,30 +107,12 @@ const SingleDocument = ({id}) => {
                 </div>
                 <div className = "document-author">
                     <b>Author: </b>{docData.author ? docData.author: "Unknown"}
-
-    return (
-        <div className="container-fluid">
-            {loading
-                ? <p>Currently Loading Documents...</p>
-                : <div>
-                    <h1>{docData.title}</h1>
-                    <p>
-                        Author: {docData.author ? docData.author : "Unknown"}
-                        <br/>
-                        Year Published {docData.year ? docData.year : "Unknown"}
-                        <br/>
-                        Word Count: {docData.word_count.toLocaleString()}
-                    </p>
-                    <button className="btn btn-outline-primary mb-3" onClick={handleShowText}>
-                        {showText ? "Hide Full Text" : "Show Full Text"}
-                    </button>
-                    {showText && <p className={STYLES.docText}>{docData.text}</p>}
                 </div>
-                <div className = "document-year">
-                    <b>Year of Publication: </b>{docData.year ? docData.year: "Unknown"}
+                <div className = "document-publicationdate">
+                    <b>Publication Year: </b>{docData.year ? docData.year: "Unknown"}
                 </div>
-                <div className = "document-word-count">
-                    <b>Word Count: </b>{docData.word_count.toLocaleString()}
+                <div className = "document-wordcount">
+                    <b>Word Count: </b>{docData.word_count ? docData.word_count: "Unknown"}
                 </div>
             </div>
         );
