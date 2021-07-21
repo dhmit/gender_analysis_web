@@ -70,20 +70,17 @@ const Corpus = ({id}) => {
     };
 
     const docsList = () => {
+        const docsInCorpus = allDocData.filter(doc => corpusData.documents.includes(doc.id));
         return (
             <>
                 {corpusData.documents.length
                     ? <ul>
-                        {allDocData.map((doc, i) => {
-                            if (corpusData.documents.includes(doc.id)) {
-                                return (
-                                    <li key={i}>
-                                        <i>{doc.title}</i>, by {doc.author} {doc.year &&
-                                            `(${doc.year})`}
-                                    </li>
-                                );
-                            }
-                        })}
+                        {docsInCorpus.map((doc, i) => (
+                            <li key={i}>
+                                <i>{doc.title}</i>, by {doc.author} {doc.year &&
+                                    `(${doc.year})`}
+                            </li>
+                        ))}
                     </ul>
                     : <p><i>There are no documents in this corpus.</i></p>
                 }
