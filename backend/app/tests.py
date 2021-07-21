@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import (
     PronounSeries,
     Document,
+    Corpus
 )
 
 
@@ -155,10 +156,16 @@ class DocumentTestCase(TestCase):
     def test_get_word_windows(self):
         doc = Document.objects.get(title='doc6')
         windows_1 = Counter(
-            {'he': 1, 'lit': 1, 'cigarette': 1, 'and': 1, 'then': 1, 'began': 1, 'speech': 1, 'which': 1})
+            {'he': 1, 'lit': 1, 'cigarette': 1, 'and': 1, 'then': 1, 'began': 1, 'speech': 1, 'which': 1}
+        )
         windows_2 = Counter({'her': 2, 'of': 1, 'and': 1, 'handed': 1, 'proposal': 1, 'drowned': 1, 'the': 1})
+        windows_3 = Counter({'tears': 1, 'drowned': 1, 'the': 1})
+        windows_4 = Counter({'she': 1, 'a': 2, 'lighter': 1, 'cigarette': 1, 'and': 1, 'deep': 1})
+
         self.assertEqual(doc.get_word_windows('his', window_size=2), windows_1)
         self.assertEqual(doc.get_word_windows(['purse', 'tears']), windows_2)
+        self.assertEqual(doc.get_word_windows('ring', window_size=3), windows_3)
+        self.assertEqual(doc.get_word_windows('took'), windows_4)
 
     def test_get_word_freq(self):
         doc = Document.objects.get(title='doc7')
@@ -192,19 +199,24 @@ class FrequencyTestCase(TestCase):
 
 
 
-class MainTests(TestCase):
+class CorpusTestCase(TestCase):
     """
-    Backend TestCase
+    Test Cases for the Corpus Model
     """
 
-    # def setUp(self):
-    #     super().setUp()
-    #     do any setup here
+    def setUp(self):
+        Corpus.objects.create(title='corpus1', description='testing corpus save')
+        Document.objects.create_document(title='doc1', year=2021, text='The quick brown fox jumped over the lazy dog.')
+        Document.objects.create_document(title='doc2', text='She really likes to eat chocolate!')
+        Document.objects.create_document(title='doc3', text='Do you like ice cream as much as I do?')
 
-    def test_sample(self):
-        """
-        Remove me once we have real tests here.
-        """
-        two = 2
-        another_two = 2
-        self.assertEqual(two + another_two, 4)
+    def test_add_document_to_corpus(self):
+        corpus1 = Corpus.objects.get(title='corpus1')
+        doc1 = Document.objects.get(title='doc1')
+        doc2 = Document.objects.get(title='doc2')
+        doc3 = Document.objects.get(title='doc3')
+        doc1.corpus_set.add(corpus1)
+        self.assertEqual(list(corpus1.documents.all()), [doc1])
+        corpus1.documents.add(doc2, doc3)
+        self.assertEqual(list(corpus1.documents.all()), [doc1, doc2, doc3])
+

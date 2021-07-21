@@ -26,7 +26,7 @@ const SingleDocument = ({id}) => {
                 : <div>
                     <h1>{docData.title}</h1>
                     <p>
-                        Author: {docData.author}
+                        Author: {docData.author ? docData.author : "Unknown"}
                         <br/>
                         Year Published {docData.year ? docData.year : "Unknown"}
                         <br/>
