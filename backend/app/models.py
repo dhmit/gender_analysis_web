@@ -18,16 +18,20 @@ class PronounSeries(models.Model):
     analysis functions
     """
 
-    # Things to consider:
-    # Add a default to reflex? i.e. default = object pronoun + 'self'?
-    # Also, how to we run doctests here? Or use pytest? (configs don't recognize django package or relative filepath
-    # in import statement)
     identifier = models.CharField(max_length=60)
     subj = LowercaseCharField(max_length=40)
     obj = LowercaseCharField(max_length=40)
     pos_det = LowercaseCharField(max_length=40)
     pos_pro = LowercaseCharField(max_length=40)
     reflex = LowercaseCharField(max_length=40)
+
+    PRONOUN_TYPES = [
+        'subj',
+        'obj',
+        'pos_det',
+        'pos_pro',
+        'reflex'
+    ]
 
     @property
     def all_pronouns(self):
@@ -138,6 +142,9 @@ class PronounSeries(models.Model):
                 and sorted(self) == sorted(other)
         )
 
+    def __hash__(self):
+        return super().__hash__()
+
 
 class Gender(models.Model):
     """
@@ -168,7 +175,7 @@ class Gender(models.Model):
     def __eq__(self, other):
         """
         Performs a check to see whether two `Gender` objects are equivalent. This is true if and
-        only if the `Gender` identifiers, pronoun series, and names are identical.
+        only if the `Gender` labels and pronoun series are identical.
 
         Note that this comparison works:
         >>> fem_pronouns = PronounSeries.objects.create('Fem', *['she', 'her', 'her', 'hers', 'herself'])
@@ -202,6 +209,9 @@ class Gender(models.Model):
                 self.label == other.label
                 and list(self.pronoun_series.all()) == list(other.pronoun_series.all())
         )
+
+    def __hash__(self):
+        return super().__hash__()
 
     @property
     def pronouns(self):
@@ -545,3 +555,17 @@ class Corpus(models.Model):
 
     def __hash__(self):
         return super().__hash__()
+
+
+class ProximityAnalysis(models.Model):
+    """
+    This model will persist the results from various proximity analysis functions.
+    """
+
+    corpus = models.ForeignKey(Corpus, related_name='proximity_analyses', on_delete=models.CASCADE)
+    genders = models.ManyToManyField(Gender, related_name='proximity_analyses')
+    word_window = models.PositiveIntegerField()
+    results = models.JSONField()
+
+    class Meta:
+        verbose_name_plural = 'proximity analyses'
