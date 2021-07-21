@@ -38,7 +38,7 @@ from .serializers import (
     DocumentSerializer,
     SimpleDocumentSerializer,
     GenderSerializer,
-    CorpusSerializer
+    CorpusSerializer,
     ProximityAnalysesSerializer,
 )
 
