@@ -5,6 +5,7 @@ import nltk
 import string
 import re
 from collections import Counter
+from itertools import chain
 from more_itertools import windowed
 from django.db import models
 from .fields import LowercaseCharField
@@ -415,10 +416,12 @@ class Document(models.Model):
 
         counter = Counter()
 
-        for text_window in windowed(self.tokenized_text, 2 * window_size + 1):
+        padding = [None] * window_size
+
+        for text_window in windowed(chain(padding, self.tokenized_text, padding), 2 * window_size + 1):
             if text_window[window_size] in search_terms:
                 for surrounding_word in text_window:
-                    if surrounding_word not in search_terms:
+                    if surrounding_word is not None and surrounding_word not in search_terms:
                         counter[surrounding_word] += 1
 
         return counter
