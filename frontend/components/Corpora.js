@@ -11,9 +11,18 @@ const Corpora = () => {
     });
     const [loading, setLoading] = useState(true);
     const [addingCorpus, setAddingCorpus] = useState(false);
+
     const [showModal, setShowModal] = useState(false);
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
+
+    const [wordWindow, setWordWindow] = useState([]);
+    const [newWordWindow, setNewWordWindow] = useState({"word_window": ""});
+    const [showProximityModal, setShowProximityModal] = useState(false);
+    const handleShowProximityModal = () => setShowProximityModal(true);
+    const handleCloseProximityModal = () => setShowProximityModal(false);
+
+
 
     useEffect(() => {
         fetch("/api/all_corpora")
@@ -37,6 +46,13 @@ const Corpora = () => {
             description: event.target.value
         }));
     };
+
+    const handleWordWindowInputChange = (event) => {
+        setNewWordWindow((values) => ({
+            word_window: event.target.value
+        }));
+    };
+
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -62,6 +78,30 @@ const Corpora = () => {
                     "title": "",
                     "description": ""
                 });
+                setAddingCorpus(false);
+            });
+    };
+
+    const handleProximitySubmit = (id) => {
+        event.preventDefault();
+        setAddingCorpus(true);
+        handleCloseProximityModal();
+        const csrftoken = getCookie("csrftoken");
+        const requestOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CRSFToken": csrftoken
+            },
+            body: JSON.stringify({
+                corpus_id: id,
+                word_window: wordWindow
+            })
+        };
+        fetch("api/proximity_analysis", requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                setWordWindow("");
                 setAddingCorpus(false);
             });
     };
@@ -107,6 +147,40 @@ const Corpora = () => {
         );
     };
 
+    const addProximityModal = (id) => {
+        return (
+            <>
+                <button className="btn btn-primary mb-3" onClick={handleShowProximityModal}>Run Proximity Analysis</button>
+                <Modal show={showProximityModal} onHide={handleCloseProximityModal}>
+                    <Modal.Header closeButton>Proximity Analysis</Modal.Header>
+                    <form onSubmit={handleProximitySubmit(id)}>
+                        <Modal.Body>
+
+                            <div className="row mb-3">
+                                <label htmlFor="word_window"
+                                       className="col form-label">Word Window</label>
+                            </div>
+
+                            <div className="row">
+                                <div className="col">
+                                    <textarea row="4" className="form-control"
+                                              id="word_window" value={wordWindow}
+                                              onChange={handleWordWindowInputChange}/>
+                                </div>
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <button className="btn btn-secondary"
+                                    onClick={handleCloseProximityModal}>Close</button>
+                            <button className="btn btn-primary" type="submit">Run Analysis</button>
+                        </Modal.Footer>
+                    </form>
+                </Modal>
+                </>
+        )
+
+    }
+
     const corporaList = () => {
         return (
             <>
@@ -114,6 +188,10 @@ const Corpora = () => {
                     <div className="col-6 mb-3" key={i}>
                         <div className="card">
                             <div className="card-body">
+                                <OverlayTrigger
+                                    overlay={<Tooltip>Run Proximity Analysis</Tooltip>}>
+                                    {addProximityModal(corpus.id)}
+                                </OverlayTrigger>
                                 <h2 className={STYLES.title}>{corpus.title}</h2>
                                 <p>{corpus.description}</p>
                             </div>
