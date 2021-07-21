@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/add_document', views.add_document),
     path('api/document/<int:doc_id>', views.get_document),
     path('api/all_genders', views.all_genders),
+    path('api/remove_alias', views.remove_alias),
 
     # View paths
     path('', views.index, name='index'),

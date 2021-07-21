@@ -17,6 +17,7 @@ const SingleDocument = ({id}) => {
     const [tab, setTab] = useState(tabs[0]);
     const [corefParam, setCorefParam] = useState(false);
 
+
     const charList = (characters) => {
         return (
             <div className="Characters">

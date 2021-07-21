@@ -1,10 +1,36 @@
 import STYLES from "../scss/SingleCharacter.module.scss";
 import {CloseRounded, DeleteRounded, MergeTypeRounded} from "@material-ui/icons";
 
-import React from "react";
+import React, {useState} from "react";
+import {getCookie} from "../common";
 
 
 const SingleCharacter = (character) => {
+
+//    const [aliasState, setAliasState] = useState(character.aliases);
+
+    const handleRemoveAlias = (alias) => {
+        const csrftoken = getCookie("csrftoken");
+        const requestOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken
+            },
+            body: JSON.stringify({
+                alias_id: alias.name,
+                character_id: character.common_name,
+            })
+        };
+        console.log({alias, character});
+        fetch("/api/remove_alias", requestOptions)
+            .then(response => response.json());
+            // .then(() => {
+            //     setAliasState((previousState) =>
+            //         previousState.filter((previousAlias) => previousAlias.name !== alias.name)
+            //     );
+            // });
+    };
 
     function renderGender(gender) {
         return gender.map((one_gender)=>
@@ -24,7 +50,8 @@ const SingleCharacter = (character) => {
 
     const SingleAlias = (alias) => {
         return (
-            <button key = {alias.name} className = {STYLES.SingleAlias}>
+            <button key = {alias.name} className = {STYLES.SingleAlias}
+                onClick = {() => handleRemoveAlias(alias)}>
                 {alias.name} ({alias.count})
                 <CloseRounded /></button>
         );

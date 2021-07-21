@@ -10,3 +10,4 @@ pytz==2020.5
 regex==2021.4.4
 sqlparse==0.4.1
 tqdm==4.61.1
+-e git+https://github.com/huggingface/neuralcoref.git@0cff3c94e6019f6bee1004b58a3f0cd59c806fcf#egg=neuralcoref
