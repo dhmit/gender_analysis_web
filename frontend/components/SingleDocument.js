@@ -105,6 +105,24 @@ const SingleDocument = ({id}) => {
                 </div>
                 <div className = "document-author">
                     <b>Author: </b>{docData.author ? docData.author: "Unknown"}
+
+    return (
+        <div className="container-fluid">
+            {loading
+                ? <p>Currently Loading Documents...</p>
+                : <div>
+                    <h1>{docData.title}</h1>
+                    <p>
+                        Author: {docData.author ? docData.author : "Unknown"}
+                        <br/>
+                        Year Published {docData.year ? docData.year : "Unknown"}
+                        <br/>
+                        Word Count: {docData.word_count.toLocaleString()}
+                    </p>
+                    <button className="btn btn-outline-primary mb-3" onClick={handleShowText}>
+                        {showText ? "Hide Full Text" : "Show Full Text"}
+                    </button>
+                    {showText && <p className={STYLES.docText}>{docData.text}</p>}
                 </div>
                 <div className = "document-year">
                     <b>Year of Publication: </b>{docData.year ? docData.year: "Unknown"}

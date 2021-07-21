@@ -7,6 +7,7 @@ import ErrorNotFoundComponent from "./components/ErrorNotFoundComponent";
 import ExampleId from "./components/ExampleId";
 import Documents from "./components/Documents";
 import SingleDocument from "./components/SingleDocument";
+import Corpora from "./components/Corpora";
 
 const COMPONENT_PROPS_RAW = document.getElementById("component_props").text;
 const COMPONENT_NAME_RAW = document.getElementById("component_name").text;
@@ -17,7 +18,8 @@ const COMPONENTS = {
     ErrorNotFoundComponent,
     ExampleId,
     Documents,
-    SingleDocument
+    SingleDocument,
+    Corpora
 };
 
 const PreselectedComponent = COMPONENTS[COMPONENT_NAME || "ErrorNotFoundComponent"];

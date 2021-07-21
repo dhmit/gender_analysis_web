@@ -2,13 +2,17 @@
 Tests for the gender analysis web app.
 """
 from collections import Counter
+
 from django.test import TestCase
 from django.core.exceptions import ObjectDoesNotExist
+
 from .models import (
     PronounSeries,
     Document,
-    Corpus
+    Corpus,
+    Gender,
 )
+from .analysis import proximity
 
 
 class PronounSeriesTestCase(TestCase):
@@ -156,10 +160,16 @@ class DocumentTestCase(TestCase):
     def test_get_word_windows(self):
         doc = Document.objects.get(title='doc6')
         windows_1 = Counter(
-            {'he': 1, 'lit': 1, 'cigarette': 1, 'and': 1, 'then': 1, 'began': 1, 'speech': 1, 'which': 1})
+            {'he': 1, 'lit': 1, 'cigarette': 1, 'and': 1, 'then': 1, 'began': 1, 'speech': 1, 'which': 1}
+        )
         windows_2 = Counter({'her': 2, 'of': 1, 'and': 1, 'handed': 1, 'proposal': 1, 'drowned': 1, 'the': 1})
+        windows_3 = Counter({'tears': 1, 'drowned': 1, 'the': 1})
+        windows_4 = Counter({'she': 1, 'a': 2, 'lighter': 1, 'cigarette': 1, 'and': 1, 'deep': 1})
+
         self.assertEqual(doc.get_word_windows('his', window_size=2), windows_1)
         self.assertEqual(doc.get_word_windows(['purse', 'tears']), windows_2)
+        self.assertEqual(doc.get_word_windows('ring', window_size=3), windows_3)
+        self.assertEqual(doc.get_word_windows('took'), windows_4)
 
     def test_get_word_freq(self):
         doc = Document.objects.get(title='doc7')
@@ -208,3 +218,230 @@ class CorpusTestCase(TestCase):
         corpus1.documents.add(doc2, doc3)
         self.assertEqual(list(corpus1.documents.all()), [doc1, doc2, doc3])
 
+
+class ProximityTestCase(TestCase):
+    """
+    Test Cases for the analysis functions in `proximity.py`
+    """
+
+    def setUp(self):
+        self.maxDiff = None
+
+        text_1 = "He went to get himself an ice cream, and he also got one for her. She was happy."
+        text_2 = """Fairest Cordelia, that art most rich being poor; Most choice, forsaken; and most loved her,
+                 despised, herself and himself virtues here I hers hers seize upon. Lear then banishes his daughter
+                 to France."""
+        text_3 = """She sells seashells by the seashore. He he reads books. She likes math.
+                 His father is scared of spiders."""
+
+        Document.objects.create_document(title='Text 1', year=2021, text=text_1)
+        Document.objects.create_document(title='Text 2', year=2021, text=text_2)
+        Document.objects.create_document(title='Text 3', year=2021, text=text_3)
+
+        corpus = Corpus.objects.create(
+            title='Test Corpus',
+            description='Testing the analysis functions in `proximity.py`'
+        )
+        corpus.documents.add(1, 2, 3)
+
+    def test_proximity(self):
+        male = Gender.objects.get(pk=1, label='Male')
+        female = Gender.objects.get(pk=2, label='Female')
+        they = Gender.objects.get(pk=3, label='Nonbinary')
+        neo = Gender.objects.get(pk=4, label='Neo')
+
+        #  MALE: (identifier = "Masc",subj = "he",obj = "him",pos_det = "his",pos_pro = "his",reflex = "himself")
+        #  FEMALE: (identifier = "Fem",subj = "she",obj = "her",pos_det = "her",pos_pro = "hers",reflex = "herself")
+
+        results = proximity.run_analysis(1, 3)
+        expected = {
+            # Tagged tokens for text_1: [('he', 'PRP'), ('went', 'VBD'), ('to', 'TO'), ('get', 'VB'),
+            # ('himself', 'PRP'), ('an', 'DT'), ('ice', 'NN'), ('cream', 'NN'), ('and', 'CC'), ('he', 'PRP'),
+            # ('also', 'RB'), ('got', 'VBD'), ('one', 'CD'), ('for', 'IN'), ('her', 'PRP$'), ('she', 'PRP'),
+            # ('was', 'VBD'), ('happy', 'JJ')]
+            1: {
+                male: {
+                    'subj': {'VBD': Counter(['went', 'got']),
+                             'TO': Counter(['to']),
+                             'VB': Counter(['get']),
+                             'NN': Counter(['ice', 'cream']),
+                             'CC': Counter(['and']),
+                             'RB': Counter(['also']),
+                             'CD': Counter(['one']),
+                             },
+                    'obj': {},
+                    'pos_det': {},
+                    'pos_pro': {},
+                    'reflex': {'VBD': Counter(['went']),
+                               'TO': Counter(['to']),
+                               'VB': Counter(['get']),
+                               'DT': Counter(['an']),
+                               'NN': Counter(['ice', 'cream']),
+                               }
+                },
+                female: {
+                    'subj': {'PRP$': Counter(['her']),
+                             'CD': Counter(['one']),
+                             'IN': Counter(['for']),
+                             'VBD': Counter(['was']),
+                             'JJ': Counter(['happy']),
+                             },
+                    'obj': {'PRP': Counter(['she']),
+                            'VBD': Counter(['got', 'was']),
+                            'CD': Counter(['one']),
+                            'IN': Counter(['for']),
+                            'JJ': Counter(['happy']),
+                            },
+                    'pos_det': {'PRP': Counter(['she']),
+                                'VBD': Counter(['got', 'was']),
+                                'CD': Counter(['one']),
+                                'IN': Counter(['for']),
+                                'JJ': Counter(['happy']),
+                                },
+                    'pos_pro': {},
+                    'reflex': {}
+                },
+                they: {'subj': {},
+                       'obj': {},
+                       'pos_det': {},
+                       'pos_pro': {},
+                       'reflex': {}
+                       },
+                neo: {'subj': {},
+                      'obj': {},
+                      'pos_det': {},
+                      'pos_pro': {},
+                      'reflex': {}
+                      }
+            },
+
+            # Tagged tokens for text_2: [('fairest', 'JJS'), ('cordelia', 'NN'), ('that', 'IN'), ('art', 'VBZ'),
+            # ('most', 'RBS'), ('rich', 'JJ'), ('being', 'VBG'), ('poor', 'JJ'), ('most', 'RBS'), ('choice', 'NN'),
+            # ('forsaken', 'VBN'), ('and', 'CC'), ('most', 'JJS'), ('loved', 'VBD'), ('her', 'PRP'),
+            # ('despised', 'VBD'), ('herself', 'PRP'), ('and', 'CC'), ('himself', 'PRP'), ('virtues', 'NNS'),
+            # ('here', 'RB'), ('i', 'VBP'), ('hers', 'NNS'), ('hers', 'NNS'), ('seize', 'VBP'), ('upon', 'IN'),
+            # ('lear', 'JJ'), ('then', 'RB'), ('banishes', 'VBZ'), ('his', 'PRP$'), ('daughter', 'NN'), ('to', 'TO'),
+            # ('france', 'VB')]
+            2: {
+                male: {
+                    'subj': {},
+                    'obj': {},
+                    'pos_det': {'JJ': Counter(['lear']),
+                                'RB': Counter(['then']),
+                                'VBZ': Counter(['banishes']),
+                                'NN': Counter(['daughter']),
+                                'TO': Counter(['to']),
+                                'VB': Counter(['france']),
+                                },
+                    'pos_pro': {'JJ': Counter(['lear']),
+                                'RB': Counter(['then']),
+                                'VBZ': Counter(['banishes']),
+                                'NN': Counter(['daughter']),
+                                'TO': Counter(['to']),
+                                'VB': Counter(['france']),
+                                },
+                    'reflex': {'VBD': Counter(['despised']),
+                               'PRP': Counter(['herself']),
+                               'CC': Counter(['and']),
+                               'NNS': Counter(['virtues']),
+                               'RB': Counter(['here']),
+                               'VBP': Counter(['i']),
+                               },
+                },
+                female: {
+                    'subj': {},
+                    'obj': {'CC': Counter({'and': 2}),
+                            'JJS': Counter(['most']),
+                            'VBD': Counter(['loved', 'despised']),
+                            'PRP': Counter(['herself']),
+                            },
+                    'pos_det': {'CC': Counter({'and': 2}),
+                                'JJS': Counter(['most']),
+                                'VBD': Counter(['loved', 'despised']),
+                                'PRP': Counter(['herself']),
+                                },
+                    'pos_pro': {
+                        'NNS': Counter(['virtues']),
+                        'RB': Counter({'here': 2}),
+                        'VBP': Counter({'i': 2, 'seize': 2}),
+                        'IN': Counter({'upon': 2}),
+                        'JJ': Counter(['lear']),
+                    },
+                    'reflex': {
+                        'PRP': Counter(['her', 'himself']),
+                        'VBD': Counter(['loved', 'despised']),
+                        'CC': Counter(['and']),
+                        'NNS': Counter(['virtues']),
+                    },
+                },
+                they: {'subj': {},
+                       'obj': {},
+                       'pos_det': {},
+                       'pos_pro': {},
+                       'reflex': {},
+                       },
+                neo: {'subj': {},
+                      'obj': {},
+                      'pos_det': {},
+                      'pos_pro': {},
+                      'reflex': {},
+                      },
+            },
+
+            # Tagged tokens for text_3: [('she', 'PRP'), ('sells', 'VBZ'), ('seashells', 'NNS'), ('by', 'IN'),
+            # ('the', 'DT'), ('seashore', 'NN'), ('he', 'PRP'), ('he', 'PRP'), ('reads', 'VBZ'), ('books', 'NNS'),
+            # ('she', 'PRP'), ('likes', 'VBZ'), ('math', 'NN'), ('his', 'PRP$'), ('father', 'NN'), ('is', 'VBZ'),
+            # ('scared', 'VBN'), ('of', 'IN'), ('spiders', 'NNS')]
+            3: {
+                male: {
+                    'subj': {
+                        'IN': Counter(['by']),
+                        'DT': Counter({'the': 2}),
+                        'NN': Counter({'seashore': 2}),
+                        'VBZ': Counter({'reads': 2}),
+                        'NNS': Counter({'books': 2}),
+                        'PRP': Counter(['she']),
+                    },
+                    'obj': {},
+                    'pos_det': {'PRP': Counter(['she']),
+                                'VBZ': Counter(['likes', 'is']),
+                                'NN': Counter(['math', 'father']),
+                                'VBN': Counter(['scared']),
+                                },
+                    'pos_pro': {'PRP': Counter(['she']),
+                                'VBZ': Counter(['likes', 'is']),
+                                'NN': Counter(['math', 'father']),
+                                'VBN': Counter(['scared']),
+                                },
+                    'reflex': {},
+                },
+                female: {
+                    'subj': {
+                        'VBZ': Counter(['sells', 'reads', 'likes']),
+                        'NN': Counter(['math']),
+                        'NNS': Counter(['seashells', 'books']),
+                        'IN': Counter(['by']),
+                        'PRP': Counter(['he']),
+                        'PRP$': Counter(['his']),
+                    },
+                    'obj': {},
+                    'pos_det': {},
+                    'pos_pro': {},
+                    'reflex': {},
+                },
+                they: {'subj': {},
+                       'obj': {},
+                       'pos_det': {},
+                       'pos_pro': {},
+                       'reflex': {},
+                       },
+                neo: {'subj': {},
+                      'obj': {},
+                      'pos_det': {},
+                      'pos_pro': {},
+                      'reflex': {},
+                      },
+            },
+        }
+
+        self.assertEqual(results, expected)
