@@ -112,12 +112,14 @@ const Corpora = () => {
             <>
                 {corporaData.map((corpus, i) => (
                     <div className="col-6 mb-3" key={i}>
-                        <div className="card">
-                            <div className="card-body">
-                                <h2 className={STYLES.title}>{corpus.title}</h2>
-                                <p>{corpus.description}</p>
+                        <a className={STYLES.corpusCard} href={`/corpus/${corpus.id}`}>
+                            <div className="card">
+                                <div className="card-body">
+                                    <h2 className={STYLES.title}>{corpus.title}</h2>
+                                    <p>{corpus.description}</p>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 ))}
             </>
