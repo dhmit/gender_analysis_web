@@ -65,7 +65,7 @@ class CorpusSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'documents']
 
 
-class ProximitySerializer(serializers.ModelSerializer):
+class ProximityAnalysisSerializer(serializers.ModelSerializer):
     """
     Serializes a ProximityAnalysis object
     """
