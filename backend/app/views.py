@@ -36,6 +36,7 @@ from .serializers import (
     GenderSerializer,
     CorpusSerializer
 )
+from .analysis.proximity import run_analysis
 
 
 @api_view(['GET'])
@@ -241,6 +242,15 @@ def get_corpus(request, corpus_id):
     corpus_obj = Corpus.objects.get(id=corpus_id)
     serializer = CorpusSerializer(corpus_obj)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+def add_proximity_analysis(request, corpus_id, word_window):
+    """
+    API endpoint for posting the proximity analysis
+    """
+    results = json.dumps(run_analysis(corpus_id, word_window))
+    return results
 
 
 def corpora(request):
