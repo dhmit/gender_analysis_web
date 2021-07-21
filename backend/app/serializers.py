@@ -9,7 +9,8 @@ from .models import (
     PronounSeries,
     Gender,
     Document,
-    Corpus
+    Corpus,
+    ProximityAnalysis
 )
 
 
@@ -62,3 +63,15 @@ class CorpusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Corpus
         fields = ['id', 'title', 'description', 'documents']
+
+
+class ProximitySerializer(serializers.ModelSerializer):
+    """
+    Serializes a ProximityAnalysis object
+    """
+
+    corpus = serializers.StringRelatedField()
+
+    class Meta:
+        model = ProximityAnalysis
+        fields = ['id', 'corpus', 'word_window', 'results']
