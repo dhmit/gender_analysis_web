@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 // import * as PropTypes from "prop-types";
-// import STYLES from "./Documents.module.scss";
+import STYLES from "./Documents.module.scss";
 import {getCookie} from "../common";
 import {Modal} from "react-bootstrap";
 
@@ -13,6 +13,7 @@ const Documents = () => {
         "year": "",
         "text": ""
     });
+    const [newAttributes, setNewAttributes] = useState([{"name": "", "value": ""}]);
     const [loading, setLoading] = useState(true);
     const [addingDoc, setAddingDoc] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -56,9 +57,29 @@ const Documents = () => {
 	    }));
     };
 
+    const handleAttributeInputChange = (event, index) => {
+        const {name, value} = event.target;
+        setNewAttributes(prevAttributes => {
+            return prevAttributes.map((attribute, i) => {
+                return i === index ? {...attribute, [name]:value} : attribute;
+            });
+        });
+    };
+
+    const handleAddAttribute = () => {
+        setNewAttributes([...newAttributes, {"name": "", "value": ""}]);
+    };
+
+    const handleRemoveAttribute = (index) => {
+        setNewAttributes(previousAttributes => (
+            previousAttributes.filter((attribute, idx) => idx !== index)
+        ));
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
         setAddingDoc(true);
+        handleCloseModal();
         const csrftoken = getCookie("csrftoken");
         const requestOptions = {
             method: "POST",
@@ -68,9 +89,10 @@ const Documents = () => {
             },
             body: JSON.stringify({
                 title: newDocData.title,
-                year: typeof newDocData.year === "string" ? null : newDocData.year,
+                year: newDocData.year,
                 author: newDocData.author,
-                text: newDocData.text
+                text: newDocData.text,
+                newAttributes: newAttributes
             })
         };
         fetch("api/add_document", requestOptions)
@@ -87,30 +109,42 @@ const Documents = () => {
             });
     };
 
-    const docInfo = (doc, i) => {
+    const docInfo = (doc) => {
         return (
-            <ul> Document {i}
-                {Object.keys(doc).map((attribute, i) => (
-                    <li key={i}>{attribute}: {doc[attribute]}</li>
-                ))}
-            </ul>
+            <a href={`/document/${doc.id}`} className={STYLES.docCard}>
+                <div className="card">
+                    <div className="card-body">
+                        <h6 className="mb-0">{doc.title}</h6>
+                        <p>
+                            {doc.author ? doc.author : "Unknown"}
+                            <br/>
+                            Year Published: {doc.year ? doc.year : "Unknown"}
+                            <br/>
+                            Word Count: {doc.word_count.toLocaleString()}
+                        </p>
+
+                    </div>
+                </div>
+            </a>
         );
     };
 
     const docList = () => {
         return (
-            <ul>
+            <div className="row">
                 {docData.map((doc, i) => (
-                    <li key={i}> {docInfo(doc, i)} </li>
+                    <div className="col-6 mb-3" key={i}>
+                        {docInfo(doc, i)}
+                    </div>
                 ))}
-            </ul>
+            </div>
         );
     };
 
     const addDocModal = () => {
         return (
             <>
-                <button className="btn btn-primary"
+                <button className="btn btn-primary mb-3"
                     onClick={handleShowModal}>Add Document</button>
                 <Modal show={showModal} onHide={handleCloseModal}>
                     <Modal.Header closeButton>Add Document</Modal.Header>
@@ -131,7 +165,7 @@ const Documents = () => {
                                 <div className="col">
                                     <input type="text" className="form-control"
                                         id="title" value={newDocData.title}
-                                        onChange={handleTitleInputChange}/>
+                                        onChange={handleTitleInputChange} required/>
                                 </div>
                             </div>
                             <div className="row mb-3">
@@ -140,6 +174,8 @@ const Documents = () => {
                                     <input type="number" className="form-control"
                                         id="year" value={newDocData.year}
                                         max="9999"
+                                        onKeyDown={ e => ( e.key === "e" || e.key === "." ) &&
+                                            e.preventDefault() }
                                         onChange={handleYearInputChange}/>
                                 </div>
                             </div>
@@ -151,12 +187,50 @@ const Documents = () => {
                                         onChange={handleTextInputChange} required></textarea>
                                 </div>
                             </div>
+                            <p>Attributes</p>
+                            {
+                                newAttributes.map((attribute, i) => {
+                                    return (
+                                        <div key={i} className="row mb-3">
+                                            <div className="col-4">
+                                                <input type="text" className="form-control"
+                                                    name="name" onChange={event =>
+                                                        handleAttributeInputChange(event,i)}
+                                                    placeholder="name" value={attribute.name}
+                                                    required={newAttributes[i]["value"]
+                                                        ? true : false}/>
+                                            </div>
+                                            <div className="col-3">
+                                                <input type="text" className="form-control"
+                                                    name="value" onChange={event =>
+                                                        handleAttributeInputChange(event,i)}
+                                                    placeholder="value" value={attribute.value}
+                                                    required={newAttributes[i]["name"]
+                                                        ? true : false}/>
+                                            </div>
+                                            {newAttributes.length !== 1 &&
+                                                <div className="col">
+                                                    <button type="button"
+                                                        onClick={() => handleRemoveAttribute(i)}
+                                                        className="btn btn-secondary">
+                                                        Remove </button>
+                                                </div>}
+                                            {newAttributes.length - 1 === i &&
+                                                <div className="col">
+                                                    <button type="button"
+                                                        onClick={handleAddAttribute}
+                                                        className="btn btn-primary">Add</button>
+                                                </div>}
+                                        </div>
+                                    );
+                                })
+                            }
                         </Modal.Body>
                         <Modal.Footer>
-                            <button className="btn btn-secondary"
+                            <button className="btn btn-secondary" type="button"
                                 onClick={handleCloseModal}>Close</button>
                             <button className="btn btn-primary"
-                                type="submit" onClick={handleCloseModal}>Add</button>
+                                type="submit">Add</button>
                         </Modal.Footer>
                     </form>
                 </Modal>
@@ -165,24 +239,20 @@ const Documents = () => {
     };
 
     return (
-        <div>
-            <h1>This is the Documents page.</h1>
+        <div className="container-fluid">
+            <h1>Documents</h1>
             <p>
                 This page displays all the documents stored in backend.
             </p>
-            {
-                addingDoc
-                    ? <div className="alert alert-warning" role="alert">
-                        Currently adding document... Please do not close this tab.
-                    </div>
-                    : null
+            {addingDoc && <div className="alert alert-warning" role="alert">
+                Currently adding document... Please do not close this tab.
+            </div>
             }
             {addDocModal()}
             {
                 loading
                     ? <p>Currently Loading Documents...</p>
                     : <div>
-                        Documents:
                         {docList()}
                     </div>
             }

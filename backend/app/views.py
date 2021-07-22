@@ -26,10 +26,15 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import render
 from .models import (
-    Document
+    Document,
+    Gender,
+    Corpus
 )
 from .serializers import (
-    DocumentSerializer
+    DocumentSerializer,
+    SimpleDocumentSerializer,
+    GenderSerializer,
+    CorpusSerializer
 )
 
 
@@ -44,6 +49,7 @@ def get_example(request, example_id):
         'id': example_id,
     }
     return Response(data)
+
 
 def index(request):
     """
@@ -90,27 +96,49 @@ def example_id(request, example_id):
 
     return render(request, 'index.html', context)
 
+
 @api_view(['POST'])
 def add_document(request):
     """
     API endpoint for adding a piece of document
     """
     attributes = request.data
+    new_attributes = {}
+    for attribute in attributes['newAttributes']:
+        key, value = attribute['name'], attribute['value']
+        if key and value:
+            new_attributes[key] = value
     fields = {
         'title': attributes['title'],
         'author': attributes['author'],
-        'year': attributes['year'],
-        'text': attributes['text']
+        'year': attributes['year'] if attributes['year'] != '' else None,
+        'text': attributes['text'],
+        'new_attributes': new_attributes
     }
     new_text_obj = Document.objects.create_document(**fields)
     serializer = DocumentSerializer(new_text_obj)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 def all_documents(request):
+    """
+    API Endpoint to get all the documents
+    """
     doc_objs = Document.objects.all()
-    serializer = DocumentSerializer(doc_objs, many=True)
+    serializer = SimpleDocumentSerializer(doc_objs, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_document(request, doc_id):
+    """
+    API Endpoint to get a document based on the ID
+    """
+    doc_obj = Document.objects.get(id=doc_id)
+    serializer = DocumentSerializer(doc_obj)
+    return Response(serializer.data)
+
 
 def documents(request):
     """
@@ -125,3 +153,125 @@ def documents(request):
     }
 
     return render(request, 'index.html', context)
+
+
+def single_document(request, doc_id):
+    """
+    Single Document page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Document '
+        },
+        'component_props': {
+            'id': doc_id
+        },
+        'component_name': 'SingleDocument'
+    }
+
+    return render(request, 'index.html', context)
+
+
+@api_view(['GET'])
+def all_genders(request):
+    """
+    API Endpoint to get all gender instances.
+    """
+    gender_objs = Gender.objects.all()
+    serializer = GenderSerializer(gender_objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def add_corpus(request):
+    """
+    API endpoint for adding a corpus instance
+    """
+    attributes = request.data
+    fields = {
+        'title': attributes['title'],
+        'description': attributes['description']
+    }
+    new_corpus_obj = Corpus.objects.create(**fields)
+    serializer = CorpusSerializer(new_corpus_obj)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def update_corpus_docs(request):
+    """
+    API endpoint for updating the documents in a corpus
+    """
+    corpus_data = request.data
+    corpus_id = corpus_data['id']
+    doc_ids = corpus_data['documents']
+    corpus_obj = Corpus.objects.get(id=corpus_id)
+    corpus_obj.documents.set(Document.objects.filter(id__in=doc_ids))
+    serializer = CorpusSerializer(corpus_obj)
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+def delete_corpus(request):
+    """
+    API endpoint for deleting a corpus
+    """
+    corpus_id = request.data['id']
+    corpus_obj = Corpus.objects.get(id=corpus_id)
+    res = corpus_obj.delete()
+    return Response(res)
+
+
+@api_view(['GET'])
+def all_corpora(request):
+    """
+    API endpoint to get all the corpora
+    """
+    corpus_objs = Corpus.objects.all()
+    serializer = CorpusSerializer(corpus_objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_corpus(request, corpus_id):
+    """
+    API endpoint to get a corpus based on id
+    """
+    corpus_obj = Corpus.objects.get(id=corpus_id)
+    serializer = CorpusSerializer(corpus_obj)
+    return Response(serializer.data)
+
+
+def corpora(request):
+    """
+    Corpora page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Corpora'
+        },
+        'component_name': 'Corpora'
+    }
+
+    return render(request, 'index.html', context)
+
+
+def corpus(request, corpus_id):
+    """
+    Corpus Page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Corpus'
+        },
+        'component_props': {
+            'id': corpus_id
+        },
+        'component_name': 'Corpus'
+    }
+
+    return render(request, 'index.html', context)
+    

@@ -5,10 +5,20 @@ import DH_LOGO from "../../images/dh_logo.svg";
 const Nav = () => {
 
     return (
-        <nav className={STYLES.nav}>
-            <a className={STYLES.linkHome} href="/">
-                App Title
-            </a>
+        <nav className="navbar navbar-light bg-light navbar-expand-sm">
+            <a className={`navbar-brand ${STYLES.linkHome}`} href="/">Gender Analysis Toolkit</a>
+            <ul className="navbar-nav mr-auto">
+                <li className="nav-item">
+                    <a className="nav-link" href="/documents">
+                        Documents
+                    </a>
+                </li>
+                <li className="nav-item">
+                    <a className="nav-link" href="/corpora">
+                        Corpora
+                    </a>
+                </li>
+            </ul>
             <a className={STYLES.linkLab} href="https://digitalhumanities.mit.edu/" target="_blank" rel="noreferrer">
                 <img className={STYLES.imageLab} src={DH_LOGO} />
             </a>
