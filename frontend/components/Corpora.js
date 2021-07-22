@@ -140,8 +140,10 @@ const Corpora = () => {
                                     <CloseButton
                                         onClick={() => deleteCorpus(corpus.id)}></CloseButton>
                                 </OverlayTrigger>
-                                <h2 className={STYLES.title}>{corpus.title}</h2>
-                                <p>{corpus.description}</p>
+                                <a className={STYLES.corpusCard} href={`/corpus/${corpus.id}`}>
+                                    <h2 className={STYLES.title}>{corpus.title}</h2>
+                                    <p>{corpus.description}</p>
+                                </a>
                             </div>
                         </div>
                     </div>
