@@ -26,7 +26,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import render
 
-from analysis.proximity import run_analysis
+from .analysis.proximity import run_analysis
 from .models import (
     Document,
     Gender,
