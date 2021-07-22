@@ -178,8 +178,10 @@ const Corpora = () => {
                 <Modal show={showProximityModal} onHide={handleCloseProximityModal}>
                     <Modal.Header closeButton>Proximity Analysis</Modal.Header>
                     {/*<form onSubmit={handleProximitySubmit(id)}>*/}
-                    <form onSubmit = {console.log("for testing purposes without an implemented api endpoint")}>
-                    <Modal.Body>
+                    <form onSubmit = {
+                        console.log("for testing purposes without an implemented api endpoint")
+                    }>
+                        <Modal.Body>
 
                             <div className="row mb-3">
                                 <label htmlFor="word_window"
@@ -214,8 +216,10 @@ const Corpora = () => {
                     <div className="col-6 mb-3" key={i}>
                         <div className="card">
                             <div className="card-body">
-                                <h2 className={STYLES.title}>{corpus.title}</h2>
-                                <p>{corpus.description}</p>
+                                <a className={STYLES.corpusCard} href={`/corpus/${corpus.id}`}>
+                                    <h2 className={STYLES.title}>{corpus.title}</h2>
+                                    <p>{corpus.description}</p>
+                                </a>
                                 <OverlayTrigger
                                     overlay={<Tooltip>Run Proximity Analysis</Tooltip>}>
                                     {addProximityModal(corpus.id)}
@@ -223,13 +227,8 @@ const Corpora = () => {
                                 <OverlayTrigger
                                     placement="right"
                                     overlay={<Tooltip>Delete Corpus</Tooltip>}>
-                                    <CloseButton
-                                        onClick={() => deleteCorpus(corpus.id)}></CloseButton>
+                                    <CloseButton onClick={() => deleteCorpus(corpus.id)}/>
                                 </OverlayTrigger>
-                                <a className={STYLES.corpusCard} href={`/corpus/${corpus.id}`}>
-                                    <h2 className={STYLES.title}>{corpus.title}</h2>
-                                    <p>{corpus.description}</p>
-                                </a>
                             </div>
                         </div>
                     </div>
