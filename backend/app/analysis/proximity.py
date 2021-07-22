@@ -32,7 +32,6 @@ def run_analysis(corpus_id, word_window):
             genders,
             word_window
         )
-        breakpoint()
 
     return results
 
@@ -55,12 +54,12 @@ def generate_gender_token_counters(pos_tags, genders, word_window):
     results = {}
 
     for gender in genders:
-        results[gender] = dict()
+        results[str(gender)] = dict()
 
         for PRONOUN_TYPE in PronounSeries.PRONOUN_TYPES:
             pronoun_set = gender.pronoun_series.values_list(PRONOUN_TYPE, flat=True)
             doc_result = generate_token_counter(pos_tags, pronoun_set, word_window)
-            results[gender][PRONOUN_TYPE] = doc_result
+            results[str(gender)][PRONOUN_TYPE] = doc_result
 
     return results
 
