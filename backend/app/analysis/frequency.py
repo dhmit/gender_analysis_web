@@ -1,5 +1,6 @@
 from collections import Counter
 
+
 def _get_gender_word_frequencies_relative(gender_word_counts):
     """
     A private helper function that examines identifier counts keyed to Gender instances,
@@ -30,33 +31,34 @@ def _get_gender_word_frequencies_relative(gender_word_counts):
 
     return output
 
-def _run_analysis(texts, genders):
+
+def run_single_analysis(doc_obj, genders):
     """
-    A private helper method for running the primary frequency analysis.
-    This method generates three dictionaries: one (count) keying Document instances
-    to Gender instances to Counter instances representing the total number of instances
-    of each Gender's pronouns in a given Document; one (frequency) keying Document instances
-    to Gender instances to dictionaries of the shape {str:float} representing the total number
-    of instances of each Gender's pronouns over the total word count of that Document; and
-    one (relative) keying Document instances to Gender instances to dictionaries of the shape
-    {str:float} representing the relative percentage of Gender pronouns across all Gender
-    instances in a given Document instance.
+    This method generates a dictionary that includes a Counter (count) that keys
+    Document instances to Gender instances to Counter instances representing the total
+    number of instances of each Gender's pronouns in a given Document, a dictionary (frequency)
+    keying Document instances to Gender instances to dictionaries of the shape {str:float}
+    representing the total number of instances of each Gender's pronouns over the total word count
+    of that Document; and a dictionary (relative) keying Document instances to Gender instances
+    to dictionaries of the shape {str:float} representing the relative percentage of Gender
+    pronouns across all Gender instances in a given Document instance.
 
-    :param texts: a list of strings presenting the documents
-    :param genders: a list of strings presenting the pronouns
-    :return: :return: a tuple containing three dictionaries
+    :param doc_obj: an instance of the Document model
+    :param genders: a list of Gender objects
+    :return: a dictionary containing the frequency analyses of the Document instance
     """
-    count = {}
-    frequencies = {}
-    relatives = {}
+    count = Counter()
+    frequency = {}
 
-    for document in texts:
-        count[document] = Counter()
-        frequencies[document] = {}
-        relatives[document] = {}
-        for gender in genders:
-            count[document][gender] = document.get_count_of_words(gender.pronouns)
-            frequencies[document][gender] = document.get_word_freqs(gender.pronouns)
-        relatives[document] = _get_gender_word_frequencies_relative(count[document])
+    for gender in genders:
+        count[gender.label] = doc_obj.get_count_of_words(gender.pronouns)
+        frequency[gender.label] = doc_obj.get_word_freqs(gender.pronouns)
+    relative = _get_gender_word_frequencies_relative(count)
 
-    return count, frequencies, relatives
+    output = {
+        'count': count,
+        'frequency': frequency,
+        'relative': relative
+    }
+
+    return output

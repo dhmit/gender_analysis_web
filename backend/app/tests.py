@@ -12,7 +12,10 @@ from .models import (
     Corpus,
     Gender,
 )
-from .analysis import proximity
+from .analysis import (
+    proximity,
+    frequency
+)
 
 
 class PronounSeriesTestCase(TestCase):
@@ -196,11 +199,44 @@ class DocumentTestCase(TestCase):
         self.assertEqual(doc.new_attributes['cookies'], 'chocolate chip')
         self.assertEqual(doc.word_count, 9)
 
+
 class FrequencyTestCase(TestCase):
     """
     Test cases for the frequency analysis
     """
+    def setUp(self):
+        text1 = """She took a lighter out of her purse and handed it over to him.
+            He lit his cigarette and took a deep drag from it, and then began
+            his speech which ended in a proposal. Her tears drowned the ring."""
+        Document.objects.create_document(title='doc1', year=2021, text=text1)
 
+    def test_single_frequency(self):
+        doc1 = Document.objects.get(title='doc1')
+        male = Gender.objects.get(pk=1, label='Male')
+        female = Gender.objects.get(pk=2, label='Female')
+        they = Gender.objects.get(pk=3, label='Nonbinary')
+        result = frequency.run_single_analysis(doc1, [male, female, they])
+        expected = {
+            'count': Counter({
+                'Male': Counter({'his': 2, 'him': 1, 'he': 1, 'himself': 0}),
+                'Female': Counter({'her': 2, 'she': 1, 'herself': 0, 'hers': 0}),
+                'Nonbinary': Counter({'theirs': 0, 'themself': 0, 'them': 0, 'their': 0, 'they': 0})}),
+            'frequency': {
+                'Male': {'his': 0.05, 'him': 0.025, 'he': 0.025, 'himself': 0.0},
+                'Female': {'herself': 0.0, 'she': 0.025, 'her': 0.05, 'hers': 0.0},
+                'Nonbinary': {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}},
+            'relative': {
+                'Male': {
+                    'his': 0.2857142857142857,
+                    'him': 0.14285714285714285,
+                    'he': 0.14285714285714285,
+                    'himself': 0.0},
+                'Female': {
+                    'herself': 0.0,
+                    'she': 0.14285714285714285,
+                    'her': 0.2857142857142857, 'hers': 0.0},
+                'Nonbinary': {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}}}
+        self.assertEqual(expected, result)
 
 
 class CorpusTestCase(TestCase):
