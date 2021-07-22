@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import STYLES from "./Corpora.module.scss";
 import {getCookie} from "../common";
-import {Modal} from "react-bootstrap";
+import {CloseButton, Modal, OverlayTrigger, Tooltip} from "react-bootstrap";
 
 const Corpora = () => {
     const [corporaData, setCorporaData] = useState([]);
@@ -107,19 +107,45 @@ const Corpora = () => {
         );
     };
 
+    const deleteCorpus = (id) => {
+        const confirmDelete = confirm("Are you sure you want to delete the corpus?");
+        if (confirmDelete) {
+            const requestOptions = {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: id
+                })
+            };
+            fetch("/api/delete_corpus", requestOptions)
+                .then(() => {
+                    setCorporaData(prevCorporaData =>
+                        prevCorporaData.filter(corpus => corpus.id !== id));
+                });
+        }
+    };
+
     const corporaList = () => {
         return (
             <>
                 {corporaData.map((corpus, i) => (
                     <div className="col-6 mb-3" key={i}>
-                        <a className={STYLES.corpusCard} href={`/corpus/${corpus.id}`}>
-                            <div className="card">
-                                <div className="card-body">
+                        <div className="card">
+                            <div className="card-body">
+                                <OverlayTrigger
+                                    placement="right"
+                                    overlay={<Tooltip>Delete Corpus</Tooltip>}>
+                                    <CloseButton
+                                        onClick={() => deleteCorpus(corpus.id)}></CloseButton>
+                                </OverlayTrigger>
+                                <a className={STYLES.corpusCard} href={`/corpus/${corpus.id}`}>
                                     <h2 className={STYLES.title}>{corpus.title}</h2>
                                     <p>{corpus.description}</p>
-                                </div>
+                                </a>
                             </div>
-                        </a>
+                        </div>
                     </div>
                 ))}
             </>
