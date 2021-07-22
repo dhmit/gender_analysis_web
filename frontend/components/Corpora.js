@@ -166,7 +166,7 @@ const Corpora = () => {
                         prevCorporaData.filter(corpus => corpus.id !== id));
                 });
         }
-    }
+    };
 
 
     const addProximityModal = (id) => {
@@ -190,7 +190,7 @@ const Corpora = () => {
                                 <div className="col">
                                     <textarea row="4" className="form-control"
                                         id="word_window" value={newWordWindow.word_window} rows="1"
-                                              placeholder={"Ex: 2"}
+                                        placeholder={"Ex: 2"}
                                         onChange={handleWordWindowInputChange}/>
                                 </div>
                             </div>
