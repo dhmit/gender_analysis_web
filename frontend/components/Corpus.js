@@ -104,7 +104,7 @@ const Corpus = ({id}) => {
                 word_window: wordWindow
             })
         };
-        fetch("api/proximity", requestOptions)
+        fetch("api/proximity_analysis", requestOptions)
             .then(response => response.json())
             .then(data => displayProximityResults(data))
             .then(() => {setRunningProximityAnalysis(false);});
