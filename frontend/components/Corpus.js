@@ -110,6 +110,10 @@ const Corpus = ({id}) => {
             .then(() => {setRunningProximityAnalysis(false);});
     };
 
+    const displayProximityResults = data => {
+        console.log(data);
+    };
+
     const updateDocs = (event) => {
         event.preventDefault();
         handleCloseModal();
