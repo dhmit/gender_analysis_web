@@ -162,18 +162,13 @@ const Corpora = () => {
             </p>
             {
                 addingCorpus && <div className="alert alert-warning" role="alert">
-                        Currently adding corpus...Please do not close this tab.
-                </div>
-            }
-            {
-                runningProximityAnalysis && <div className="alert alert-warning" role="alert">
-                        Currently running proximity analysis... Please do not close this tab.
+                        Currently adding corpus&hellip;Please do not close this tab.
                 </div>
             }
             {addCorpusModal()}
             {
                 loading
-                    ? <p>Currently loading Corpora...</p>
+                    ? <p>Currently loading Corpora&hellip;</p>
                     : <div>{corporaList()}</div>
             }
         </div>

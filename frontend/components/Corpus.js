@@ -220,6 +220,13 @@ const Corpus = ({id}) => {
                         overlay={<Tooltip>Run Proximity Analysis</Tooltip>}>
                         {addProximityModal(id)}
                     </OverlayTrigger>
+                    {
+                        runningProximityAnalysis &&
+                        <div className="alert alert-warning" role="alert">
+                            Currently running proximity analysis&hellip;
+                            Please do not close this tab.
+                        </div>
+                    }
                 </div>
             }
         </div>
