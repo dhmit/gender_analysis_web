@@ -81,7 +81,7 @@ const Corpus = ({id}) => {
             });
     };
 
-    const handleProximitySubmit = (id) => {
+    const handleProximitySubmit = () => {
         setRunningProximityAnalysis(true);
         handleCloseProximityModal();
         const csrftoken = getCookie("csrftoken");
@@ -158,7 +158,7 @@ const Corpus = ({id}) => {
         );
     };
 
-    const addProximityModal = (id) => {
+    const addProximityModal = () => {
         return (
             <>
                 <button className="btn btn-danger btn-sm" onClick={handleShowProximityModal}>
@@ -166,7 +166,7 @@ const Corpus = ({id}) => {
                 </button>
                 <Modal show={showProximityModal} onHide={handleCloseProximityModal}>
                     <Modal.Header closeButton>Proximity Analysis</Modal.Header>
-                    {/*<form onSubmit={handleProximitySubmit(id)}>*/}
+                    {<form onSubmit={handleProximitySubmit}>}
                     <form onSubmit = {
                         console.log("for testing purposes without an implemented api endpoint")
                     }>
@@ -179,8 +179,8 @@ const Corpus = ({id}) => {
 
                             <div className="row">
                                 <div className="col">
-                                    <textarea row="4" className="form-control"
-                                        id="word_window" value={newWordWindow.word_window} rows="1"
+                                    <input className="form-control"
+                                        id="word_window" type="number" value={newWordWindow.word_window} rows="1"
                                         placeholder={"Ex: 2"}
                                         onChange={handleWordWindowInputChange}/>
                                 </div>
@@ -201,7 +201,7 @@ const Corpus = ({id}) => {
     return (
         <div className="container-fluid">
             {loadingCorpus
-                ? <p>Currently loading Corpus...</p>
+                ? <p>Currently loading Corpus&hellip;</p>
                 : <div>
                     <h1>Corpus: {corpusData.title}</h1>
                     <h2 className={STYLES.title}>Description</h2>
@@ -218,7 +218,7 @@ const Corpus = ({id}) => {
                     <br/>
                     <OverlayTrigger
                         overlay={<Tooltip>Run Proximity Analysis</Tooltip>}>
-                        {addProximityModal(id)}
+                        {addProximityModal}
                     </OverlayTrigger>
                     {
                         runningProximityAnalysis &&
