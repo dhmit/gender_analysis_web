@@ -1,4 +1,9 @@
 from collections import Counter
+from ..models import (
+    Corpus,
+    Document,
+    Gender
+)
 
 
 def _get_gender_word_frequencies_relative(gender_word_counts):
@@ -62,3 +67,21 @@ def run_single_analysis(doc_obj, genders):
     }
 
     return output
+
+
+def run_analysis(corpus_id, gender_labels):
+    """
+        This method generates a dictionary of dictionaries for each Document instance in the Corpus.
+        Each dictionary maps the type of frequency analysis (count, frequency, relative) to the
+        analysis itself.
+
+        :param corpus_id: the ID of a Corpus instance
+        :param gender_labels: a list of strings representing Gender labels
+        :return: a dictionary mapping the Document IDs to the frequency analyses of the Document instance
+    """
+    results = {}
+    genders = Gender.objects.filter(label__in=gender_labels)
+    doc_ids = Corpus.objects.filter(pk=corpus_id).values_list('documents__pk', flat=True)
+    for id in doc_ids:
+        results[id] = run_single_analysis(Document.objects.get(id=id), genders)
+    return results
