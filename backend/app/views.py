@@ -256,3 +256,22 @@ def corpora(request):
     }
 
     return render(request, 'index.html', context)
+
+
+def corpus(request, corpus_id):
+    """
+    Corpus Page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Corpus'
+        },
+        'component_props': {
+            'id': corpus_id
+        },
+        'component_name': 'Corpus'
+    }
+
+    return render(request, 'index.html', context)
+    
