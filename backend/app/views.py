@@ -259,9 +259,12 @@ def add_proximity_analysis(request):
     attributes = request.data
     corpus_id = int(attributes['corpus_id'])
     word_window = int(attributes['word_window'])
+
     proximity_query = ProximityAnalysis.objects.filter(corpus__id=corpus_id, word_window=word_window)
+
     if proximity_query.exists():
         proximity_obj = proximity_query.get()
+
     else:
         results = run_analysis(corpus_id, word_window)
         fields = {
@@ -269,9 +272,11 @@ def add_proximity_analysis(request):
             'word_window': word_window,
             'results': results,
         }
+
         proximity_obj = ProximityAnalysis.objects.create(**fields)
         gender_ids = list(Gender.objects.values_list('pk', flat=True))
         proximity_obj.genders.add(*gender_ids)
+
     serializer = ProximityAnalysisSerializer(proximity_obj)
     return Response(serializer.data)
 
