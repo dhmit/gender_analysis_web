@@ -16,7 +16,7 @@ const Corpora = () => {
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
-    const [wordWindow, setWordWindow] = useState([]);
+    const [runningProximityAnalysis, setRunningProximityAnalysis] = useState(false);
     const [newWordWindow, setNewWordWindow] = useState({"word_window": ""});
     const [showProximityModal, setShowProximityModal] = useState(false);
     const handleShowProximityModal = () => setShowProximityModal(true);
@@ -83,7 +83,7 @@ const Corpora = () => {
     };
 
     const handleProximitySubmit = (id) => {
-        setAddingCorpus(true);
+        setRunningProximityAnalysis(true);
         handleCloseProximityModal();
         const csrftoken = getCookie("csrftoken");
         const requestOptions = {
@@ -99,12 +99,11 @@ const Corpora = () => {
         };
         fetch("api/proximity_analysis", requestOptions)
             .then(response => response.json())
-            .then(data => {
-                setWordWindow(wordWindow => [...wordWindow, data]);
+            .then(() => {
                 setNewWordWindow({
                     "word_window": "",
                 });
-                setAddingCorpus(false);
+                setRunningProximityAnalysis(false);
             });
     };
 
@@ -217,6 +216,11 @@ const Corpora = () => {
             {
                 addingCorpus && <div className="alert alert-warning" role="alert">
                         Currently adding corpus...Please do not close this tab.
+                </div>
+            }
+            {
+                runningProximityAnalysis && <div className="alert alert-warning" role="alert">
+                        Currently running proximity analysis... Please do not close this tab.
                 </div>
             }
             {addCorpusModal()}
