@@ -50,7 +50,7 @@ const Corpus = ({id}) => {
 
     const handleWordWindowInputChange = (event) => {
         setNewWordWindow((values) => ({
-            word_window: event.target.value
+            word_window: parseInt(event.target.value)
         }));
     };
 
@@ -166,7 +166,7 @@ const Corpus = ({id}) => {
                 </button>
                 <Modal show={showProximityModal} onHide={handleCloseProximityModal}>
                     <Modal.Header closeButton>Proximity Analysis</Modal.Header>
-                    {<form onSubmit={handleProximitySubmit}>}
+                    {/*{<form onSubmit={handleProximitySubmit}>}*/}
                     <form onSubmit = {
                         console.log("for testing purposes without an implemented api endpoint")
                     }>
