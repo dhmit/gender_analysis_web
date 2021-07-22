@@ -259,11 +259,11 @@ def add_proximity_analysis(request):
     attributes = request.data
     corpus_id = int(attributes['corpus_id'])
     word_window = int(attributes['word_window'])
-    results = run_analysis(corpus_id, word_window)
     proximity_query = ProximityAnalysis.objects.filter(corpus__id=corpus_id, word_window=word_window)
     if proximity_query.exists():
         proximity_obj = proximity_query.get()
     else:
+        results = run_analysis(corpus_id, word_window)
         fields = {
             'corpus': Corpus.objects.get(pk=corpus_id),
             'word_window': word_window,
