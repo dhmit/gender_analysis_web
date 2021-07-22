@@ -57,10 +57,10 @@ const Corpus = ({id}) => {
                 </button>
                 <Modal show={showProximityModal} onHide={handleCloseProximityModal}>
                     <Modal.Header closeButton>Proximity Analysis</Modal.Header>
-                    {/*<form onSubmit={handleProximitySubmit}>*/}
-                    <form onSubmit = {
+                    <form onSubmit={handleProximitySubmit}>
+                        {/*<form onSubmit = {
                         console.log("for testing purposes without an implemented api endpoint")
-                    }>
+                    }>*/}
                         <Modal.Body>
 
                             <div className="row mb-3">
@@ -71,7 +71,7 @@ const Corpus = ({id}) => {
                             <div className="row">
                                 <div className="col">
                                     <input className="form-control"
-                                        id="word_window" type="number" value={wordWindow} rows="1"
+                                        id="word_window" type="number" value={wordWindow}
                                         placeholder={"Ex: 2"}
                                         onChange={handleWordWindowChange}/>
                                 </div>
