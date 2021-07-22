@@ -89,7 +89,9 @@ const Corpus = ({id}) => {
 
     };
 
-    const handleProximitySubmit = () => {
+    const handleProximitySubmit = event => {
+        event.preventDefault();
+
         setRunningProximityAnalysis(true);
         handleCloseProximityModal();
         const csrftoken = getCookie("csrftoken");
@@ -106,7 +108,7 @@ const Corpus = ({id}) => {
         };
         fetch("/api/proximity", requestOptions)
             .then(response => response.json())
-            .then(data => displayProximityResults(data))
+            .then(data => {console.log(data);})
             .then(() => {setRunningProximityAnalysis(false);});
     };
 

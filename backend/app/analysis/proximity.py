@@ -83,19 +83,19 @@ def generate_token_counter(pos_tags, pronoun_set, word_window):
     padding = [None] * word_window
 
     for tagged_tokens in windowed(chain(padding, pos_tags, padding), 2 * word_window + 1):
-        if tagged_tokens is not None:
+        if tagged_tokens[word_window] is not None:
 
             candidate = tagged_tokens[word_window][0].lower()
             if candidate in pronoun_set:
 
                 for index, tagged_token in enumerate(tagged_tokens):
-                    # if tagged_token is not None:
+                    if tagged_token is not None:
 
-                    word = tagged_token[0].lower()
-                    if word != candidate:
+                        word = tagged_token[0].lower()
+                        if word != candidate:
 
-                        pos_tag = tagged_token[1]
-                        output.setdefault(pos_tag, Counter())
-                        output[pos_tag][word] += 1
+                            pos_tag = tagged_token[1]
+                            output.setdefault(pos_tag, Counter())
+                            output[pos_tag][word] += 1
 
     return output
