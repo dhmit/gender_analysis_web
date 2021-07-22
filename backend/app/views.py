@@ -191,8 +191,8 @@ def remove_alias(request):
     API endpoint to remove an alias from a character object without deleting the alias.
     """
     attributes = request.data
-    character = Character.objects.get(common_name=attributes['character_id'])
-    alias = Alias.objects.get(name=attributes['alias_id'])
+    character = Character.objects.get(pk=attributes['character_id'])
+    alias = Alias.objects.get(pk=attributes['alias_id'])
     character.aliases.remove(alias)
     character.update_character()
     character.save()

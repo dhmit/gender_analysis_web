@@ -43,7 +43,7 @@ class AliasSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Alias
-        fields = ['name', 'count', 'sanitized_pronoun_rates']
+        fields = ['name', 'count', 'sanitized_pronoun_rates', 'pk']
 
 
 class CharacterSerializer(serializers.ModelSerializer):
@@ -54,7 +54,7 @@ class CharacterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Character
-        fields = ['common_name', 'count', 'full_name', 'gender', 'aliases']
+        fields = ['common_name', 'count', 'full_name', 'gender', 'aliases', 'pk']
 
 
 class DocumentSerializer(serializers.ModelSerializer):

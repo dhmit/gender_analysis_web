@@ -1,13 +1,13 @@
 import STYLES from "../scss/SingleCharacter.module.scss";
 import {CloseRounded, DeleteRounded, MergeTypeRounded} from "@material-ui/icons";
 
-import React, {useState} from "react";
+import React from "react";
 import {getCookie} from "../common";
+import * as PropTypes from "prop-types";
 
 
-const SingleCharacter = (character) => {
+const SingleCharacter = ({character, onCharacterUpdate}) => {
 
-//    const [aliasState, setAliasState] = useState(character.aliases);
 
     const handleRemoveAlias = (alias) => {
         const csrftoken = getCookie("csrftoken");
@@ -18,18 +18,13 @@ const SingleCharacter = (character) => {
                 "X-CSRFToken": csrftoken
             },
             body: JSON.stringify({
-                alias_id: alias.name,
-                character_id: character.common_name,
+                alias_id: alias.pk,
+                character_id: character.pk
             })
         };
-        console.log({alias, character});
         fetch("/api/remove_alias", requestOptions)
-            .then(response => response.json());
-            // .then(() => {
-            //     setAliasState((previousState) =>
-            //         previousState.filter((previousAlias) => previousAlias.name !== alias.name)
-            //     );
-            // });
+//            .then(response => response.json())
+            .then(() => onCharacterUpdate());
     };
 
     function renderGender(gender) {
@@ -50,12 +45,12 @@ const SingleCharacter = (character) => {
 
     const SingleAlias = (alias) => {
         return (
-            <button key = {alias.name} className = {STYLES.SingleAlias}
-                onClick = {() => handleRemoveAlias(alias)}>
+            <button key = {alias.name} className = {STYLES.SingleAlias}>
                 {alias.name} ({alias.count})
-                <CloseRounded /></button>
+                <CloseRounded onClick = {() => handleRemoveAlias(alias)}/></button>
         );
     };
+
 
     return (
         <div key={character.common_name} className = {STYLES.characterObject}>
@@ -88,5 +83,15 @@ const SingleCharacter = (character) => {
     );
 };
 
-
+SingleCharacter.propTypes = {
+    character: PropTypes.shape({
+        pk: PropTypes.number,
+        common_name: PropTypes.string,
+        full_name: PropTypes.string,
+        count: PropTypes.number,
+        gender: PropTypes.array,
+        aliases: PropTypes.array
+    }),
+    onCharacterUpdate: PropTypes.func
+};
 export default SingleCharacter;

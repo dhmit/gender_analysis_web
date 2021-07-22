@@ -9,7 +9,6 @@ const SingleDocument = ({id}) => {
 
     const [docData, setDocData] = useState({});
     const [loading, setLoading] = useState(true);
-    //const [charData, setCharData] = useState({});
     const [showModal, setShowModal] = useState(false);
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
@@ -17,13 +16,14 @@ const SingleDocument = ({id}) => {
     const [tab, setTab] = useState(tabs[0]);
     const [corefParam, setCorefParam] = useState(false);
 
+    const handleCharacterUpdate = () => {console.log("Woo!");};
 
     const charList = (characters) => {
         return (
             <div className="Characters">
                 {characters.length
                     ? characters.map(character => <div key={character.common_name}>
-                        {SingleCharacter(character)}</div>)
+                        <SingleCharacter character={character} onCharacterUpdate={handleCharacterUpdate}/></div>)
                     : <div> <button className = {STYLES.button} onClick={handleGenerateCharacter}>
                         Generate Character List: am working on it!
                     </button></div>
@@ -33,22 +33,25 @@ const SingleDocument = ({id}) => {
         );
     };
 
-    useEffect(() => { //research this, how to call this conditionalized and set param
+    const getDocData = () => {
         fetch(`/api/document/${id}`)
             .then(response => response.json())
             .then(data => {
                 setDocData(data);
                 setLoading(false);
             });
-    }, []);
+    };
 
-    useEffect(() => { //this is what I probably should delete
-        fetch().then(response => response.json())
-            .then(data => {
-                setCharData(data);
-                setLoading(false);
-            });
-    }, []);
+    useEffect(() => getDocData());
+
+    // useEffect(() => { //this is what I probably should delete
+    //     fetch().then(response => response.json())
+    //         .then(data => {
+    //             setCharData(data);
+    //             setLoading(false);
+    //         });
+    // }, []);
+
 
     const handleGenerateCharacter = () => {
         alert("Funing is working hard to get the frontend-backend communication working!");
