@@ -42,5 +42,6 @@ urlpatterns = [
     path('example/<int:example_id>', views.example_id, name='example_id'),
     path('documents', views.documents, name='documents'),
     path('document/<int:doc_id>', views.single_document, name='document'),
-    path('corpora', views.corpora, name='corpora')
+    path('corpora', views.corpora, name='corpora'),
+    path('corpus/<int:corpus_id>', views.corpus, name='corpus')
 ]
