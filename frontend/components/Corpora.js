@@ -16,13 +16,6 @@ const Corpora = () => {
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
-    const [runningProximityAnalysis, setRunningProximityAnalysis] = useState(false);
-    const [newWordWindow, setNewWordWindow] = useState({"word_window": ""});
-    const [showProximityModal, setShowProximityModal] = useState(false);
-    const handleShowProximityModal = () => setShowProximityModal(true);
-    const handleCloseProximityModal = () => setShowProximityModal(false);
-
-
 
     useEffect(() => {
         fetch("/api/all_corpora")
@@ -46,13 +39,6 @@ const Corpora = () => {
             description: event.target.value
         }));
     };
-
-    const handleWordWindowInputChange = (event) => {
-        setNewWordWindow((values) => ({
-            word_window: event.target.value
-        }));
-    };
-
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -82,30 +68,6 @@ const Corpora = () => {
             });
     };
 
-    const handleProximitySubmit = (id) => {
-        setRunningProximityAnalysis(true);
-        handleCloseProximityModal();
-        const csrftoken = getCookie("csrftoken");
-        const requestOptions = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CRSFToken": csrftoken
-            },
-            body: JSON.stringify({
-                corpus_id: id,
-                word_window: newWordWindow.word_window
-            })
-        };
-        fetch("api/proximity_analysis", requestOptions)
-            .then(response => response.json())
-            .then(() => {
-                setNewWordWindow({
-                    "word_window": "",
-                });
-                setRunningProximityAnalysis(false);
-            });
-    };
 
     const addCorpusModal = () => {
         return (
@@ -168,47 +130,6 @@ const Corpora = () => {
         }
     };
 
-
-    const addProximityModal = (id) => {
-        return (
-            <>
-                <button className="btn btn-danger btn-sm" onClick={handleShowProximityModal}>
-                    Run Proximity Analysis
-                </button>
-                <Modal show={showProximityModal} onHide={handleCloseProximityModal}>
-                    <Modal.Header closeButton>Proximity Analysis</Modal.Header>
-                    {/*<form onSubmit={handleProximitySubmit(id)}>*/}
-                    <form onSubmit = {
-                        console.log("for testing purposes without an implemented api endpoint")
-                    }>
-                        <Modal.Body>
-
-                            <div className="row mb-3">
-                                <label htmlFor="word_window"
-                                    className="col form-label">Please Enter A Word Window: </label>
-                            </div>
-
-                            <div className="row">
-                                <div className="col">
-                                    <textarea row="4" className="form-control"
-                                        id="word_window" value={newWordWindow.word_window} rows="1"
-                                        placeholder={"Ex: 2"}
-                                        onChange={handleWordWindowInputChange}/>
-                                </div>
-                            </div>
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <button className="btn btn-secondary"
-                                onClick={handleCloseProximityModal}>Close</button>
-                            <button className="btn btn-primary" type="submit">Run Analysis</button>
-                        </Modal.Footer>
-                    </form>
-                </Modal>
-            </>
-        );
-
-    };
-
     const corporaList = () => {
         return (
             <>
@@ -220,10 +141,6 @@ const Corpora = () => {
                                     <h2 className={STYLES.title}>{corpus.title}</h2>
                                     <p>{corpus.description}</p>
                                 </a>
-                                <OverlayTrigger
-                                    overlay={<Tooltip>Run Proximity Analysis</Tooltip>}>
-                                    {addProximityModal(corpus.id)}
-                                </OverlayTrigger>
                                 <OverlayTrigger
                                     placement="right"
                                     overlay={<Tooltip>Delete Corpus</Tooltip>}>

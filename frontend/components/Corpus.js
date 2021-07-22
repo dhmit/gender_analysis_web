@@ -167,26 +167,28 @@ const Corpus = ({id}) => {
                 <Modal show={showProximityModal} onHide={handleCloseProximityModal}>
                     <Modal.Header closeButton>Proximity Analysis</Modal.Header>
                     {/*<form onSubmit={handleProximitySubmit(id)}>*/}
-                    <form onSubmit = {console.log("for testing purposes without an implemented api endpoint")}>
+                    <form onSubmit = {
+                        console.log("for testing purposes without an implemented api endpoint")
+                    }>
                         <Modal.Body>
 
                             <div className="row mb-3">
                                 <label htmlFor="word_window"
-                                       className="col form-label">Please Enter A Word Window: </label>
+                                    className="col form-label">Please Enter A Word Window: </label>
                             </div>
 
                             <div className="row">
                                 <div className="col">
                                     <textarea row="4" className="form-control"
-                                              id="word_window" value={newWordWindow.word_window} rows="1"
-                                              placeholder={"Ex: 2"}
-                                              onChange={handleWordWindowInputChange}/>
+                                        id="word_window" value={newWordWindow.word_window} rows="1"
+                                        placeholder={"Ex: 2"}
+                                        onChange={handleWordWindowInputChange}/>
                                 </div>
                             </div>
                         </Modal.Body>
                         <Modal.Footer>
                             <button className="btn btn-secondary"
-                                    onClick={handleCloseProximityModal}>Close</button>
+                                onClick={handleCloseProximityModal}>Close</button>
                             <button className="btn btn-primary" type="submit">Run Analysis</button>
                         </Modal.Footer>
                     </form>
