@@ -50,7 +50,7 @@ const Corpus = ({id}) => {
 
     const handleWordWindowInputChange = (event) => {
         setNewWordWindow((values) => ({
-            word_window: event.target.value
+            word_window: parseInt(event.target.value)
         }));
     };
 
