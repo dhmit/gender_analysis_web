@@ -16,10 +16,11 @@ const Corpus = ({id}) => {
     const handleCloseModal = () => setShowModal(false);
 
     const [runningProximityAnalysis, setRunningProximityAnalysis] = useState(false);
-    const [newWordWindow, setNewWordWindow] = useState({"word_window": ""});
+    const [wordWindow, setWordWindow] = useState(2);
     const [showProximityModal, setShowProximityModal] = useState(false);
     const handleShowProximityModal = () => setShowProximityModal(true);
     const handleCloseProximityModal = () => setShowProximityModal(false);
+    const handleWordWindowChange = (event) => setWordWindow(parseInt(event.target.value));
 
     useEffect(() => {
         fetch(`/api/corpus/${id}`)
@@ -70,9 +71,9 @@ const Corpus = ({id}) => {
                             <div className="row">
                                 <div className="col">
                                     <input className="form-control"
-                                        id="word_window" type="number" value={newWordWindow.word_window} rows="1"
+                                        id="word_window" type="number" value={wordWindow} rows="1"
                                         placeholder={"Ex: 2"}
-                                        onChange={handleWordWindowInputChange}/>
+                                        onChange={handleWordWindowChange}/>
                                 </div>
                             </div>
                         </Modal.Body>
@@ -96,28 +97,17 @@ const Corpus = ({id}) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CRSFToken": csrftoken
+                "X-CSRFToken": csrftoken
             },
             body: JSON.stringify({
                 corpus_id: id,
-                word_window: newWordWindow.word_window
+                word_window: wordWindow
             })
         };
         fetch("api/proximity_analysis", requestOptions)
             .then(response => response.json())
             .then(data => displayProximityResults(data))
-            .then(() => {
-                setNewWordWindow({
-                    "word_window": "",
-                });
-                setRunningProximityAnalysis(false);
-            });
-    };
-
-    const handleWordWindowInputChange = (event) => {
-        setNewWordWindow((values) => ({
-            word_window: parseInt(event.target.value)
-        }));
+            .then(() => {setRunningProximityAnalysis(false);});
     };
 
     const updateDocs = (event) => {
