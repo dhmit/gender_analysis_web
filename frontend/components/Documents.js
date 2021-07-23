@@ -100,7 +100,7 @@ const Documents = () => {
                     id: id
                 })
             };
-            fetch("/api/delete_document", requestOptions)
+            fetch("api/delete_document", requestOptions)
                 .then(() => {
                     setDocData(prevDocData =>
                         prevDocData.filter(doc => doc.id !== id));
