@@ -1,7 +1,10 @@
 """
 Tests for the gender analysis web app.
 """
-from collections import Counter
+from collections import (
+    Counter,
+    OrderedDict
+)
 
 from django.test import TestCase
 from django.core.exceptions import ObjectDoesNotExist
@@ -462,15 +465,18 @@ class FrequencyAPITestCase(APITestCase):
                     He lit his cigarette and took a deep drag from it, and then began
                     his speech which ended in a proposal. Her tears drowned the ring."""
         Document.objects.create_document(title='doc1', year=2021, text=text1)
-        Corpus.objects.create(title='corpus1')
-        Corpus.objects.get(title='corpus1').documents.add(Document.objects.get(title='doc1'))
+        corpus1 = Corpus.objects.create(title='corpus1')
+        corpus1.documents.add(Document.objects.get(title='doc1'))
+        freq1 = FrequencyAnalysis.objects.create(corpus=corpus1, results={})
+        freq1.genders.set([1])
+        freq2 = FrequencyAnalysis.objects.create(corpus=corpus1, results={})
+        freq2.genders.set([1, 2])
 
     def test_add_frequency_analysis(self):
         url = '/api/frequency'
         data = {'corpus_id': 1, 'gender_ids': [1, 2, 3]}
         response = self.client.post(url, data, format='json')
-        expected = {
-            '1': {'count': Counter({
+        expected = {'count': Counter({
                 'Male': Counter({'his': 2, 'him': 1, 'he': 1, 'himself': 0}),
                 'Female': Counter({'her': 2, 'she': 1, 'herself': 0, 'hers': 0}),
                 'Nonbinary': Counter({'theirs': 0, 'themself': 0, 'them': 0, 'their': 0, 'they': 0})}),
@@ -488,8 +494,17 @@ class FrequencyAPITestCase(APITestCase):
                         'herself': 0.0,
                         'she': 0.14285714285714285,
                         'her': 0.2857142857142857, 'hers': 0.0},
-                    'Nonbinary': {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}}}}
+                    'Nonbinary': {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}}}
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(FrequencyAnalysis.objects.get().results, expected)
+        self.assertEqual(response.data['results'][1], expected)
+        self.assertEqual(FrequencyAnalysis.objects.get(id=response.data['id']).results['1'], expected)
 
-
+    def test_all_frequency_analyses(self):
+        url = '/api/all_frequency'
+        response = self.client.get(url, format='json')
+        expected = [
+            OrderedDict([('id', 1), ('corpus', 'corpus1'), ('genders', [1]), ('results', {})]),
+            OrderedDict([('id', 2), ('corpus', 'corpus1'), ('genders', [1, 2]), ('results', {})])
+        ]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected)
