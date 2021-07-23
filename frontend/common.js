@@ -68,3 +68,7 @@ export function getCookie(name) {
     return cookieValue;
 }
 
+
+export function sortResults(wordFreqPair1, wordFreqPair2){
+    return wordFreqPair2[1] - wordFreqPair1[1];
+}

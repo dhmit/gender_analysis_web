@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import * as PropTypes from "prop-types";
 import STYLES from "./Corpus.module.scss";
-import {NLTK_TAGS, PRONOUN_TYPES, getCookie} from "../common";
+import {NLTK_TAGS, PRONOUN_TYPES, getCookie, sortResults} from "../common";
 import {Modal, OverlayTrigger, Tooltip} from "react-bootstrap";
 
 const Corpus = ({id}) => {
@@ -126,25 +126,28 @@ const Corpus = ({id}) => {
             <><h2 className={STYLES.title}>Proximity Analysis Results:</h2><dl>
                 {Object.entries(ProximityAnalysisResults).map(docData => (
                     <><dl>
-                        <dt><i>{docData[0]}</i></dt>
+                        <dt className={STYLES.subtitle}><i>{docData[0]}</i></dt>
                         <dd><ul>
-                            {Object.entries(docData[1]).map(genderData => (
+                            {Object.entries(docData[1]).sort().map(genderData => (
                                 <><li><dl>
-                                    <dt>{genderData[0]}</dt>
+                                    <dt className={STYLES.eachGender}>{genderData[0]}</dt>
                                     <dd><ul>
                                         {Object.entries(genderData[1]).map(pronounData => (
                                             <><li><dl>
-                                                <dt>{PRONOUN_TYPES[pronounData[0]]}</dt>
+                                                <dt className={STYLES.eachPronounType}>{PRONOUN_TYPES[pronounData[0]]}</dt>
                                                 <dd><ul>
                                                     {Object.entries(pronounData[1]).map(posTags => (
                                                         <><li><dl>
                                                             <dt>{NLTK_TAGS[posTags[0]]}</dt>
                                                             <dd><ul>
-                                                                {Object.entries(posTags[1]).map((wordFreq, i) => (
-                                                                    <li key={i}>
-                                                                        {`${wordFreq[0]}: ${wordFreq[1]}`}
-                                                                    </li>
-                                                                ))}
+{/* eslint-disable-next-line max-len */}
+                                                                {Object.entries(posTags[1]).sort(sortResults).slice(0, 10)
+                                                                    .map((wordFreq, i) => (
+                                                                        <li key={i}>
+{/* eslint-disable-next-line max-len */}
+                                                                            {`${wordFreq[0]}: ${wordFreq[1]}`}
+                                                                        </li>
+                                                                    ))}
                                                             </ul></dd>
                                                         </dl></li></>
                                                     ))}

@@ -97,5 +97,4 @@ def generate_token_counter(pos_tags, pronoun_set, word_window):
                             pos_tag = tagged_token[1]
                             output.setdefault(pos_tag, Counter())
                             output[pos_tag][word] += 1
-
     return output
