@@ -61,9 +61,6 @@ const Corpus = ({id}) => {
                 <Modal show={showProximityModal} onHide={handleCloseProximityModal}>
                     <Modal.Header closeButton>Proximity Analysis</Modal.Header>
                     <form onSubmit={handleProximitySubmit}>
-                        {/*<form onSubmit = {
-                        console.log("for testing purposes without an implemented api endpoint")
-                    }>*/}
                         <Modal.Body>
 
                             <div className="row mb-3">
@@ -114,14 +111,12 @@ const Corpus = ({id}) => {
         fetch("/api/proximity", requestOptions)
             .then(response => response.json())
             .then(data => {
-                // console.log(data);
                 setProximityAnalysisResults(data.results);
                 setRunningProximityAnalysis(false);
             });
     };
 
     const ProximityResultsDisplay = () => {
-        //console.log(data);
         return (
             <><h2 className={STYLES.title}>Proximity Analysis Results:</h2><dl>
                 {Object.entries(ProximityAnalysisResults).map(docData => (
@@ -134,6 +129,7 @@ const Corpus = ({id}) => {
                                     <dd><ul>
                                         {Object.entries(genderData[1]).map(pronounData => (
                                             <><li><dl>
+{/* eslint-disable-next-line max-len */}
                                                 <dt className={STYLES.eachPronounType}>{PRONOUN_TYPES[pronounData[0]]}</dt>
                                                 <dd><ul>
                                                     {Object.entries(pronounData[1]).map(posTags => (
