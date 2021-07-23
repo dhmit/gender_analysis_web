@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import * as PropTypes from "prop-types";
 import STYLES from "./Corpus.module.scss";
-import {getCookie} from "../common";
+import {NLTK_TAGS, getCookie} from "../common";
 import {Modal, OverlayTrigger, Tooltip} from "react-bootstrap";
 
 const Corpus = ({id}) => {
