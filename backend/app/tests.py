@@ -5,12 +5,15 @@ from collections import Counter
 
 from django.test import TestCase
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 from .models import (
     PronounSeries,
     Document,
     Corpus,
     Gender,
+    FrequencyAnalysis
 )
 from .analysis import (
     proximity,
@@ -517,3 +520,42 @@ class ProximityTestCase(TestCase):
         }
 
         self.assertEqual(results, expected)
+
+
+class FrequencyAPITestCase(APITestCase):
+    def setUp(self):
+        text1 = """She took a lighter out of her purse and handed it over to him.
+                    He lit his cigarette and took a deep drag from it, and then began
+                    his speech which ended in a proposal. Her tears drowned the ring."""
+        Document.objects.create_document(title='doc1', year=2021, text=text1)
+        Corpus.objects.create(title='corpus1')
+        Corpus.objects.get(title='corpus1').documents.add(Document.objects.get(title='doc1'))
+
+    def test_add_frequency_analysis(self):
+        url = '/api/frequency'
+        data = {'corpus_id': 1, 'gender_ids': [1, 2, 3]}
+        response = self.client.post(url, data, format='json')
+        expected = {
+            '1': {'count': Counter({
+                'Male': Counter({'his': 2, 'him': 1, 'he': 1, 'himself': 0}),
+                'Female': Counter({'her': 2, 'she': 1, 'herself': 0, 'hers': 0}),
+                'Nonbinary': Counter({'theirs': 0, 'themself': 0, 'them': 0, 'their': 0, 'they': 0})}),
+                'frequency': {
+                    'Male': {'his': 0.05, 'him': 0.025, 'he': 0.025, 'himself': 0.0},
+                    'Female': {'herself': 0.0, 'she': 0.025, 'her': 0.05, 'hers': 0.0},
+                    'Nonbinary': {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}},
+                'relative': {
+                    'Male': {
+                        'his': 0.2857142857142857,
+                        'him': 0.14285714285714285,
+                        'he': 0.14285714285714285,
+                        'himself': 0.0},
+                    'Female': {
+                        'herself': 0.0,
+                        'she': 0.14285714285714285,
+                        'her': 0.2857142857142857, 'hers': 0.0},
+                    'Nonbinary': {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}}}}
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(FrequencyAnalysis.objects.get().results, expected)
+
+
