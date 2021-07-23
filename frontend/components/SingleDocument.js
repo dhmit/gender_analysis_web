@@ -42,7 +42,7 @@ const SingleDocument = ({id}) => {
             });
     };
 
-    useEffect(() => getDocData());
+    useEffect(() => getDocData(), []);
 
     // useEffect(() => { //this is what I probably should delete
     //     fetch().then(response => response.json())
