@@ -32,7 +32,6 @@ def run_analysis(corpus_id, word_window):
             genders,
             word_window
         )
-        breakpoint()
 
     return results
 
