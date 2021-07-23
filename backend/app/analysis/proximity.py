@@ -24,10 +24,10 @@ def run_analysis(corpus_id, word_window):
     results = {}
     genders = set(Gender.objects.all())
 
-    doc_ids = Corpus.objects.filter(pk=corpus_id).values_list('documents__pk', flat=True)
+    doc_ids_and_titles = Corpus.objects.filter(pk=corpus_id).values_list('documents__pk', 'documents__title')
 
-    for key in doc_ids:
-        results[key] = generate_gender_token_counters(
+    for key, title in doc_ids_and_titles:
+        results[title] = generate_gender_token_counters(
             Document.objects.values_list('part_of_speech_tags', flat=True).filter(pk=key).get(),
             genders,
             word_window

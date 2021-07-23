@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import * as PropTypes from "prop-types";
 import STYLES from "./Corpus.module.scss";
-import {NLTK_TAGS, getCookie} from "../common";
+import {NLTK_TAGS, PRONOUN_TYPES, getCookie} from "../common";
 import {Modal, OverlayTrigger, Tooltip} from "react-bootstrap";
 
 const Corpus = ({id}) => {
@@ -115,15 +115,53 @@ const Corpus = ({id}) => {
             .then(response => response.json())
             .then(data => {
                 // console.log(data);
-                setProximityAnalysisResults(data);
+                setProximityAnalysisResults(data.results);
                 setRunningProximityAnalysis(false);
             });
     };
 
     const ProximityResultsDisplay = () => {
         //console.log(data);
-        return <></>;
+        return (
+            <><dl>
+                {Object.entries(ProximityAnalysisResults).map(docData => (
+                    <><dl>
+                        <dt>{docData[0]}</dt>
+                        <dd>
+                            {Object.entries(docData[1]).map(genderData => (
+                                <><dl>
+                                    <dt>{genderData[0]}</dt>
+                                    <dd>
+                                        {Object.entries(genderData[1]).map(pronounData => (
+                                            <><dl>
+                                                <dt>{PRONOUN_TYPES[pronounData[0]]}</dt>
+                                                <dd>
+                                                    {Object.entries(pronounData[1]).map(posTags => (
+                                                        <><dl>
+                                                            <dt>{NLTK_TAGS[posTags[0]]}</dt>
+                                                            <dd><ul>
+                                                                {Object.entries(posTags[1]).map((wordFreq, i) => (
+                                                                    <li key={i}>
+                                                                        {`${wordFreq[0]}: ${wordFreq[1]}`}
+                                                                    </li>
+                                                                ))}
+                                                            </ul></dd>
+                                                        </dl></>
+                                                    ))}
+                                                </dd>
+                                            </dl></>
+                                                    
+                                        ))}
+                                    </dd>
+                                </dl></>
+                            ))}
+                        </dd>
+                    </dl></>
+                ))}
+            </dl></>
+        );
     };
+    
 
     const updateDocs = (event) => {
         event.preventDefault();

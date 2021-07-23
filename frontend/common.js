@@ -38,6 +38,14 @@ export const NLTK_TAGS = {
     "WRB": "Wh-adverb"
 };
 
+export const PRONOUN_TYPES = {
+    "subj": "Subject",
+    "obj": "Object",
+    "pos_det": "Possessive determiner",
+    "pos_pro": "Possessive pronoun",
+    "reflex": "Reflexive"
+};
+
 
 /**
  * Get the value of a cookie, given its name
