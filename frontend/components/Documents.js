@@ -103,7 +103,7 @@ const Documents = () => {
             fetch("/api/delete_document", requestOptions)
                 .then(() => {
                     setDocData(prevDocData =>
-                        prevDocData.filter(corpus => corpus.id !== id));
+                        prevDocData.filter(doc => doc.id !== id));
                 });
         }
     };
