@@ -112,7 +112,7 @@ def add_document(request):
     return Response(serializer.data)
 
 
-@api_view(['POST'])
+@api_view(['DELETE'])
 def delete_document(request):
     """
     API endpoint for deleting a document

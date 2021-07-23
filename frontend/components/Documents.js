@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 // import * as PropTypes from "prop-types";
 import STYLES from "./Documents.module.scss";
 import {getCookie} from "../common";
-import {Modal} from "react-bootstrap";
+import {CloseButton, Modal, OverlayTrigger, Tooltip} from "react-bootstrap";
 
 const Documents = () => {
 
@@ -88,23 +88,48 @@ const Documents = () => {
             });
     };
 
+    const deleteDocument = (id) => {
+        const confirmDelete = confirm("Are you sure you want to delete the document?");
+        if (confirmDelete) {
+            const requestOptions = {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: id
+                })
+            };
+            fetch("/api/delete_document", requestOptions)
+                .then(() => {
+                    setDocData(prevDocData =>
+                        prevDocData.filter(corpus => corpus.id !== id));
+                });
+        }
+    };
+
     const docInfo = (doc) => {
         return (
-            <a href={`/document/${doc.id}`} className={STYLES.docCard}>
-                <div className="card">
-                    <div className="card-body">
-                        <h6 className="mb-0">{doc.title}</h6>
-                        <p>
-                            {doc.author}
-                            <br/>
-                            Year Published: {doc.year ? doc.year : "Unknown"}
-                            <br/>
-                            Word Count: {doc.word_count.toLocaleString()}
-                        </p>
-
+                    <div className="card">
+                        <div className="card-body">
+                            <h6 className="mb-0">{doc.title}</h6>
+                            <OverlayTrigger
+                                    placement="right"
+                                    overlay={<Tooltip>Delete Document</Tooltip>}>
+                                    <CloseButton
+                                        onClick={() => deleteDocument(doc.id)}></CloseButton>
+                            </OverlayTrigger>
+                            <a href={`/document/${doc.id}`} className={STYLES.docCard}>
+                            <p>
+                                {doc.author}
+                                <br/>
+                                Year Published: {doc.year ? doc.year : "Unknown"}
+                                <br/>
+                                Word Count: {doc.word_count.toLocaleString()}
+                            </p>
+                            </a>
+                        </div>
                     </div>
-                </div>
-            </a>
         );
     };
 
