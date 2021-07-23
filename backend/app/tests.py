@@ -216,53 +216,56 @@ class FrequencyTestCase(TestCase):
         doc1 = Document.objects.get(title='doc1')
         male = Gender.objects.get(pk=1, label='Male')
         female = Gender.objects.get(pk=2, label='Female')
-        they = Gender.objects.get(pk=3, label='Nonbinary')
-        result = frequency.run_single_analysis(doc1, [male, female, they])
+        nonbinary = Gender.objects.get(pk=3, label='Nonbinary')
+        result = frequency.run_single_analysis(doc1, [male, female, nonbinary])
         expected = {
             'count': Counter({
-                'Male': Counter({'his': 2, 'him': 1, 'he': 1, 'himself': 0}),
-                'Female': Counter({'her': 2, 'she': 1, 'herself': 0, 'hers': 0}),
-                'Nonbinary': Counter({'theirs': 0, 'themself': 0, 'them': 0, 'their': 0, 'they': 0})}),
+                male: Counter({'his': 2, 'him': 1, 'he': 1, 'himself': 0}),
+                female: Counter({'her': 2, 'she': 1, 'herself': 0, 'hers': 0}),
+                nonbinary: Counter({'theirs': 0, 'themself': 0, 'them': 0, 'their': 0, 'they': 0})}),
             'frequency': {
-                'Male': {'his': 0.05, 'him': 0.025, 'he': 0.025, 'himself': 0.0},
-                'Female': {'herself': 0.0, 'she': 0.025, 'her': 0.05, 'hers': 0.0},
-                'Nonbinary': {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}},
+                male: {'his': 0.05, 'him': 0.025, 'he': 0.025, 'himself': 0.0},
+                female: {'herself': 0.0, 'she': 0.025, 'her': 0.05, 'hers': 0.0},
+                nonbinary: {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}},
             'relative': {
-                'Male': {
+                male: {
                     'his': 0.2857142857142857,
                     'him': 0.14285714285714285,
                     'he': 0.14285714285714285,
                     'himself': 0.0},
-                'Female': {
+                female: {
                     'herself': 0.0,
                     'she': 0.14285714285714285,
                     'her': 0.2857142857142857, 'hers': 0.0},
-                'Nonbinary': {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}}}
+                nonbinary: {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}}}
         self.assertEqual(result, expected)
 
 
     def test_run_analysis(self):
-        result = frequency.run_analysis(1, ['Male', 'Female', 'Nonbinary'])
+        result = frequency.run_analysis(1, [1, 2, 3])
+        male = Gender.objects.get(pk=1, label='Male')
+        female = Gender.objects.get(pk=2, label='Female')
+        nonbinary = Gender.objects.get(pk=3, label='Nonbinary')
         expected = {
             1: {'count': Counter({
-                    'Male': Counter({'his': 2, 'him': 1, 'he': 1, 'himself': 0}),
-                    'Female': Counter({'her': 2, 'she': 1, 'herself': 0, 'hers': 0}),
-                    'Nonbinary': Counter({'theirs': 0, 'themself': 0, 'them': 0, 'their': 0, 'they': 0})}),
+                    male: Counter({'his': 2, 'him': 1, 'he': 1, 'himself': 0}),
+                    female: Counter({'her': 2, 'she': 1, 'herself': 0, 'hers': 0}),
+                    nonbinary: Counter({'theirs': 0, 'themself': 0, 'them': 0, 'their': 0, 'they': 0})}),
                 'frequency': {
-                    'Male': {'his': 0.05, 'him': 0.025, 'he': 0.025, 'himself': 0.0},
-                    'Female': {'herself': 0.0, 'she': 0.025, 'her': 0.05, 'hers': 0.0},
-                    'Nonbinary': {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}},
+                    male: {'his': 0.05, 'him': 0.025, 'he': 0.025, 'himself': 0.0},
+                    female: {'herself': 0.0, 'she': 0.025, 'her': 0.05, 'hers': 0.0},
+                    nonbinary: {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}},
                 'relative': {
-                    'Male': {
+                    male: {
                         'his': 0.2857142857142857,
                         'him': 0.14285714285714285,
                         'he': 0.14285714285714285,
                         'himself': 0.0},
-                    'Female': {
+                    female: {
                         'herself': 0.0,
                         'she': 0.14285714285714285,
                         'her': 0.2857142857142857, 'hers': 0.0},
-                    'Nonbinary': {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}}}}
+                    nonbinary: {'theirs': 0.0, 'themself': 0.0, 'them': 0.0, 'their': 0.0, 'they': 0.0}}}}
         self.assertEqual(result, expected)
 
 
