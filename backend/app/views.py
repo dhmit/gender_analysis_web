@@ -37,7 +37,9 @@ from .serializers import (
     CorpusSerializer,
     ProximityAnalysisSerializer,
 )
-from .analysis.proximity import run_analysis
+from .analysis import (
+    proximity
+)
 
 @api_view(['GET'])
 def get_example(request, example_id):
@@ -266,7 +268,7 @@ def add_proximity_analysis(request):
         proximity_obj = proximity_query.get()
 
     else:
-        results = run_analysis(corpus_id, word_window)
+        results = proximity.run_analysis(corpus_id, word_window)
         fields = {
             'corpus': Corpus.objects.get(pk=corpus_id),
             'word_window': word_window,
