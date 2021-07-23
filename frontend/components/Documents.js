@@ -112,7 +112,6 @@ const Documents = () => {
         return (
             <div className="card">
                 <div className="card-body">
-                    <h6 className="mb-0">{doc.title}</h6>
                     <OverlayTrigger
                         placement="right"
                         overlay={<Tooltip>Delete Document</Tooltip>}>
@@ -120,6 +119,7 @@ const Documents = () => {
                             onClick={() => deleteDocument(doc.id)}></CloseButton>
                     </OverlayTrigger>
                     <a href={`/document/${doc.id}`} className={STYLES.docCard}>
+                        <h6 className="mb-0">{doc.title}</h6>
                         <p>
                             {doc.author}
                             <br/>
