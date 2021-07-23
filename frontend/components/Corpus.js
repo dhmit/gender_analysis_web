@@ -21,7 +21,9 @@ const Corpus = ({id}) => {
     const [showProximityModal, setShowProximityModal] = useState(false);
     const handleShowProximityModal = () => setShowProximityModal(true);
     const handleCloseProximityModal = () => setShowProximityModal(false);
-    const handleWordWindowChange = (event) => setWordWindow(parseInt(event.target.value));
+    const handleWordWindowChange = (event) => {
+        event.target.value && setWordWindow(event.target.value);
+    };
 
     useEffect(() => {
         fetch(`/api/corpus/${id}`)
@@ -73,8 +75,10 @@ const Corpus = ({id}) => {
                                 <div className="col">
                                     <input className="form-control"
                                         id="word_window" type="number" value={wordWindow}
+                                        min="1"
                                         placeholder={"Ex: 2"}
-                                        onChange={handleWordWindowChange}/>
+                                        onChange={handleWordWindowChange}
+                                    />
                                 </div>
                             </div>
                         </Modal.Body>
@@ -235,6 +239,7 @@ const Corpus = ({id}) => {
         </div>
     );
 };
+
 
 Corpus.propTypes = {
     id: PropTypes.number
