@@ -5,12 +5,15 @@ from collections import Counter
 
 from django.test import TestCase
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.test import APITestCase
+from rest_framework import status
 
 from .models import (
     PronounSeries,
     Document,
     Corpus,
     Gender,
+    ProximityAnalysis
 )
 from .analysis import proximity
 
@@ -445,3 +448,16 @@ class ProximityTestCase(TestCase):
         }
 
         self.assertEqual(results, expected)
+
+
+class ProximityObjectCreation(APITestCase, ProximityTestCase):
+    def test_create_proximity(self):
+        """
+        Ensure we can create a proximity analysis object
+        """
+        corpus = Corpus.objects.get(title='Test Corpus')
+        url = '/api/proximity'
+        data = {"word_window": "2", "corpus_id": "1"}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ProximityAnalysis.objects.count(), 1)
