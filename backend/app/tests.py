@@ -564,6 +564,10 @@ class FrequencyAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['results'][1], expected)
         self.assertEqual(FrequencyAnalysis.objects.get(id=response.data['id']).results['1'], expected)
+        data2 = {'corpus_id': 1, 'gender_ids': [1, 2]}
+        response2 = self.client.post(url, data2, format='json')
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.data, {'id': 2, 'corpus': 'corpus1', 'genders': [1, 2], 'results': {}})
 
     def test_all_frequency_analyses(self):
         url = '/api/all_frequency'

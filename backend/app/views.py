@@ -293,8 +293,10 @@ def add_frequency_analysis(request):
     corpus_id = attributes['corpus_id']
     gender_ids = attributes['gender_ids']
     gender_set = Gender.objects.filter(id__in=gender_ids)
-    frequency_entry = FrequencyAnalysis.objects.filter(corpus__id=corpus_id, genders__in=gender_set)\
+    frequency_entry = FrequencyAnalysis.objects.filter(corpus__id=corpus_id)\
         .annotate(num_genders=Count('genders')).filter(num_genders=len(gender_ids))
+    for id in gender_ids:
+        frequency_entry.filter(genders__id=id)
     if frequency_entry.exists():
         freq_analysis_obj = frequency_entry.get()
     else:
