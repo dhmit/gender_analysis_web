@@ -569,3 +569,15 @@ class ProximityAnalysis(models.Model):
 
     class Meta:
         verbose_name_plural = 'proximity analyses'
+
+class FrequencyAnalysis(models.Model):
+    """
+    This model will persist the results from the frequency analysis functions.
+    """
+
+    corpus = models.ForeignKey(Corpus, related_name='frequency_analyses', on_delete=models.CASCADE)
+    genders = models.ManyToManyField(Gender, related_name='frequency_analyses')
+    results = models.JSONField()
+
+    class Meta:
+        verbose_name_plural = 'Frequency Analyses'

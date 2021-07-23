@@ -10,7 +10,8 @@ from .models import (
     Gender,
     Document,
     Corpus,
-    ProximityAnalysis
+    ProximityAnalysis,
+    FrequencyAnalysis
 )
 
 
@@ -76,3 +77,16 @@ class ProximityAnalysisSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProximityAnalysis
         fields = ['id', 'corpus', 'genders', 'word_window', 'results']
+
+
+class FrequencyAnalysisSerializer(serializers.ModelSerializer):
+    """
+    Serializes a FrequencyAnalysis object
+    """
+
+    corpus = serializers.StringRelatedField()
+    genders = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+
+    class Meta:
+        model = FrequencyAnalysis
+        fields = ['id', 'corpus', 'genders', 'results']
