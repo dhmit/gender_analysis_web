@@ -9,7 +9,9 @@ models_to_register = [
     models.Document,
     models.PronounSeries,
     models.Gender,
-    models.Corpus
+    models.Corpus,
+    models.ProximityAnalysis,
+    models.FrequencyAnalysis,
 ]
 
 for model in models_to_register:

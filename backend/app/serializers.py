@@ -9,7 +9,9 @@ from .models import (
     PronounSeries,
     Gender,
     Document,
-    Corpus
+    Corpus,
+    ProximityAnalysis,
+    FrequencyAnalysis
 )
 
 
@@ -41,7 +43,7 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ['id', 'author', 'title', 'year', 'text', 'word_count']
+        fields = ['id', 'author', 'title', 'year', 'text', 'word_count', 'new_attributes']
 
 
 class SimpleDocumentSerializer(serializers.ModelSerializer):
@@ -62,3 +64,29 @@ class CorpusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Corpus
         fields = ['id', 'title', 'description', 'documents']
+
+
+class ProximityAnalysisSerializer(serializers.ModelSerializer):
+    """
+    Serializes a ProximityAnalysis object
+    """
+
+    corpus = serializers.StringRelatedField()
+    genders = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+
+    class Meta:
+        model = ProximityAnalysis
+        fields = ['id', 'corpus', 'genders', 'word_window', 'results']
+
+
+class FrequencyAnalysisSerializer(serializers.ModelSerializer):
+    """
+    Serializes a FrequencyAnalysis object
+    """
+
+    corpus = serializers.StringRelatedField()
+    genders = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+
+    class Meta:
+        model = FrequencyAnalysis
+        fields = ['id', 'corpus', 'genders', 'results']

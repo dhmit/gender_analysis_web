@@ -5,12 +5,17 @@ import DH_LOGO from "../../images/dh_logo.svg";
 const Nav = () => {
 
     return (
-        <nav className="navbar navbar-light bg-light">
+        <nav className="navbar navbar-light bg-light navbar-expand-sm">
             <a className={`navbar-brand ${STYLES.linkHome}`} href="/">Gender Analysis Toolkit</a>
             <ul className="navbar-nav mr-auto">
                 <li className="nav-item">
                     <a className="nav-link" href="/documents">
                         Documents
+                    </a>
+                </li>
+                <li className="nav-item">
+                    <a className="nav-link" href="/corpora">
+                        Corpora
                     </a>
                 </li>
             </ul>
