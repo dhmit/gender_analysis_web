@@ -123,21 +123,21 @@ const Corpus = ({id}) => {
     const ProximityResultsDisplay = () => {
         //console.log(data);
         return (
-            <><dl>
+            <><h2 className={STYLES.title}>Proximity Analysis Results:</h2><dl>
                 {Object.entries(ProximityAnalysisResults).map(docData => (
                     <><dl>
-                        <dt>{docData[0]}</dt>
-                        <dd>
+                        <dt><i>{docData[0]}</i></dt>
+                        <dd><ul>
                             {Object.entries(docData[1]).map(genderData => (
-                                <><dl>
+                                <><li><dl>
                                     <dt>{genderData[0]}</dt>
-                                    <dd>
+                                    <dd><ul>
                                         {Object.entries(genderData[1]).map(pronounData => (
-                                            <><dl>
+                                            <><li><dl>
                                                 <dt>{PRONOUN_TYPES[pronounData[0]]}</dt>
-                                                <dd>
+                                                <dd><ul>
                                                     {Object.entries(pronounData[1]).map(posTags => (
-                                                        <><dl>
+                                                        <><li><dl>
                                                             <dt>{NLTK_TAGS[posTags[0]]}</dt>
                                                             <dd><ul>
                                                                 {Object.entries(posTags[1]).map((wordFreq, i) => (
@@ -146,16 +146,16 @@ const Corpus = ({id}) => {
                                                                     </li>
                                                                 ))}
                                                             </ul></dd>
-                                                        </dl></>
+                                                        </dl></li></>
                                                     ))}
-                                                </dd>
-                                            </dl></>
+                                                </ul></dd>
+                                            </dl></li></>
                                                     
                                         ))}
-                                    </dd>
-                                </dl></>
+                                    </ul></dd>
+                                </dl></li></>
                             ))}
-                        </dd>
+                        </ul></dd>
                     </dl></>
                 ))}
             </dl></>
@@ -265,18 +265,19 @@ const Corpus = ({id}) => {
                         overlay={<Tooltip>Run Proximity Analysis</Tooltip>}>
                         {addProximityModal}
                     </OverlayTrigger>
-                    {runningProximityAnalysis
-                        ? <p className="alert alert-warning" role="alert">
+                    {runningProximityAnalysis &&
+                        <p className="alert alert-warning" role="alert">
                             Currently running proximity analysis&hellip;
                             Please do not close this tab.
                         </p>
-                        : <>{ProximityResultsDisplay()}</>
                     }
+                    {ProximityAnalysisResults && ProximityResultsDisplay()}
                 </div>
             }
         </div>
     );
 };
+
 
 
 Corpus.propTypes = {
