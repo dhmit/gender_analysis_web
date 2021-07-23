@@ -110,26 +110,26 @@ const Documents = () => {
 
     const docInfo = (doc) => {
         return (
-                    <div className="card">
-                        <div className="card-body">
-                            <h6 className="mb-0">{doc.title}</h6>
-                            <OverlayTrigger
-                                    placement="right"
-                                    overlay={<Tooltip>Delete Document</Tooltip>}>
-                                    <CloseButton
-                                        onClick={() => deleteDocument(doc.id)}></CloseButton>
-                            </OverlayTrigger>
-                            <a href={`/document/${doc.id}`} className={STYLES.docCard}>
-                            <p>
-                                {doc.author}
-                                <br/>
-                                Year Published: {doc.year ? doc.year : "Unknown"}
-                                <br/>
-                                Word Count: {doc.word_count.toLocaleString()}
-                            </p>
-                            </a>
-                        </div>
-                    </div>
+            <div className="card">
+                <div className="card-body">
+                    <h6 className="mb-0">{doc.title}</h6>
+                    <OverlayTrigger
+                        placement="right"
+                        overlay={<Tooltip>Delete Document</Tooltip>}>
+                        <CloseButton
+                            onClick={() => deleteDocument(doc.id)}></CloseButton>
+                    </OverlayTrigger>
+                    <a href={`/document/${doc.id}`} className={STYLES.docCard}>
+                        <p>
+                            {doc.author}
+                            <br/>
+                            Year Published: {doc.year ? doc.year : "Unknown"}
+                            <br/>
+                            Word Count: {doc.word_count.toLocaleString()}
+                        </p>
+                    </a>
+                </div>
+            </div>
         );
     };
 
