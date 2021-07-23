@@ -17,6 +17,7 @@ const Corpus = ({id}) => {
 
     const [runningProximityAnalysis, setRunningProximityAnalysis] = useState(false);
     const [wordWindow, setWordWindow] = useState(2);
+    const [ProximityAnalysisResults, setProximityAnalysisResults] = useState({});
     const [showProximityModal, setShowProximityModal] = useState(false);
     const handleShowProximityModal = () => setShowProximityModal(true);
     const handleCloseProximityModal = () => setShowProximityModal(false);
@@ -108,12 +109,16 @@ const Corpus = ({id}) => {
         };
         fetch("/api/proximity", requestOptions)
             .then(response => response.json())
-            .then(data => {console.log(data);})
-            .then(() => {setRunningProximityAnalysis(false);});
+            .then(data => {
+                // console.log(data);
+                setProximityAnalysisResults(data);
+                setRunningProximityAnalysis(false);
+            });
     };
 
-    const displayProximityResults = data => {
-        console.log(data);
+    const ProximityResultsDisplay = () => {
+        //console.log(data);
+        return <></>;
     };
 
     const updateDocs = (event) => {
@@ -218,12 +223,12 @@ const Corpus = ({id}) => {
                         overlay={<Tooltip>Run Proximity Analysis</Tooltip>}>
                         {addProximityModal}
                     </OverlayTrigger>
-                    {
-                        runningProximityAnalysis &&
-                        <div className="alert alert-warning" role="alert">
+                    {runningProximityAnalysis
+                        ? <p className="alert alert-warning" role="alert">
                             Currently running proximity analysis&hellip;
                             Please do not close this tab.
-                        </div>
+                        </p>
+                        : <>{ProximityResultsDisplay()}</>
                     }
                 </div>
             }
