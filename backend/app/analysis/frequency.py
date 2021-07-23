@@ -56,8 +56,8 @@ def run_single_analysis(doc_obj, genders):
     frequency = {}
 
     for gender in genders:
-        count[gender] = doc_obj.get_count_of_words(gender.pronouns)
-        frequency[gender] = doc_obj.get_word_freqs(gender.pronouns)
+        count[str(gender)] = doc_obj.get_count_of_words(gender.pronouns)
+        frequency[str(gender)] = doc_obj.get_word_freqs(gender.pronouns)
     relative = _get_gender_word_frequencies_relative(count)
 
     output = {

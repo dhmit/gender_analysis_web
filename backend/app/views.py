@@ -25,6 +25,7 @@ import json
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import render
+from django.db.models import Count
 from .models import (
     Document,
     Gender,
@@ -291,14 +292,15 @@ def add_frequency_analysis(request):
     attributes = request.data
     corpus_id = attributes['corpus_id']
     gender_ids = attributes['gender_ids']
-    frequency_entry = FrequencyAnalysis.objects.filter(corpus__id=corpus_id, gender_ids=gender_ids)
+    gender_set = Gender.objects.filter(id__in=gender_ids)
+    frequency_entry = FrequencyAnalysis.objects.filter(corpus__id=corpus_id, genders__in=gender_set).annotate(num_genders=Count('genders')).filter(num_genders=len(gender_ids))
     if frequency_entry.exists():
         freq_analysis_obj = frequency_entry.get()
     else:
-        result = frequency.run_analysis(corpus_id, gender_ids)
+        results = frequency.run_analysis(corpus_id, gender_ids)
         fields = {
             'corpus': Corpus.objects.get(id=corpus_id),
-            'result': result
+            'results': results
         }
         freq_analysis_obj = FrequencyAnalysis.objects.create(**fields)
         freq_analysis_obj.genders.set(gender_ids)
