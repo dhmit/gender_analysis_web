@@ -120,6 +120,17 @@ def add_document(request):
     return Response(serializer.data)
 
 
+@api_view(['DELETE'])
+def delete_document(request):
+    """
+    API endpoint for deleting a document
+    """
+    doc_id = request.data['id']
+    deleted_doc = Document.objects.get(id=doc_id)
+    res = deleted_doc.delete()
+    return Response(res)
+
+
 @api_view(['GET'])
 def all_documents(request):
     """
