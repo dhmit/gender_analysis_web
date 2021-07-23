@@ -22,7 +22,7 @@ const Corpus = ({id}) => {
     const handleShowProximityModal = () => setShowProximityModal(true);
     const handleCloseProximityModal = () => setShowProximityModal(false);
     const handleWordWindowChange = (event) => {
-        event.target.value && setWordWindow(event.target.value);
+        event.target.value && setWordWindow(parseInt(event.target.value));
     };
 
     useEffect(() => {
