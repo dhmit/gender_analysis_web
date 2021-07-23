@@ -151,7 +151,7 @@ const Corpus = ({id}) => {
                     ? <ul>
                         {docsInCorpus.map((doc, i) => (
                             <li key={i}>
-                                <i>{doc.title}</i>, by {doc.author} {doc.year &&
+                                <i>{doc.title}</i>, by {doc.author || "Anonymous"} {doc.year &&
                                     `(${doc.year})`}
                             </li>
                         ))}
@@ -207,7 +207,7 @@ const Corpus = ({id}) => {
                     <h2 className={STYLES.title}>Documents:</h2>
 
                     {loadingDocs
-                        ? <p>Currently loading documents list</p>
+                        ? <p>Currently loading documents list&hellip;</p>
                         : <>
                             {docsList()} {updateDocsList()}
                         </>
