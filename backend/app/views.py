@@ -28,14 +28,17 @@ from django.shortcuts import render
 from .models import (
     Document,
     Gender,
-    Corpus
+    Corpus,
+    FrequencyAnalysis
 )
 from .serializers import (
     DocumentSerializer,
     SimpleDocumentSerializer,
     GenderSerializer,
-    CorpusSerializer
+    CorpusSerializer,
+    FrequencyAnalysisSerializer
 )
+from .analysis import frequency
 
 
 @api_view(['GET'])
@@ -274,4 +277,30 @@ def corpus(request, corpus_id):
     }
 
     return render(request, 'index.html', context)
-    
+
+
+@api_view(['GET'])
+def all_frequency_analyses(request):
+    freq_analysis_objs = FrequencyAnalysis.objects.all()
+    serializer = FrequencyAnalysisSerializer(freq_analysis_objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def add_frequency_analysis(request):
+    attributes = request.data
+    corpus_id = attributes['corpus_id']
+    gender_ids = attributes['gender_ids']
+    frequency_entry = FrequencyAnalysis.objects.filter(corpus__id=corpus_id, gender_ids=gender_ids)
+    if frequency_entry.exists():
+        freq_analysis_obj = frequency_entry.get()
+    else:
+        result = frequency.run_analysis(corpus_id, gender_ids)
+        fields = {
+            'corpus': Corpus.objects.get(id=corpus_id),
+            'result': result
+        }
+        freq_analysis_obj = FrequencyAnalysis.objects.create(**fields)
+        freq_analysis_obj.genders.set(gender_ids)
+    serializer = FrequencyAnalysisSerializer(freq_analysis_obj)
+    return Response(serializer.data)
