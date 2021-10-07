@@ -188,6 +188,7 @@ def add_corpus(request):
     """
     API endpoint for adding a corpus instance
     """
+    print('here', request)
     attributes = request.data
     fields = {
         'title': attributes['title'],

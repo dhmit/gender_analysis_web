@@ -40,7 +40,7 @@ const Corpora = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        setAddingCorpus(true);
+        //setAddingCorpus(true);
         handleCloseModal();
         const csrftoken = getCookie("csrftoken");
         const requestOptions = {
@@ -49,21 +49,26 @@ const Corpora = () => {
                 "Content-Type": "application/json",
                 "X-CRSFToken": csrftoken
             },
-            body: JSON.stringify({
-                title: newCorpusData.title,
-                description: newCorpusData.description
-            })
+            // body: JSON.stringify({
+            //     title: newCorpusData.title,
+            //     description: newCorpusData.description
+            // })
+            body: ""
         };
+        console.log(requestOptions);
         fetch("api/add_corpus", requestOptions)
             .then(response => response.json())
-            .then(data => {
-                setCorporaData(corporaData => [...corporaData, data]);
-                setNewCorpusData({
-                    "title": "",
-                    "description": ""
-                });
-                setAddingCorpus(false);
+            .catch(err => {
+                console.log('getting err', err);
             });
+            // .then(data => {
+            //     setCorporaData(corporaData => [...corporaData, data]);
+            //     setNewCorpusData({
+            //         "title": "",
+            //         "description": ""
+            //     });
+            //     setAddingCorpus(false);
+            // });
     };
 
     const addCorpusModal = () => {
@@ -80,8 +85,8 @@ const Corpora = () => {
                                     className="col-2 col-form-label">Title</label>
                                 <div className="col">
                                     <input type="text" className="form-control"
-                                        id="title" value={newCorpusData.title}
-                                        onChange={handleTitleInputChange} required/>
+                                        id="title" value={newCorpusData.title}/>
+                                        {/*onChange={handleTitleInputChange} required/>*/}
                                 </div>
                             </div>
                             <div className="row mb-3">
@@ -92,7 +97,8 @@ const Corpora = () => {
                                 <div className="col">
                                     <textarea row="4" className="form-control"
                                         id="description" value={newCorpusData.description}
-                                        onChange={handleDescriptionInputChange}/>
+                                              />
+                                        {/*onChange={handleDescriptionInputChange*/}
                                 </div>
                             </div>
                         </Modal.Body>
