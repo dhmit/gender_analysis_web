@@ -36,6 +36,7 @@ urlpatterns = [
     path('api/delete_corpus', views.delete_corpus),
     path('api/corpus/<int:corpus_id>', views.get_corpus),
     path('api/proximity', views.add_proximity_analysis),
+    path('api/all_proximity', views.all_proximity),
 
     # View paths
     path('', views.index, name='index'),
