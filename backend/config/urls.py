@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/add_document', views.add_document),
     path('api/document/<int:doc_id>', views.get_document),
     path('api/all_genders', views.all_genders),
+    path('api/gender/<int:gender_id>', views.get_gender),
     path('api/all_corpora', views.all_corpora),
     path('api/add_corpus', views.add_corpus),
     path('api/update_corpus_docs', views.update_corpus_docs),
