@@ -27,6 +27,7 @@ from rest_framework.response import Response
 from django.shortcuts import render
 from .models import (
     Document,
+    PronounSeries,
     Gender,
     Corpus
 )
@@ -191,8 +192,27 @@ def get_gender(request, gender_id):
     gender_obj = get_object_or_404(queryset, pk=gender_id)
 
     serializer = GenderSerializer(gender_obj)
+
+    
+@api_view(['POST'])
+def add_gender(request):
+    """
+    API endpoint for adding a gender instance
+    """
+    attributes = request.data
+    pronoun_ids_list = attributes['pronoun_series_ids']
+
+    fields = {
+        'label': attributes['label']
+    }
+    new_gender_obj = Gender.objects.create(**fields)
+    for pronoun_id in pronoun_ids_list:
+        new_gender_obj.pronoun_series.add(pronoun_id)
+
+    serializer = GenderSerializer(new_gender_obj)
     return Response(serializer.data)
 
+  
 @api_view(['POST'])
 def add_corpus(request):
     """
