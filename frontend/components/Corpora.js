@@ -60,7 +60,7 @@ const Corpora = () => {
                 setCorporaData(corporaData => [...corporaData, data]);
                 setNewCorpusData({
                     "title": "",
-                    "description": ""
+                    "description": "",
                 });
                 setAddingCorpus(false);
             });
