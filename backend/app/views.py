@@ -192,6 +192,7 @@ def get_gender(request, gender_id):
     gender_obj = get_object_or_404(queryset, pk=gender_id)
 
     serializer = GenderSerializer(gender_obj)
+    return Response(serializer.data)
 
     
 @api_view(['POST'])
