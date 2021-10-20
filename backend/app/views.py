@@ -20,7 +20,7 @@ context = {
     'component_name': 'ExampleId'
 }
 """
-import json
+from django.shortcuts import get_object_or_404
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -183,6 +183,18 @@ def all_genders(request):
     serializer = GenderSerializer(gender_objs, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def get_gender(request, gender_id):
+    """
+    API Endpoint to get a gender based on the ID
+    """
+    queryset = Gender.objects.all()
+    gender_obj = get_object_or_404(queryset, pk=gender_id)
+
+    serializer = GenderSerializer(gender_obj)
+    return Response(serializer.data)
+
+    
 @api_view(['POST'])
 def add_gender(request):
     """
@@ -201,6 +213,7 @@ def add_gender(request):
     serializer = GenderSerializer(new_gender_obj)
     return Response(serializer.data)
 
+  
 @api_view(['POST'])
 def add_corpus(request):
     """
@@ -214,7 +227,6 @@ def add_corpus(request):
     new_corpus_obj = Corpus.objects.create(**fields)
     serializer = CorpusSerializer(new_corpus_obj)
     return Response(serializer.data)
-
 
 @api_view(['POST'])
 def update_corpus_docs(request):
