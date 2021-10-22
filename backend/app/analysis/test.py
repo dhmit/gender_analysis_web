@@ -16,9 +16,11 @@ def parse_csv(path_to_files):
         for data in csv_reader:
             # filename = ''.join(filter(str.isalnum, data['title'])) + '.txt'
             print(data)
-            print("bup")
+            #print("bup")
             filename = f"{data['title']}.txt"
-            #filename = filename.replace(...)
+            for c in filename:  #remove any invalid characters
+                if c in "?":
+                    filename = filename.replace(c, "")
             text = data['transcript']
             if not os.path.isfile(os.path.join(path_to_folder, filename)):  # "If the file title.txt' doesn't exist in the designated folder...
 
