@@ -20,10 +20,13 @@ context = {
     'component_name': 'ExampleId'
 }
 """
-from django.shortcuts import get_object_or_404
+import json
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
+
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from .models import (
     Document,
@@ -213,7 +216,63 @@ def add_gender(request):
     serializer = GenderSerializer(new_gender_obj)
     return Response(serializer.data)
 
-  
+
+@api_view(['DELETE'])
+def delete_gender(request):  # TODO: Test
+    """
+    API endpoint for deleting a gender
+    """
+    try:
+        gender_id = request.data['id']
+        queryset = Gender.objects.all()
+        gender_obj = get_object_or_404(queryset, gender_id)
+        res = gender_obj.delete()
+    except KeyError:
+        content = {'detail': 'Attribute not found.'}
+        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    return Response(res)
+
+
+@api_view(['GET'])
+def all_pronoun_series(request):  # TODO: Test
+    """
+    API Endpoint to get all pronoun series instances.
+    """
+    pronoun_series_objs = PronounSeries.objects.all()
+    serializer = GenderSerializer(pronoun_series_objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_pronoun_series(request, pronoun_series_id):  # TODO: Test
+    """
+    API Endpoint to get a pronoun series based on the ID
+    """
+    queryset = PronounSeries.objects.all()
+    pronoun_series_obj = get_object_or_404(queryset, pk=pronoun_series_id)
+
+    serializer = GenderSerializer(pronoun_series_obj)
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+def delete_pronoun_series(request):  # TODO: Test
+    """
+    API endpoint for deleting a pronoun_series
+    """
+    try:
+        pronoun_series_id = request.data['id']
+        queryset = PronounSeries.objects.all()
+        pronoun_series_obj = get_object_or_404(queryset, pronoun_series_id)
+        res = pronoun_series_obj.delete()
+    except KeyError:
+        content = {'detail': 'Attribute not found.'}
+        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    return Response(res)
+
+
 @api_view(['POST'])
 def add_corpus(request):
     """
@@ -227,6 +286,7 @@ def add_corpus(request):
     new_corpus_obj = Corpus.objects.create(**fields)
     serializer = CorpusSerializer(new_corpus_obj)
     return Response(serializer.data)
+
 
 @api_view(['POST'])
 def update_corpus_docs(request):
