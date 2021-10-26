@@ -102,23 +102,29 @@ def example_id(request, example_id):
 
 
 @api_view(['POST'])
-def add_document(request):
+def add_document(request):  # TODO: Test
     """
     API endpoint for adding a piece of document
     """
     attributes = request.data
     new_attributes = {}
-    for attribute in attributes['newAttributes']:
-        key, value = attribute['name'], attribute['value']
-        if key and value:
-            new_attributes[key] = value
-    fields = {
-        'title': attributes['title'],
-        'author': attributes['author'],
-        'year': attributes['year'] if attributes['year'] != '' else None,
-        'text': attributes['text'],
-        'new_attributes': new_attributes
-    }
+    try:
+        for attribute in attributes['newAttributes']:
+            attribute_dict = json.loads(attribute)
+            key, value = attribute_dict['name'], attribute_dict['value']
+            if key and value:
+                new_attributes[key] = value
+        fields = {
+            'title': attributes['title'],
+            'author': attributes['author'],
+            'year': attributes['year'] if attributes['year'] != '' else None,
+            'text': attributes['text'],
+            'new_attributes': new_attributes
+        }
+    except KeyError as err:
+        content = {'detail': 'Attribute not found.'}
+        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
     new_text_obj = Document.objects.create_document(**fields)
     serializer = DocumentSerializer(new_text_obj)
     return Response(serializer.data)

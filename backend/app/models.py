@@ -25,6 +25,7 @@ class PronounSeries(models.Model):
     pos_pro = LowercaseCharField(max_length=40)
     reflex = LowercaseCharField(max_length=40)
 
+
     PRONOUN_TYPES = [
         'subj',
         'obj',
@@ -272,7 +273,7 @@ class Document(models.Model):
     """
     author = models.CharField(max_length=255, blank=True)
     year = models.IntegerField(null=True, blank=True)
-    new_attributes = models.JSONField(null=True, blank=True, default=dict)
+    new_attributes = models.JSONField(null=True, blank=True, default=list)
     text = models.TextField(blank=True)
     title = models.CharField(max_length=255, blank=True)
     word_count = models.PositiveIntegerField(blank=True, null=True, default=None)
