@@ -20,7 +20,6 @@ context = {
     'component_name': 'ExampleId'
 }
 """
-import json
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -193,6 +192,7 @@ def all_genders(request):
     gender_objs = Gender.objects.all()
     serializer = GenderSerializer(gender_objs, many=True)
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 def get_gender(request, gender_id):
