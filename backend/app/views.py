@@ -144,8 +144,7 @@ def get_document(request, doc_id):
     """
     API Endpoint to get a document based on the ID
     """
-    queryset = Document.objects.all()
-    doc_obj = get_object_or_404(queryset, pk=doc_id)
+    doc_obj = get_object_or_404(Document, pk=doc_id)
 
     serializer = DocumentSerializer(doc_obj)
     return Response(serializer.data)
@@ -199,8 +198,7 @@ def get_gender(request, gender_id):
     """
     API Endpoint to get a gender based on the ID
     """
-    queryset = Gender.objects.all()
-    gender_obj = get_object_or_404(queryset, pk=gender_id)
+    gender_obj = get_object_or_404(Gender, pk=gender_id)
 
     serializer = GenderSerializer(gender_obj)
     return Response(serializer.data)
@@ -220,9 +218,8 @@ def add_gender(request):
         }
         new_gender_obj = Gender.objects.create(**fields)
 
-        queryset = PronounSeries.objects.all()
         for pronoun_id in pronoun_ids_list:
-            pronoun = get_object_or_404(queryset, pk=pronoun_id)
+            pronoun = get_object_or_404(PronounSeries, pk=pronoun_id)
             new_gender_obj.pronoun_series.add(pronoun)
     except KeyError as err:
         content = {'detail': f'Attribute {err} not found.'}
@@ -239,8 +236,7 @@ def delete_gender(request):
     """
     try:
         gender_id = request.data['id']
-        queryset = Gender.objects.all()
-        gender_obj = get_object_or_404(queryset, pk=gender_id)
+        gender_obj = get_object_or_404(Gender, pk=gender_id)
         res = gender_obj.delete()
     except KeyError as err:
         content = {'detail': f'Attribute {err} not found.'}
@@ -264,8 +260,7 @@ def get_pronoun_series(request, pronoun_series_id):
     """
     API Endpoint to get a pronoun series based on the ID
     """
-    queryset = PronounSeries.objects.all()
-    pronoun_series_obj = get_object_or_404(queryset, pk=pronoun_series_id)
+    pronoun_series_obj = get_object_or_404(PronounSeries, pk=pronoun_series_id)
 
     serializer = PronounSeriesSerializer(pronoun_series_obj)
     return Response(serializer.data)
@@ -302,8 +297,7 @@ def delete_pronoun_series(request):
     """
     try:
         pronoun_series_id = request.data['id']
-        queryset = PronounSeries.objects.all()
-        pronoun_series_obj = get_object_or_404(queryset, pk=pronoun_series_id)
+        pronoun_series_obj = get_object_or_404(PronounSeries, pk=pronoun_series_id)
         res = pronoun_series_obj.delete()
     except KeyError as err:
         content = {'detail': f'Attribute {err} not found.'}
@@ -341,8 +335,7 @@ def update_corpus_docs(request):
     try:
         corpus_id = corpus_data['id']
         doc_ids = corpus_data['documents']
-        queryset = Corpus.objects.all()
-        corpus_obj = get_object_or_404(queryset, pk=corpus_id)
+        corpus_obj = get_object_or_404(Corpus, pk=corpus_id)
         corpus_obj.documents.set(Document.objects.filter(id__in=doc_ids))
     except KeyError as err:
         content = {'detail': f'Attribute {err} not found.'}
@@ -360,8 +353,7 @@ def delete_corpus(request):
     try:
         corpus_id = request.data['id']
         print('corpus_id', corpus_id)
-        queryset = Corpus.objects.all()
-        corpus_obj = get_object_or_404(queryset, pk=corpus_id)
+        corpus_obj = get_object_or_404(Corpus, pk=corpus_id)
         res = corpus_obj.delete()
     except KeyError as err:
 
@@ -386,8 +378,7 @@ def get_corpus(request, corpus_id):
     """
     API endpoint to get a corpus based on id
     """
-    queryset = Corpus.objects.all()
-    corpus_obj = get_object_or_404(queryset, pk=corpus_id)
+    corpus_obj = get_object_or_404(Corpus, pk=corpus_id)
 
     serializer = CorpusSerializer(corpus_obj)
     return Response(serializer.data)
