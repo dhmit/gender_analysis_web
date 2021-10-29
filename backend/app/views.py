@@ -268,6 +268,27 @@ def get_pronoun_series(request, pronoun_series_id):  # TODO: Test
     pronoun_series_obj = get_object_or_404(queryset, pk=pronoun_series_id)
 
     serializer = GenderSerializer(pronoun_series_obj)
+@api_view(['POST'])
+def add_pronoun_series(request):
+    """
+    API endpoint for adding a pronoun series instance
+    """
+    attributes = request.data
+    try:
+        fields = {
+            "identifier": attributes["identifier"],
+            "subj": attributes["subj"],
+            "obj": attributes["obj"],
+            "pos_det": attributes["pos_det"],
+            "pos_pro": attributes["pos_pro"],
+            "reflex": attributes["reflex"]
+        }
+    except KeyError as err:
+        content = {'detail': f'Attribute {err} not found.'}
+        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    new_pronoun_series_obj = PronounSeries.objects.create(**fields)
+    serializer = PronounSeriesSerializer(new_pronoun_series_obj)
     return Response(serializer.data)
 
 

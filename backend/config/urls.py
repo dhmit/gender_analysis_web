@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/add_gender', views.add_gender),
     path('api/delete_gender', views.delete_gender),
     path('api/all_pronoun_series', views.all_pronoun_series),
+    path('api/add_pronoun_series', views.add_pronoun_series),
     path('api/pronoun_series/<int:pronoun_series_id>', views.get_pronoun_series),
     path('api/all_corpora', views.all_corpora),
     path('api/add_corpus', views.add_corpus),
