@@ -38,6 +38,7 @@ from .serializers import (
     DocumentSerializer,
     SimpleDocumentSerializer,
     GenderSerializer,
+    PronounSeriesSerializer,
     CorpusSerializer
 )
 
@@ -102,7 +103,7 @@ def example_id(request, example_id):
 
 
 @api_view(['POST'])
-def add_document(request):  # TODO: Test
+def add_document(request):
     """
     API endpoint for adding a piece of document
     """
@@ -110,8 +111,7 @@ def add_document(request):  # TODO: Test
     new_attributes = {}
     try:
         for attribute in attributes['newAttributes']:
-            attribute_dict = json.loads(attribute)
-            key, value = attribute_dict['name'], attribute_dict['value']
+            key, value = attribute['name'], attribute['value']
             if key and value:
                 new_attributes[key] = value
         fields = {
@@ -122,7 +122,7 @@ def add_document(request):  # TODO: Test
             'new_attributes': new_attributes
         }
     except KeyError as err:
-        content = {'detail': 'Attribute not found.'}
+        content = {'detail': f'Attribute {err} not found.'}
         return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     new_text_obj = Document.objects.create_document(**fields)
@@ -186,7 +186,7 @@ def single_document(request, doc_id):
 
 
 @api_view(['GET'])
-def all_genders(request):  # TODO: Test
+def all_genders(request):
     """
     API Endpoint to get all gender instances.
     """
@@ -195,7 +195,7 @@ def all_genders(request):  # TODO: Test
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_gender(request, gender_id):  # TODO: Test
+def get_gender(request, gender_id):
     """
     API Endpoint to get a gender based on the ID
     """
@@ -207,7 +207,7 @@ def get_gender(request, gender_id):  # TODO: Test
 
     
 @api_view(['POST'])
-def add_gender(request):  # TODO: Test
+def add_gender(request):
     """
     API endpoint for adding a gender instance
     """
@@ -222,10 +222,10 @@ def add_gender(request):  # TODO: Test
 
         queryset = PronounSeries.objects.all()
         for pronoun_id in pronoun_ids_list:
-            pronoun = get_object_or_404(queryset, pronoun_id)
+            pronoun = get_object_or_404(queryset, pk=pronoun_id)
             new_gender_obj.pronoun_series.add(pronoun)
-    except KeyError:
-        content = {'detail': 'Attribute not found.'}
+    except KeyError as err:
+        content = {'detail': f'Attribute {err} not found.'}
         return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     serializer = GenderSerializer(new_gender_obj)
@@ -233,41 +233,44 @@ def add_gender(request):  # TODO: Test
 
 
 @api_view(['DELETE'])
-def delete_gender(request):  # TODO: Test
+def delete_gender(request):
     """
     API endpoint for deleting a gender
     """
     try:
         gender_id = request.data['id']
         queryset = Gender.objects.all()
-        gender_obj = get_object_or_404(queryset, gender_id)
+        gender_obj = get_object_or_404(queryset, pk=gender_id)
         res = gender_obj.delete()
-    except KeyError:
-        content = {'detail': 'Attribute not found.'}
+    except KeyError as err:
+        content = {'detail': f'Attribute {err} not found.'}
         return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     return Response(res)
 
 
 @api_view(['GET'])
-def all_pronoun_series(request):  # TODO: Test
+def all_pronoun_series(request):
     """
     API Endpoint to get all pronoun series instances.
     """
     pronoun_series_objs = PronounSeries.objects.all()
-    serializer = GenderSerializer(pronoun_series_objs, many=True)
+    serializer = PronounSeriesSerializer(pronoun_series_objs, many=True)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
-def get_pronoun_series(request, pronoun_series_id):  # TODO: Test
+def get_pronoun_series(request, pronoun_series_id):
     """
     API Endpoint to get a pronoun series based on the ID
     """
     queryset = PronounSeries.objects.all()
     pronoun_series_obj = get_object_or_404(queryset, pk=pronoun_series_id)
 
-    serializer = GenderSerializer(pronoun_series_obj)
+    serializer = PronounSeriesSerializer(pronoun_series_obj)
+    return Response(serializer.data)
+
+
 @api_view(['POST'])
 def add_pronoun_series(request):
     """
@@ -293,24 +296,24 @@ def add_pronoun_series(request):
 
 
 @api_view(['DELETE'])
-def delete_pronoun_series(request):  # TODO: Test
+def delete_pronoun_series(request):
     """
     API endpoint for deleting a pronoun_series
     """
     try:
         pronoun_series_id = request.data['id']
         queryset = PronounSeries.objects.all()
-        pronoun_series_obj = get_object_or_404(queryset, pronoun_series_id)
+        pronoun_series_obj = get_object_or_404(queryset, pk=pronoun_series_id)
         res = pronoun_series_obj.delete()
-    except KeyError:
-        content = {'detail': 'Attribute not found.'}
+    except KeyError as err:
+        content = {'detail': f'Attribute {err} not found.'}
         return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     return Response(res)
 
 
 @api_view(['POST'])
-def add_corpus(request):  # TODO: Test
+def add_corpus(request):
     """
     API endpoint for adding a corpus instance
     """
@@ -320,8 +323,8 @@ def add_corpus(request):  # TODO: Test
             'title': attributes['title'],
             'description': attributes['description']
         }
-    except KeyError:
-        content = {'detail': 'Attribute not found.'}
+    except KeyError as err:
+        content = {'detail': f'Attribute {err} not found.'}
         return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     new_corpus_obj = Corpus.objects.create(**fields)
@@ -330,7 +333,7 @@ def add_corpus(request):  # TODO: Test
 
 
 @api_view(['POST'])
-def update_corpus_docs(request):  # TODO: Test
+def update_corpus_docs(request):
     """
     API endpoint for updating the documents in a corpus
     """
@@ -339,10 +342,10 @@ def update_corpus_docs(request):  # TODO: Test
         corpus_id = corpus_data['id']
         doc_ids = corpus_data['documents']
         queryset = Corpus.objects.all()
-        corpus_obj = get_object_or_404(queryset, corpus_id)
+        corpus_obj = get_object_or_404(queryset, pk=corpus_id)
         corpus_obj.documents.set(Document.objects.filter(id__in=doc_ids))
-    except KeyError:
-        content = {'detail': 'Attribute not found.'}
+    except KeyError as err:
+        content = {'detail': f'Attribute {err} not found.'}
         return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     serializer = CorpusSerializer(corpus_obj)
@@ -350,17 +353,19 @@ def update_corpus_docs(request):  # TODO: Test
 
 
 @api_view(['DELETE'])
-def delete_corpus(request):  # TODO: Test
+def delete_corpus(request):
     """
     API endpoint for deleting a corpus
     """
     try:
         corpus_id = request.data['id']
+        print('corpus_id', corpus_id)
         queryset = Corpus.objects.all()
-        corpus_obj = get_object_or_404(queryset, corpus_id)
+        corpus_obj = get_object_or_404(queryset, pk=corpus_id)
         res = corpus_obj.delete()
-    except KeyError:
-        content = {'detail': 'Attribute not found.'}
+    except KeyError as err:
+
+        content = {'detail': f'Attribute {err} not found.'}
         return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     return Response(res)
@@ -377,7 +382,7 @@ def all_corpora(request):
 
 
 @api_view(['GET'])
-def get_corpus(request, corpus_id):  # TODO: Test
+def get_corpus(request, corpus_id):
     """
     API endpoint to get a corpus based on id
     """
