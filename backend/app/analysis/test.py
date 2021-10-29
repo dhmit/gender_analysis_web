@@ -23,7 +23,6 @@ def parse_csv(path_to_files):
                     filename = filename.replace(c, "")
             text = data['transcript']
             if not os.path.isfile(os.path.join(path_to_folder, filename)):  # "If the file title.txt' doesn't exist in the designated folder...
-
                 with open(os.path.join(path_to_folder, filename), "w", encoding='utf8') as f:
                     f.write(text)
     return path_to_folder

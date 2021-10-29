@@ -1,4 +1,4 @@
-from app.models import Document
+from app.models import Document, Corpus
 import os
 
 def create_instances():
@@ -23,7 +23,10 @@ def create_instances_new():
     for doc in documents:
         with open(f"{directory}\\{doc}") as newDoc:
             for line in newDoc:
-                new_doc = Document.objects.create_document(title=doc.replace(".txt", ""), text=line)
+                doc_title = doc.replace(".txt", "")
+                if Document.objects.filter(title=doc_title).count() == 0:   #If the doc isn't already an instance in the Document model:
+                    new_doc = Document.objects.create_document(title=doc_title, text=line)
+                    new_doc.save()
                 #print(new_doc.title)
                 #print(f"{docList[-1].title}: {docList[-1].text}")
 
@@ -31,7 +34,23 @@ def create_instances_new():
 
 def main():
     create_instances_new()
-    for doc in Document.objects.all():
-        print(f"{doc.title}: {doc.tokenized_text}")
+    #print("sup")
+    #print(len(Document.objects.all()))
+    #for doc in Document.objects.all():
+        #print("bup")
+        #print(f"{doc.title}: {doc.tokenized_text}")
+    #print("nup")
     #print(unmanaged_docs[0].title)
     #print(unmanaged_docs[0].tokenized_text)
+    if Corpus.objects.filter(title="Small Talks Corpus").count() == 0:
+        tt_corpus = Corpus(title="Small Talks Corpus")
+        tt_corpus.save()
+    else:
+        tt_corpus = Corpus.objects.filter(title="Small Talks Corpus")[0]
+
+    tt_corpus.documents.set(Document.objects.all())
+    tt_corpus.save()
+    print(Corpus.objects.all())
+    print("Documents: ")
+    for doc in tt_corpus:
+        print(doc.title)
