@@ -20,12 +20,12 @@ context = {
     'component_name': 'ExampleId'
 }
 """
-
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import render
 
-from .analysis.proximity import run_analysis
+from .analysis import proximity
 from .models import (
     Document,
     Gender,
@@ -186,6 +186,37 @@ def all_genders(request):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+def get_gender(request, gender_id):
+    """
+    API Endpoint to get a gender based on the ID
+    """
+    queryset = Gender.objects.all()
+    gender_obj = get_object_or_404(queryset, pk=gender_id)
+
+    serializer = GenderSerializer(gender_obj)
+    return Response(serializer.data)
+
+    
+@api_view(['POST'])
+def add_gender(request):
+    """
+    API endpoint for adding a gender instance
+    """
+    attributes = request.data
+    pronoun_ids_list = attributes['pronoun_series_ids']
+
+    fields = {
+        'label': attributes['label']
+    }
+    new_gender_obj = Gender.objects.create(**fields)
+    for pronoun_id in pronoun_ids_list:
+        new_gender_obj.pronoun_series.add(pronoun_id)
+
+    serializer = GenderSerializer(new_gender_obj)
+    return Response(serializer.data)
+
+  
 @api_view(['POST'])
 def add_corpus(request):
     """
@@ -199,7 +230,6 @@ def add_corpus(request):
     new_corpus_obj = Corpus.objects.create(**fields)
     serializer = CorpusSerializer(new_corpus_obj)
     return Response(serializer.data)
-
 
 @api_view(['POST'])
 def update_corpus_docs(request):
