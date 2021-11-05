@@ -1,5 +1,7 @@
 from app.models import Document, Corpus
 import os
+import csv
+from app.services.parse_csv import parse_csv
 
 def create_instances():
     directory = "C:\\Users\\Ayden\\Documents\\GitHub\\gender_analysis_web\\backend\\app\\analysis\\small_talks"
@@ -32,25 +34,13 @@ def create_instances_new():
 
     #return Documents.objects.all()
 
-def main():
-    create_instances_new()
-    #print("sup")
-    #print(len(Document.objects.all()))
-    #for doc in Document.objects.all():
-        #print("bup")
-        #print(f"{doc.title}: {doc.tokenized_text}")
-    #print("nup")
-    #print(unmanaged_docs[0].title)
-    #print(unmanaged_docs[0].tokenized_text)
-    if Corpus.objects.filter(title="Small Talks Corpus").count() == 0:
-        tt_corpus = Corpus(title="Small Talks Corpus")
-        tt_corpus.save()
-    else:
-        tt_corpus = Corpus.objects.filter(title="Small Talks Corpus")[0]
+def create_instances_newer(csv_filename):
+    current_path = os.path.dirname(os.path.abspath(__file__))  # returns path of auto_instances.py
+    in_csv = os.path.join(current_path, csv_filename)  # appends small_talks.csv to the above
 
-    tt_corpus.documents.set(Document.objects.all())
-    tt_corpus.save()
-    print(Corpus.objects.all())
-    print("Documents: ")
-    for doc in tt_corpus:
-        print(doc.title)
+    with open(in_csv, encoding='utf-8') as f:
+        csv_reader = csv.DictReader(f)
+        parse_csv(csv_reader)
+
+def main():
+    create_instances_newer("small_talks.csv")

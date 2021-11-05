@@ -21,10 +21,14 @@ def parse_csv(path_to_files):
             for c in filename:  #remove any invalid characters
                 if c in "?":
                     filename = filename.replace(c, "")
+
             text = data['transcript']
-            if not os.path.isfile(os.path.join(path_to_folder, filename)):  # "If the file title.txt' doesn't exist in the designated folder...
-                with open(os.path.join(path_to_folder, filename), "w", encoding='utf8') as f:
-                    f.write(text)
+            #speaker = data['speaker_1']
+            #year = data['recorded_date'][:4]
+
+            with open(os.path.join(path_to_folder, filename), "w", encoding='utf8') as f:
+                #f.write(f"By {speaker}\nYear recorded: {year}\n----------\n{text}")
+                f.write(text)
     return path_to_folder
 
 def test_function():
@@ -39,6 +43,8 @@ def test_function():
 #        reader = csv.reader(csv_file)
 #        for line in reader:
 #            print(line)
+
+def csv_to_corpus(path_to_files)
 
 
 if __name__ == '__main__':
