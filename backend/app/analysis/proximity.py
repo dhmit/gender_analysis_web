@@ -24,10 +24,10 @@ def run_analysis(corpus_id, word_window):
     results = {}
     genders = set(Gender.objects.all())
 
-    doc_ids = Corpus.objects.filter(pk=corpus_id).values_list('documents__pk', flat=True)
+    doc_ids_and_titles = Corpus.objects.filter(pk=corpus_id).values_list('documents__pk', 'documents__title')
 
-    for key in doc_ids:
-        results[key] = generate_gender_token_counters(
+    for key, title in doc_ids_and_titles:
+        results[title] = generate_gender_token_counters(
             Document.objects.values_list('part_of_speech_tags', flat=True).filter(pk=key).get(),
             genders,
             word_window
@@ -54,12 +54,12 @@ def generate_gender_token_counters(pos_tags, genders, word_window):
     results = {}
 
     for gender in genders:
-        results[gender] = dict()
+        results[str(gender)] = dict()
 
         for PRONOUN_TYPE in PronounSeries.PRONOUN_TYPES:
             pronoun_set = gender.pronoun_series.values_list(PRONOUN_TYPE, flat=True)
             doc_result = generate_token_counter(pos_tags, pronoun_set, word_window)
-            results[gender][PRONOUN_TYPE] = doc_result
+            results[str(gender)][PRONOUN_TYPE] = doc_result
 
     return results
 
@@ -83,18 +83,18 @@ def generate_token_counter(pos_tags, pronoun_set, word_window):
     padding = [None] * word_window
 
     for tagged_tokens in windowed(chain(padding, pos_tags, padding), 2 * word_window + 1):
-        candidate = tagged_tokens[word_window][0].lower()
+        if tagged_tokens[word_window] is not None:
 
-        if candidate in pronoun_set:
+            candidate = tagged_tokens[word_window][0].lower()
+            if candidate in pronoun_set:
 
-            for index, tagged_token in enumerate(tagged_tokens):
-                if tagged_token is not None:
+                for index, tagged_token in enumerate(tagged_tokens):
+                    if tagged_token is not None:
 
-                    word = tagged_token[0].lower()
-                    if word != candidate:
+                        word = tagged_token[0].lower()
+                        if word != candidate:
 
-                        pos_tag = tagged_token[1]
-                        output.setdefault(pos_tag, Counter())
-                        output[pos_tag][word] += 1
-
+                            pos_tag = tagged_token[1]
+                            output.setdefault(pos_tag, Counter())
+                            output[pos_tag][word] += 1
     return output

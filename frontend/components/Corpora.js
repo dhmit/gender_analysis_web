@@ -11,9 +11,11 @@ const Corpora = () => {
     });
     const [loading, setLoading] = useState(true);
     const [addingCorpus, setAddingCorpus] = useState(false);
+
     const [showModal, setShowModal] = useState(false);
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
+
 
     useEffect(() => {
         fetch("/api/all_corpora")
@@ -65,6 +67,7 @@ const Corpora = () => {
                 setAddingCorpus(false);
             });
     };
+
 
     const addCorpusModal = () => {
         return (
@@ -134,16 +137,15 @@ const Corpora = () => {
                     <div className="col-6 mb-3" key={i}>
                         <div className="card">
                             <div className="card-body">
-                                <OverlayTrigger
-                                    placement="right"
-                                    overlay={<Tooltip>Delete Corpus</Tooltip>}>
-                                    <CloseButton
-                                        onClick={() => deleteCorpus(corpus.id)}></CloseButton>
-                                </OverlayTrigger>
                                 <a className={STYLES.corpusCard} href={`/corpus/${corpus.id}`}>
                                     <h2 className={STYLES.title}>{corpus.title}</h2>
                                     <p>{corpus.description}</p>
                                 </a>
+                                <OverlayTrigger
+                                    placement="right"
+                                    overlay={<Tooltip>Delete Corpus</Tooltip>}>
+                                    <CloseButton onClick={() => deleteCorpus(corpus.id)}/>
+                                </OverlayTrigger>
                             </div>
                         </div>
                     </div>
@@ -160,13 +162,13 @@ const Corpora = () => {
             </p>
             {
                 addingCorpus && <div className="alert alert-warning" role="alert">
-                        Currently adding corpus...Please do not close this tab.
+                        Currently adding corpus&hellip;Please do not close this tab.
                 </div>
             }
             {addCorpusModal()}
             {
                 loading
-                    ? <p>Currently loading Corpora...</p>
+                    ? <p>Currently loading Corpora&hellip;</p>
                     : <div>{corporaList()}</div>
             }
         </div>

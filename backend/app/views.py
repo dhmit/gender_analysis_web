@@ -25,17 +25,21 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import render
+
+from .analysis.proximity import run_analysis
 from .models import (
     Document,
     PronounSeries,
     Gender,
-    Corpus
+    Corpus,
+    ProximityAnalysis
 )
 from .serializers import (
     DocumentSerializer,
     SimpleDocumentSerializer,
     GenderSerializer,
-    CorpusSerializer
+    CorpusSerializer,
+    ProximityAnalysisSerializer
 )
 
 
@@ -270,6 +274,35 @@ def get_corpus(request, corpus_id):
     """
     corpus_obj = Corpus.objects.get(id=corpus_id)
     serializer = CorpusSerializer(corpus_obj)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def add_proximity_analysis(request):
+    """
+    API endpoint for posting the proximity analysis
+    """
+    attributes = request.data
+    corpus_id = int(attributes['corpus_id'])
+    word_window = int(attributes['word_window'])
+
+    proximity_query = ProximityAnalysis.objects.filter(corpus__id=corpus_id, word_window=word_window)
+
+    if proximity_query.exists():
+        proximity_obj = proximity_query.get()
+
+    else:
+        results = run_analysis(corpus_id, word_window)
+        fields = {
+            'corpus': Corpus.objects.get(pk=corpus_id),
+            'word_window': word_window,
+            'results': results,
+        }
+
+        proximity_obj = ProximityAnalysis.objects.create(**fields)
+        gender_ids = list(Gender.objects.values_list('pk', flat=True))
+        proximity_obj.genders.add(*gender_ids)
+
+    serializer = ProximityAnalysisSerializer(proximity_obj)
     return Response(serializer.data)
 
 
