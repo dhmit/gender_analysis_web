@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from "react";
-import {ButtonGroup, Dropdown, DropdownButton} from "react-bootstrap";
+import {ButtonGroup, Dropdown, DropdownButton, Tab, Tabs} from "react-bootstrap";
+import Corpus from "./Corpus";
 
 const Analyses = () => {
     const [corporaData, setCorporaData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [corpusId, setCorpusId] = useState(undefined);
+    const [corpusId, setCorpusId] = useState(1);
 
     useEffect(() => {
         fetch("/api/all_corpora")
@@ -27,6 +28,20 @@ const Analyses = () => {
         );
     };
 
+    const addTabs = () => {
+        return (
+            <Tabs defaultActiveKey="proximity" id="analyses" className="mb-3">
+                <Tab eventKey="proximity" title="Proximity">
+                    <Corpus id={corpusId} key={corpusId}/>
+                </Tab>
+                <Tab eventKey="frequency" title="Frequency">
+                </Tab>
+                <Tab eventKey="dunning" title="Distinctiveness">
+                </Tab>
+            </Tabs>
+        );
+    };
+
     return (
         <div className="container-fluid">
             <p>
@@ -37,6 +52,8 @@ const Analyses = () => {
                     ? <p>Currently loading Corpora&hellip;</p>
                     : <div>{addCorporaDropDown()}</div>
             }
+            <br/>
+            {addTabs()}
         </div>
     );
 };
