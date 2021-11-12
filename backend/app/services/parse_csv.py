@@ -20,7 +20,9 @@ def parse_csv(csv_reader):
 
     tt_corpus.documents.set(doc_list)
     tt_corpus.save()
-    print(Corpus.objects.all())
-    print("Documents: ")
-    for doc in tt_corpus:
-        print(doc.title)
+    #print(Corpus.objects.all())
+    #print("Documents: ")
+    #for doc in tt_corpus:
+       # print(doc.title)
+
+    return tt_corpus

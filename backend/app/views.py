@@ -21,6 +21,8 @@ context = {
 }
 """
 import json
+import csv
+
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -36,7 +38,7 @@ from .serializers import (
     GenderSerializer,
     CorpusSerializer
 )
-
+from app.services.parse_csv import parse_csv
 
 @api_view(['GET'])
 def get_example(request, example_id):
@@ -102,6 +104,7 @@ def add_document(request):
     """
     API endpoint for adding a piece of document
     """
+    print("we are in add_document")
     attributes = request.data
     new_attributes = {}
     for attribute in attributes['newAttributes']:
@@ -129,6 +132,19 @@ def all_documents(request):
     serializer = SimpleDocumentSerializer(doc_objs, many=True)
     return Response(serializer.data)
 
+@api_view(['POST'])
+def upload_document(request):
+    """
+    API endpoint for uploading csv files that are to be converted to an instance of csv_reader
+    """
+
+    file = request.data["filename"]
+
+    content = file.read().decode('utf-8').splitlines()
+    csv_reader = csv.DictReader(content)
+    new_corpus = parse_csv(csv_reader)
+    serializer = CorpusSerializer(new_corpus)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 def get_document(request, doc_id):
