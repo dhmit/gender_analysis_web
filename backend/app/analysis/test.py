@@ -44,8 +44,6 @@ def test_function():
 #        for line in reader:
 #            print(line)
 
-def csv_to_corpus(path_to_files)
-
 
 if __name__ == '__main__':
     parse_csv(test_csv)

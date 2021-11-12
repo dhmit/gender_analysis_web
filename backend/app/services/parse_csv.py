@@ -1,6 +1,6 @@
 from app.models import Document, Corpus
 
-def parse_csv(csv_reader):
+def parse_csv(csv_reader, title):
     doc_list = []
     for data in csv_reader:
         new_doc = None
@@ -11,16 +11,18 @@ def parse_csv(csv_reader):
             new_doc = Document.objects.filter(title=data['title'])[0]
         doc_list.append(new_doc)
 
-    #Standardize title
-    if Corpus.objects.filter(title="Small Talks Corpus").count() == 0:  #If the corpus doesn't exist...
-        tt_corpus = Corpus(title="Small Talks Corpus")
-        tt_corpus.save()
+    # Use the id as a unique indentifier instead of the title (or maybe remove this check entirely)
+    if Corpus.objects.filter(title=f"{title} Corpus").count() == 0:  # If the corpus doesn't exist...
+        new_corpus = Corpus(title=f"{title} Corpus")
+        new_corpus.save()
     else:
-        tt_corpus = Corpus.objects.filter(title="Small Talks Corpus")[0]
+        new_corpus = Corpus.objects.filter(title=f"{title} Corpus")[0]
 
-    tt_corpus.documents.set(doc_list)
-    tt_corpus.save()
+    new_corpus.documents.set(doc_list)
+    new_corpus.save()
     print(Corpus.objects.all())
     print("Documents: ")
-    for doc in tt_corpus:
+    for doc in new_corpus:
         print(doc.title)
+
+    return new_corpus

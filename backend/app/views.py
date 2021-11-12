@@ -36,6 +36,7 @@ from .serializers import (
     GenderSerializer,
     CorpusSerializer
 )
+from app.analysis.auto_instances import create_instances_newer
 
 
 @api_view(['GET'])
@@ -211,6 +212,16 @@ def update_corpus_docs(request):
     serializer = CorpusSerializer(corpus_obj)
     return Response(serializer.data)
 
+@api_view(['POST'])
+def create_corpus_csv(request):
+    """
+    API endpoint(?) for converting a csv file into a corpus
+    """
+    #                                                                                           bup
+    filename = request.data["csv"]
+    return_corpus = create_instances_newer(filename)
+    serializer = CorpusSerializer(return_corpus)
+    return Response(serializer.data)
 
 @api_view(['DELETE'])
 def delete_corpus(request):

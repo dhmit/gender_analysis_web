@@ -40,7 +40,7 @@ def create_instances_newer(csv_filename):
 
     with open(in_csv, encoding='utf-8') as f:
         csv_reader = csv.DictReader(f)
-        parse_csv(csv_reader)
+        return parse_csv(csv_reader, csv_filename)
 
 def main():
     create_instances_newer("small_talks.csv")
