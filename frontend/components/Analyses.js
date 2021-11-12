@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {ButtonGroup, Dropdown, DropdownButton, Tab, Tabs} from "react-bootstrap";
-import Corpus from "./Corpus";
+import Proximity from "./Proximity";
+import * as d3 from 'd3';
 
 const Analyses = () => {
     const [corporaData, setCorporaData] = useState([]);
@@ -11,7 +12,6 @@ const Analyses = () => {
         fetch("/api/all_corpora")
             .then(response => response.json())
             .then(data => {
-                console.log(data);
                 setCorporaData(data);
                 setLoading(false);
             });
@@ -32,7 +32,7 @@ const Analyses = () => {
         return (
             <Tabs defaultActiveKey="proximity" id="analyses" className="mb-3">
                 <Tab eventKey="proximity" title="Proximity">
-                    <Corpus id={corpusId} key={corpusId}/>
+                    <Proximity id={corpusId} key={corpusId}/>
                 </Tab>
                 <Tab eventKey="frequency" title="Frequency">
                 </Tab>
