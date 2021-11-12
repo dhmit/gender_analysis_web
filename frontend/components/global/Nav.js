@@ -18,6 +18,11 @@ const Nav = () => {
                         Corpora
                     </a>
                 </li>
+                <li className="nav-item">
+                    <a className="nav-link" href="/analyses">
+                        Analyses
+                    </a>
+                </li>
             </ul>
             <a className={STYLES.linkLab} href="https://digitalhumanities.mit.edu/" target="_blank" rel="noreferrer">
                 <img className={STYLES.imageLab} src={DH_LOGO} />
