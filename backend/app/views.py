@@ -26,6 +26,7 @@ from rest_framework.response import Response
 from django.shortcuts import render
 
 from .analysis import proximity
+from .analysis.frequency import run_analysis
 from .models import (
     Document,
     Gender,
@@ -153,6 +154,21 @@ def documents(request):
             'title': 'Documents'
         },
         'component_name': 'Documents'
+    }
+
+    return render(request, 'index.html', context)
+
+
+def analyses(request):
+    """
+    All Documents page
+    """
+
+    context = {
+        'page_metadata': {
+            'title': 'Analyses'
+        },
+        'component_name': 'Analyses'
     }
 
     return render(request, 'index.html', context)
