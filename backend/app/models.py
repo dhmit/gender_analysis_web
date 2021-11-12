@@ -25,6 +25,7 @@ class PronounSeries(models.Model):
     pos_pro = LowercaseCharField(max_length=40)
     reflex = LowercaseCharField(max_length=40)
 
+
     PRONOUN_TYPES = [
         'subj',
         'obj',
