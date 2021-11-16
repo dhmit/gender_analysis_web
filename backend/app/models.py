@@ -570,6 +570,7 @@ class ProximityAnalysis(models.Model):
     class Meta:
         verbose_name_plural = 'proximity analyses'
 
+
 class FrequencyAnalysis(models.Model):
     """
     This model will persist the results from the frequency analysis functions.
