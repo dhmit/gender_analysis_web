@@ -36,6 +36,7 @@ urlpatterns = [
     path('api/delete_corpus', views.delete_corpus),
     path('api/corpus/<int:corpus_id>', views.get_corpus),
     path('api/corpus_from_csv/', views.create_corpus_csv),
+    path('api/upload_document', views.upload_document),
 
     # View paths
     path('', views.index, name='index'),
@@ -44,5 +45,6 @@ urlpatterns = [
     path('documents', views.documents, name='documents'),
     path('document/<int:doc_id>', views.single_document, name='document'),
     path('corpora', views.corpora, name='corpora'),
-    path('corpus/<int:corpus_id>', views.corpus, name='corpus')
+    path('corpus/<int:corpus_id>', views.corpus, name='corpus'),
+
 ]
