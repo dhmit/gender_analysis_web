@@ -582,3 +582,15 @@ class FrequencyAnalysis(models.Model):
 
     class Meta:
         verbose_name_plural = 'Frequency Analyses'
+
+
+class DistinctivenessAnalysis(models.Model):
+    """
+    This model will persist the results from the distinctiveness analysis functions.
+    """
+
+    corpora = models.ManyToManyField(Corpus, related_name='distinctiveness_analyses')
+    results = models.JSONField()
+
+    class Meta:
+        verbose_name_plural = 'Distinctiveness Analyses'
