@@ -404,16 +404,16 @@ def all_frequency_analyses(request):
 @api_view(['POST'])
 def add_frequency_analysis(request):
     attributes = request.data
-    corpus_id = attributes['corpus_id']
-    gender_ids = attributes['gender_ids']
-    frequency_entry = FrequencyAnalysis.objects.filter(corpus__id=corpus_id, gender_ids=gender_ids)
+    corpus_id = int(attributes['corpus_id'])
+    gender_ids = list(map(int, attributes['gender_ids']))
+    frequency_entry = FrequencyAnalysis.objects.filter(corpus_id=corpus_id)
     if frequency_entry.exists():
         freq_analysis_obj = frequency_entry.get()
     else:
         result = frequency.run_analysis(corpus_id, gender_ids)
         fields = {
             'corpus': Corpus.objects.get(id=corpus_id),
-            'result': result
+            'results': result
         }
         freq_analysis_obj = FrequencyAnalysis.objects.create(**fields)
         freq_analysis_obj.genders.set(gender_ids)

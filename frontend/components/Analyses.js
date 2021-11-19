@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from "react";
-import {ButtonGroup, Dropdown, DropdownButton, Tab, Tabs} from "react-bootstrap";
+import {Dropdown, Tab, Tabs} from "react-bootstrap";
 import Proximity from "./Proximity";
-import * as d3 from 'd3';
+import Frequency from "./Frequency";
 
 const Analyses = () => {
+    const NO_CORPUS_SELECTED = (-1);
     const [corporaData, setCorporaData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [corpusId, setCorpusId] = useState(1);
+    const [corpusId, setCorpusId] = useState(NO_CORPUS_SELECTED);
 
     useEffect(() => {
         fetch("/api/all_corpora")
@@ -19,12 +20,17 @@ const Analyses = () => {
 
     const addCorporaDropDown = () => {
         return (
-            <DropdownButton as={ButtonGroup} key='Primary' id={`dropdown-variants-Primary`} title="Corpora">
-                {corporaData.map((corpus) => (
-                    <Dropdown.Item key={corpus.id} eventKey={corpus.id}
-                                   onSelect={() => setCorpusId(corpus.id)}>{corpus.title}</Dropdown.Item>
-                ))}
-            </DropdownButton>
+            <Dropdown>
+                <Dropdown.Toggle variant='dark' key='Primary' id={`dropdown-variants-Primary`}>
+                    Corpora
+                </Dropdown.Toggle>
+                <Dropdown.Menu variant='dark'>
+                    {corporaData.map((corpus) => (
+                        <Dropdown.Item key={corpus.id} eventKey={corpus.id}
+                                       onSelect={() => setCorpusId(corpus.id)}>{corpus.title}</Dropdown.Item>
+                    ))}
+                </Dropdown.Menu>
+            </Dropdown>
         );
     };
 
@@ -35,6 +41,7 @@ const Analyses = () => {
                     <Proximity id={corpusId} key={corpusId}/>
                 </Tab>
                 <Tab eventKey="frequency" title="Frequency">
+                    <Frequency id={corpusId} key={corpusId}/>
                 </Tab>
                 <Tab eventKey="dunning" title="Distinctiveness">
                 </Tab>
