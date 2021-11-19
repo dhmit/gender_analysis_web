@@ -14,7 +14,8 @@ from .models import (
 )
 from .analysis import (
     proximity,
-    frequency
+    frequency,
+    distinctiveness
 )
 
 
@@ -57,8 +58,8 @@ class PronounSeriesTestCase(TestCase):
         By testing the model's .save() mechanism, this also tests that LowercaseCharField works
         as expected.
         """
-        masc_1 = PronounSeries.objects.get(pk=1)
-        masc_2 = PronounSeries.objects.get(pk=2)
+        masc_1 = PronounSeries.objects.get(pk=11)
+        masc_2 = PronounSeries.objects.get(pk=12)
         self.assertEqual(str(masc_1), 'Masc_1-series')
         self.assertEqual(repr(masc_2), "<Masc_2: ['he', 'him', 'himself', 'his']>")
 
@@ -84,7 +85,7 @@ class PronounSeriesTestCase(TestCase):
         Tests all other PronounSeries methods explicitly specified in the class not already tested
         in test_PronounSeries_save.
         """
-        fem = PronounSeries.objects.get(pk=3)
+        fem = PronounSeries.objects.get(pk=13)
 
         self.assertEqual(fem.all_pronouns, {'she', 'her', 'hers', 'herself'})
         self.assertTrue('SHE' in fem)
@@ -517,3 +518,106 @@ class ProximityTestCase(TestCase):
         }
 
         self.assertEqual(results, expected)
+
+
+class DistinctivenessTestCase(TestCase):
+    def setUp(self):
+        Document.objects.create_document(title='doc1', year=2021, text='The quick brown fox jumped over the lazy dog.')
+        Document.objects.create_document(title='doc2', year=2021, text='She really likes to eat chocolate, like I do!')
+        Document.objects.create_document(title='doc3', year=2021, text='Do you like ice cream as much as I do?')
+        Document.objects.create_document(title='doc4', year=2021, text='Do you see what I see?')
+        Document.objects.create_document(title='doc5', year=2021, text='The Eiffel tower is really tall.')
+
+        corpus1 = Corpus.objects.create(
+            title='Test Corpus 1',
+            description='Testing the analysis functions in `distinctiveness.py`'
+        )
+        corpus1.documents.add(1, 2)
+
+        corpus2 = Corpus.objects.create(
+            title='Test Corpus 2',
+            description='Testing the analysis functions in `distinctiveness.py`'
+        )
+        corpus2.documents.add(3, 4)
+
+    def test_get_wordcount_counter(self):
+        result1 = distinctiveness._get_wordcount_counter(Corpus.objects.get(id=1))
+        expected1 = Counter({'the': 2, 'quick': 1, 'brown': 1, 'fox': 1, 'jumped': 1, 'over': 1, 'lazy': 1, 'dog': 1,
+                            'she': 1, 'really': 1, 'likes': 1, 'to': 1, 'eat': 1, 'chocolate': 1, 'like': 1, 'i': 1,
+                             'do': 1})
+        self.assertEquals(result1, expected1)
+
+        result2 = distinctiveness._get_wordcount_counter(Corpus.objects.get(id=2))
+        expected2 = Counter({'do': 3, 'you': 2, 'like': 1, 'ice': 1, 'cream': 1, 'as': 2, 'much': 1, 'i': 2,
+                            'see': 2, 'what': 1})
+        self.assertEquals(result2, expected2)
+
+    def test_dunn_individual_word(self):
+        epsilon = 1e-8
+        counter_1 = distinctiveness._get_wordcount_counter(Corpus.objects.get(id=1))
+        counter_2 = distinctiveness._get_wordcount_counter(Corpus.objects.get(id=2))
+
+        words_in_corpus_1 = sum(counter_1.values())
+        words_in_corpus_2 = sum(counter_2.values())
+        self.assertEquals(words_in_corpus_1, 18)
+        self.assertEquals(words_in_corpus_2, 16)
+
+        # testing same word count
+        count_in_1 = counter_1['like']
+        count_in_2 = counter_2['like']
+        self.assertEquals(count_in_1, 1)
+        self.assertEquals(count_in_2, 1)
+
+        result = distinctiveness.dunn_individual_word(words_in_corpus_1, words_in_corpus_2, count_in_1, count_in_2)
+        expected = -0.00693241595681
+        self.assertAlmostEquals(result, expected, delta=epsilon)
+
+        # more common in Corpus 2
+        count_in_1 = counter_1['do']
+        count_in_2 = counter_2['do']
+        self.assertEquals(count_in_1, 1)
+        self.assertEquals(count_in_2, 3)
+
+        result = distinctiveness.dunn_individual_word(words_in_corpus_1, words_in_corpus_2, count_in_1, count_in_2)
+        expected = -1.29592719074
+        self.assertAlmostEquals(result, expected, delta=epsilon)
+
+        # unique to Corpus 1
+        count_in_1 = counter_1['quick']
+        count_in_2 = counter_2['quick']
+
+        with self.assertRaises(ValueError):
+            distinctiveness.dunn_individual_word(words_in_corpus_1,
+                                                 words_in_corpus_2,
+                                                 count_in_1,
+                                                 count_in_2)
+
+    def test_dunning_total(self):
+        self.maxDiff = None
+        c1 = Corpus.objects.get(id=1)
+        c2 = Corpus.objects.get(id=2)
+
+        result = distinctiveness.dunning_total(c1, c2)
+        expected = {"unique_to_corp_1": {'the', 'quick', 'brown', 'fox', 'jumped', 'over', 'lazy', 'dog',
+                                         'she', 'really', 'likes', 'to', 'eat', 'chocolate'},
+                    "unique_to_corp_2": {'you', 'ice', 'cream', 'as', 'much', 'see', 'what'},
+                    "common_words": {
+                        'like': {
+                            'dunning': -0.006932415952972407,
+                            'count_corp1': 1,
+                            'count_corp2': 1},
+                        'i': {
+                            'dunning': -0.46797973317663666,
+                            'count_corp1': 1,
+                            'count_corp2': 2},
+                        'do': {
+                            'dunning': -1.2959271907478076,
+                            'count_corp1': 1,
+                            'count_corp2': 3}}}
+
+        self.assertEquals(result['unique_to_corp_1'], expected['unique_to_corp_1'])
+        self.assertEquals(result['unique_to_corp_2'], expected['unique_to_corp_2'])
+        self.assertEquals(result['common_words'], expected['common_words'])
+
+
+

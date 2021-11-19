@@ -93,7 +93,7 @@ def dunning_total(corpus_1, corpus_2):
 
     for word in counter_1:
         counter1_wordcount = counter_1[word]
-        if word in counter_2:
+        try:
             counter2_wordcount = counter_2[word]
 
             dunning_word = dunn_individual_word(total_word_count_1,
@@ -106,7 +106,7 @@ def dunning_total(corpus_1, corpus_2):
                 'count_corp1': counter1_wordcount,
                 'count_corp2': counter2_wordcount
             }
-        else:  # if word is not in counter_2
+        except ValueError:  # if word is not in counter_2
             result["unique_to_corp_1"].add(word)
 
     # consider words unique to corpus_2
