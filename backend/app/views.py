@@ -101,6 +101,27 @@ def example_id(request, example_id):
     return render(request, 'index.html', context)
 
 
+@api_view(['GET'])
+def all_documents(request):
+    """
+    API Endpoint to get all the documents
+    """
+    doc_objs = Document.objects.all()
+    serializer = SimpleDocumentSerializer(doc_objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_document(request, doc_id):
+    """
+    API Endpoint to get a document based on the ID
+    """
+    doc_obj = get_object_or_404(Document, pk=doc_id)
+
+    serializer = DocumentSerializer(doc_obj)
+    return Response(serializer.data)
+
+
 @api_view(['POST'])
 def add_document(request):
     """
@@ -126,27 +147,6 @@ def add_document(request):
 
     new_text_obj = Document.objects.create_document(**fields)
     serializer = DocumentSerializer(new_text_obj)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def all_documents(request):
-    """
-    API Endpoint to get all the documents
-    """
-    doc_objs = Document.objects.all()
-    serializer = SimpleDocumentSerializer(doc_objs, many=True)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def get_document(request, doc_id):
-    """
-    API Endpoint to get a document based on the ID
-    """
-    doc_obj = get_object_or_404(Document, pk=doc_id)
-
-    serializer = DocumentSerializer(doc_obj)
     return Response(serializer.data)
 
 
@@ -306,6 +306,27 @@ def delete_pronoun_series(request):
     return Response(res)
 
 
+@api_view(['GET'])
+def all_corpora(request):
+    """
+    API endpoint to get all the corpora
+    """
+    corpus_objs = Corpus.objects.all()
+    serializer = CorpusSerializer(corpus_objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_corpus(request, corpus_id):
+    """
+    API endpoint to get a corpus based on id
+    """
+    corpus_obj = get_object_or_404(Corpus, pk=corpus_id)
+
+    serializer = CorpusSerializer(corpus_obj)
+    return Response(serializer.data)
+
+
 @api_view(['POST'])
 def add_corpus(request):
     """
@@ -323,25 +344,6 @@ def add_corpus(request):
 
     new_corpus_obj = Corpus.objects.create(**fields)
     serializer = CorpusSerializer(new_corpus_obj)
-    return Response(serializer.data)
-
-
-@api_view(['POST'])
-def update_corpus_docs(request):
-    """
-    API endpoint for updating the documents in a corpus
-    """
-    corpus_data = request.data
-    try:
-        corpus_id = corpus_data['id']
-        doc_ids = corpus_data['documents']
-        corpus_obj = get_object_or_404(Corpus, pk=corpus_id)
-        corpus_obj.documents.set(Document.objects.filter(id__in=doc_ids))
-    except KeyError as err:
-        content = {'detail': f'Attribute {err} not found.'}
-        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-    serializer = CorpusSerializer(corpus_obj)
     return Response(serializer.data)
 
 
@@ -363,22 +365,20 @@ def delete_corpus(request):
     return Response(res)
 
 
-@api_view(['GET'])
-def all_corpora(request):
+@api_view(['POST'])
+def update_corpus_docs(request):
     """
-    API endpoint to get all the corpora
+    API endpoint for updating the documents in a corpus
     """
-    corpus_objs = Corpus.objects.all()
-    serializer = CorpusSerializer(corpus_objs, many=True)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def get_corpus(request, corpus_id):
-    """
-    API endpoint to get a corpus based on id
-    """
-    corpus_obj = get_object_or_404(Corpus, pk=corpus_id)
+    corpus_data = request.data
+    try:
+        corpus_id = corpus_data['id']
+        doc_ids = corpus_data['documents']
+        corpus_obj = get_object_or_404(Corpus, pk=corpus_id)
+        corpus_obj.documents.set(Document.objects.filter(id__in=doc_ids))
+    except KeyError as err:
+        content = {'detail': f'Attribute {err} not found.'}
+        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     serializer = CorpusSerializer(corpus_obj)
     return Response(serializer.data)
