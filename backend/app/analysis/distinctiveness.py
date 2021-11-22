@@ -86,6 +86,8 @@ def dunning_total(corpus_1, corpus_2):
     total_word_count_1 = sum(counter_1.values())
     total_word_count_2 = sum(counter_2.values())
 
+    assert total_word_count_1 > 0 or total_word_count_2 > 0, "One or more corpora is empty"
+
     # dictionary where results will be returned
     result = {"unique_to_corp_1": set(),
               "unique_to_corp_2": set(),

@@ -588,8 +588,8 @@ class DistinctivenessAnalysis(models.Model):
     """
     This model will persist the results from the distinctiveness analysis functions.
     """
-
-    corpora = models.ManyToManyField(Corpus, related_name='distinctiveness_analyses')
+    corpus_1 = models.ForeignKey(Corpus, related_name='dist_analyses_for_corpus_1', on_delete=models.CASCADE)
+    corpus_2 = models.ForeignKey(Corpus, related_name='dist_analyses_for_corpus_2', on_delete=models.CASCADE)
     results = models.JSONField()
 
     class Meta:
