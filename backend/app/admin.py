@@ -12,6 +12,7 @@ models_to_register = [
     models.Corpus,
     models.ProximityAnalysis,
     models.FrequencyAnalysis,
+    models.DistinctivenessAnalysis,
 ]
 
 for model in models_to_register:

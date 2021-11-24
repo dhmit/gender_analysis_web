@@ -21,6 +21,7 @@ context = {
 }
 """
 
+import json
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -31,16 +32,18 @@ from .models import (
     Document,
     PronounSeries,
     Gender,
-    Corpus
+    Corpus,
+    DistinctivenessAnalysis
 )
 from .serializers import (
     DocumentSerializer,
     SimpleDocumentSerializer,
     GenderSerializer,
     PronounSeriesSerializer,
-    CorpusSerializer
+    CorpusSerializer,
+    DistinctivenessAnalysisSerializer
 )
-
+from .analysis.distinctiveness import dunning_total
 
 @api_view(['GET'])
 def get_example(request, example_id):
@@ -415,4 +418,15 @@ def corpus(request, corpus_id):
     }
 
     return render(request, 'index.html', context)
-    
+
+
+@api_view(['GET'])
+def all_distinctiveness(request):
+    """
+    API endpoint to get all the distinctiveness analyses
+    """
+    distinctiveness_objs = DistinctivenessAnalysis.objects.all()
+    serializer = DistinctivenessAnalysisSerializer(distinctiveness_objs, many=True)
+    return Response(serializer.data)
+
+

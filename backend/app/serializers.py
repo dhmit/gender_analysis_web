@@ -99,9 +99,7 @@ class DistinctivenessAnalysisSerializer(serializers.ModelSerializer):
     Serializes a DistinctivenessAnalysis object
     """
 
-    corpora = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
-
     class Meta:
         model = DistinctivenessAnalysis
-        fields = ['corpora', 'corpora']
+        fields = ['id', 'corpus_1', 'corpus_2', 'results']
 
