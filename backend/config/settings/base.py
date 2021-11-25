@@ -1,5 +1,5 @@
 """
-Django base settings for ***** project.
+Django base settings for gender_analysis_web project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/3.1/topics/settings/

@@ -1,6 +1,6 @@
 """
 
-Local development Django settings for *****
+Local development Django settings for gender_analysis_web
 
 Under no circumstances run the server with these settings in production!
 
