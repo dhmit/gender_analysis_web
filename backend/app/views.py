@@ -434,3 +434,13 @@ def all_distinctiveness(request):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+def get_distinctiveness_analysis(request, distinctiveness_id):
+    """
+    API endpoint to get a particular distinctiveness analysis by id
+    """
+    distinctiveness_obj = get_object_or_404(DistinctivenessAnalysis, pk=distinctiveness_id)
+
+    serializer = DistinctivenessAnalysisSerializer(distinctiveness_obj)
+    return Response(serializer.data)
+

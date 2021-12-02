@@ -43,6 +43,7 @@ urlpatterns = [
     path('api/delete_corpus', views.delete_corpus),
     path('api/corpus/<int:corpus_id>', views.get_corpus),
     path('api/all_distinctiveness', views.all_distinctiveness),
+    path('api/distinctiveness/<int:distinctiveness_id>', views.get_distinctiveness_analysis),
 
     # View paths
     path('', views.index, name='index'),
