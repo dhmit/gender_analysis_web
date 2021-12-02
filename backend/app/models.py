@@ -579,7 +579,7 @@ class FrequencyAnalysis(models.Model):
 
     corpus = models.ForeignKey(Corpus, related_name='frequency_analyses', on_delete=models.CASCADE)
     genders = models.ManyToManyField(Gender, related_name='frequency_analyses')
-    results = models.JSONField()
+    results = models.JSONField(null=True)
 
     class Meta:
         verbose_name_plural = 'Frequency Analyses'
@@ -591,7 +591,7 @@ class DistinctivenessAnalysis(models.Model):
     """
     corpus_1 = models.ForeignKey(Corpus, related_name='dist_analyses_for_corpus_1', on_delete=models.CASCADE)
     corpus_2 = models.ForeignKey(Corpus, related_name='dist_analyses_for_corpus_2', on_delete=models.CASCADE)
-    results = models.JSONField()
+    results = models.JSONField(null=True)
 
     class Meta:
         verbose_name_plural = 'Distinctiveness Analyses'
