@@ -444,3 +444,51 @@ def get_distinctiveness_analysis(request, distinctiveness_id):
     serializer = DistinctivenessAnalysisSerializer(distinctiveness_obj)
     return Response(serializer.data)
 
+
+@api_view(['POST'])
+def add_distinctiveness_analysis(request):
+    """
+    API endpoint for adding a distinctiveness analysis
+    """
+    attributes = request.data
+
+    try:
+        id_1 = attributes['id_1']
+        id_2 = attributes['id_2']
+    except KeyError as err:
+        content = {'detail': f'Attribute {err} not found.'}
+        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    try:
+        corpus_1 = Corpus.objects.get(id=id_1)
+        corpus_2 = Corpus.objects.get(id=id_2)
+    except Corpus.DoesNotExist as err:
+        content = {'detail': f"{err}"}
+        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    distinctiveness_analysis_obj, newly_created = \
+        DistinctivenessAnalysis.objects.get_or_create(corpus_1=corpus_1, corpus_2=corpus_2)
+    if not newly_created:  # assume the analysis already exists
+        print('old analysis found!')
+        serializer = DistinctivenessAnalysisSerializer(distinctiveness_analysis_obj)
+        return Response(serializer.data)
+
+    else:  # create a new analysis entry
+        try:
+            results = dunning_total(corpus_1, corpus_2)
+            results['unique_to_corp_1'] = list(results['unique_to_corp_1'])
+            results['unique_to_corp_2'] = list(results['unique_to_corp_2'])
+        except AssertionError as err:
+            content = {'detail': f"{err}"}
+            return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+        fields = {
+            'corpus_1': corpus_1,
+            'corpus_2': corpus_2,
+            'results': results
+        }
+        distinctiveness_obj = DistinctivenessAnalysis.objects.create(**fields)
+
+    serializer = DistinctivenessAnalysisSerializer(distinctiveness_obj)
+    return Response(serializer.data)
+
