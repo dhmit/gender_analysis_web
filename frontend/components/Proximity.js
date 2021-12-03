@@ -1,14 +1,15 @@
 import React, {useState} from "react";
 import * as PropTypes from "prop-types";
 import {getCookie} from "../common";
-import {Modal, OverlayTrigger, Tooltip} from "react-bootstrap";
+import {Alert, Modal, OverlayTrigger, Tooltip} from "react-bootstrap";
 import CollapsibleTree from "./CollapsibleTree";
+import ReactJson from "react-json-view";
 
 
 const Proximity = ({id}) => {
     const [runningProximityAnalysis, setRunningProximityAnalysis] = useState(false);
     const [wordWindow, setWordWindow] = useState(2);
-    const [ProximityAnalysisResults, setProximityAnalysisResults] = useState({});
+    const [proximityAnalysisResults, setProximityAnalysisResults] = useState({});
     const [showProximityModal, setShowProximityModal] = useState(false);
     const handleShowProximityModal = () => setShowProximityModal(true);
     const handleCloseProximityModal = () => setShowProximityModal(false);
@@ -45,7 +46,7 @@ const Proximity = ({id}) => {
                         </Modal.Body>
                         <Modal.Footer>
                             <button className="btn btn-secondary"
-                                    onClick={handleCloseProximityModal}>Close
+                                    onClick={handleCloseProximityModal} type="reset">Close
                             </button>
                             <button className="btn btn-primary" type="submit">Run Analysis</button>
                         </Modal.Footer>
@@ -92,6 +93,13 @@ const Proximity = ({id}) => {
         }
     };
 
+    const corpusNotSelectedWarning = () => {
+        return (<Alert key='select-corpus-id' variant='danger'>
+            Please select a corpus.
+        </Alert>);
+    };
+
+
     const getD3ProximityAnalysisResults = (obj) => {
         if (Object.keys(obj).length === 0) {
             return null;
@@ -101,10 +109,12 @@ const Proximity = ({id}) => {
     };
 
     const ProximityResultsDisplay = () => {
-        return (<CollapsibleTree data={getD3ProximityAnalysisResults(ProximityAnalysisResults)}/>);
+        // return (<CollapsibleTree data={getD3ProximityAnalysisResults(ProximityAnalysisResults)}/>);
+        return (<div> <br/> <ReactJson src={proximityAnalysisResults} collapsed={true} name={"results"}/></div>);
     };
 
     return (
+        (id === -1) ? corpusNotSelectedWarning() :
         <div className="container-fluid">
             {<div>
                 {<><OverlayTrigger
@@ -117,7 +127,7 @@ const Proximity = ({id}) => {
                         Please do not close this tab.
                     </p>
                     }
-                    {ProximityAnalysisResults && ProximityResultsDisplay()}
+                    {(Object.keys(proximityAnalysisResults).length !== 0) && ProximityResultsDisplay()}
                 </>
                 }
                 <br/>

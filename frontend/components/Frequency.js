@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import * as PropTypes from "prop-types";
 import {Alert, Form} from "react-bootstrap";
 import {getCookie} from "../common";
+import ReactJson from "react-json-view";
 
 
 const Frequency = ({id}) => {
@@ -26,7 +27,6 @@ const Frequency = ({id}) => {
             ...values,
             [event.target.id]: true
         }));
-        console.log(containsGender);
     };
 
     const handleFrequencyAnalysisSubmit = (event) => {
@@ -34,7 +34,6 @@ const Frequency = ({id}) => {
         const gendersList = Object.keys(containsGender).filter((id) => {
             return containsGender[id];
         });
-        console.log(gendersList);
         setRunningFrequencyAnalysis(true);
         const csrftoken = getCookie("csrftoken");
         const requestOptions = {
@@ -53,7 +52,6 @@ const Frequency = ({id}) => {
             .then(data => {
                 setFrequencyAnalysisResults(data.results);
                 setRunningFrequencyAnalysis(false);
-                console.log(data.results);
             });
     };
 
@@ -61,6 +59,10 @@ const Frequency = ({id}) => {
         return (<Alert key='select-corpus-id' variant='danger'>
             Please select a corpus.
         </Alert>);
+    };
+
+    const frequencyResultsDisplay = () => {
+        return <div><br/><ReactJson indentWidth={16} theme={"bright:inverted"} collapsed={true} iconStyle={"square"} src={frequencyAnalysisResults}/></div>;
     };
 
     const updateGendersSelection = () => {
@@ -76,6 +78,13 @@ const Frequency = ({id}) => {
                 <button className="btn btn-danger btn-sm" type="submit">
                     Run Frequency Analysis
                 </button>
+                {runningFrequencyAnalysis &&
+                    <p className="alert alert-warning" role="alert">
+                        Currently running frequency analysis&hellip;
+                        Please do not close this tab.
+                    </p>
+                    }
+                    {(Object.keys(frequencyAnalysisResults).length !== 0) && frequencyResultsDisplay()}
             </Form>
         );
     };

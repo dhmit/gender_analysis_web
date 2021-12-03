@@ -24,6 +24,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import render
+from django.db.models import Q, Count
 
 from .analysis import proximity
 from .analysis.frequency import run_analysis
@@ -34,6 +35,7 @@ from .models import (
     ProximityAnalysis,
     FrequencyAnalysis
 )
+
 from .serializers import (
     DocumentSerializer,
     SimpleDocumentSerializer,
@@ -401,19 +403,44 @@ def all_frequency_analyses(request):
     return Response(serializer.data)
 
 
+def check(gender_ids):
+    FrequencyAnalysis.objects.filter(
+        genders__in=gender_ids,
+    ).exclude(
+        # Exclude any that aren't in array_data
+        ~Q(genders__in=gender_ids)
+    ).annotate(
+        matches=Count("genders", distinct=True)
+    ).filter(
+        # Make sure the number found is right.
+        matches=len(gender_ids)
+    )
+
+
 @api_view(['POST'])
 def add_frequency_analysis(request):
     attributes = request.data
-    corpus_id = int(attributes['corpus_id'])
-    gender_ids = list(map(int, attributes['gender_ids']))
-    frequency_entry = FrequencyAnalysis.objects.filter(corpus_id=corpus_id)
+    corpus_id = attributes['corpus_id']
+    gender_ids = attributes['gender_ids']
+    frequency_entry = FrequencyAnalysis.objects.filter(corpus__id=corpus_id, genders__in=gender_ids).filter(
+        genders__in=gender_ids,
+    ).exclude(
+        # Exclude any that aren't in array_data
+        ~Q(genders__in=gender_ids)
+    ).annotate(
+        matches=Count("genders", distinct=True)
+    ).filter(
+        # Make sure the number found is right.
+        matches=len(gender_ids)
+    )
+    print(frequency_entry)
     if frequency_entry.exists():
         freq_analysis_obj = frequency_entry.get()
     else:
-        result = frequency.run_analysis(corpus_id, gender_ids)
+        results = frequency.run_analysis(corpus_id, gender_ids)
         fields = {
             'corpus': Corpus.objects.get(id=corpus_id),
-            'results': result
+            'results': results
         }
         freq_analysis_obj = FrequencyAnalysis.objects.create(**fields)
         freq_analysis_obj.genders.set(gender_ids)
