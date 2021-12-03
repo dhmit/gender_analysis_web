@@ -38,7 +38,6 @@ from .serializers import (
     GenderSerializer,
     CorpusSerializer
 )
-from app.analysis.auto_instances import create_instances_newer
 from app.services.parse_csv import parse_csv
 
 @api_view(['GET'])
@@ -138,9 +137,7 @@ def upload_document(request):
     """
     API endpoint for uploading csv files that are to be converted to an instance of csv_reader
     """
-
-    file = request.data["filename"]
-
+    file = request.data["file"]
     content = file.read().decode('utf-8').splitlines()
     csv_reader = csv.DictReader(content)
     new_corpus = parse_csv(csv_reader)
@@ -228,16 +225,6 @@ def update_corpus_docs(request):
     serializer = CorpusSerializer(corpus_obj)
     return Response(serializer.data)
 
-@api_view(['POST'])
-def create_corpus_csv(request):
-    """
-    API endpoint for converting a csv file into a corpus
-    """
-    #                                                                                           bup
-    filename = request.data["csv"]
-    return_corpus = create_instances_newer(filename)
-    serializer = CorpusSerializer(return_corpus)
-    return Response(serializer.data)
 
 @api_view(['DELETE'])
 def delete_corpus(request):
