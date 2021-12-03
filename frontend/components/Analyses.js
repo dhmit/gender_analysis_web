@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Dropdown, Tab, Tabs} from "react-bootstrap";
 import Proximity from "./Proximity";
 import Frequency from "./Frequency";
+import Dunning from "./Dunning";
 
 const Analyses = () => {
     const NO_CORPUS_SELECTED = (-1);
@@ -44,6 +45,7 @@ const Analyses = () => {
                     <Frequency id={corpusId} key={corpusId}/>
                 </Tab>
                 <Tab eventKey="dunning" title="Distinctiveness">
+                    <Dunning id={corpusId} key={{corpusId}}/>
                 </Tab>
             </Tabs>
         );
