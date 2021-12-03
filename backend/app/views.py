@@ -21,7 +21,6 @@ context = {
 }
 """
 
-import json
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -452,6 +451,7 @@ def add_distinctiveness_analysis(request):
     """
     attributes = request.data
 
+    # Make sure that the request has the correct payload
     try:
         id_1 = attributes['id_1']
         id_2 = attributes['id_2']
@@ -459,6 +459,7 @@ def add_distinctiveness_analysis(request):
         content = {'detail': f'Attribute {err} not found.'}
         return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
+    # Make sure the corpora exist
     try:
         corpus_1 = Corpus.objects.get(id=id_1)
         corpus_2 = Corpus.objects.get(id=id_2)
@@ -473,21 +474,21 @@ def add_distinctiveness_analysis(request):
         serializer = DistinctivenessAnalysisSerializer(distinctiveness_analysis_obj)
         return Response(serializer.data)
 
-    else:  # create a new analysis entry
-        try:
-            results = dunning_total(corpus_1, corpus_2)
-            results['unique_to_corp_1'] = list(results['unique_to_corp_1'])
-            results['unique_to_corp_2'] = list(results['unique_to_corp_2'])
-        except AssertionError as err:
-            content = {'detail': f"{err}"}
-            return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+    # create a new analysis entry
+    try:
+        results = dunning_total(corpus_1, corpus_2)
+        results['unique_to_corp_1'] = list(results['unique_to_corp_1'])
+        results['unique_to_corp_2'] = list(results['unique_to_corp_2'])
+    except AssertionError as err:
+        content = {'detail': f"{err}"}
+        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-        fields = {
-            'corpus_1': corpus_1,
-            'corpus_2': corpus_2,
-            'results': results
-        }
-        distinctiveness_obj = DistinctivenessAnalysis.objects.create(**fields)
+    fields = {
+        'corpus_1': corpus_1,
+        'corpus_2': corpus_2,
+        'results': results
+    }
+    distinctiveness_obj = DistinctivenessAnalysis.objects.create(**fields)
 
     serializer = DistinctivenessAnalysisSerializer(distinctiveness_obj)
     return Response(serializer.data)
