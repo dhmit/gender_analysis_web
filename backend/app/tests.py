@@ -598,9 +598,11 @@ class DistinctivenessTestCase(TestCase):
         c2 = Corpus.objects.get(id=2)
 
         result = distinctiveness.dunning_total(c1, c2)
-        expected = {"unique_to_corp_1": {'the', 'quick', 'brown', 'fox', 'jumped', 'over', 'lazy', 'dog',
-                                         'she', 'really', 'likes', 'to', 'eat', 'chocolate'},
-                    "unique_to_corp_2": {'you', 'ice', 'cream', 'as', 'much', 'see', 'what'},
+        expected = {"unique_to_corp_1": {('the', 2), ('quick', 1), ('brown', 1), ('fox', 1), ('jumped', 1), ('over', 1),
+                                         ('lazy', 1), ('dog', 1), ('she', 1), ('really', 1), ('likes', 1), ('to', 1),
+                                         ('eat', 1), ('chocolate', 1)},
+                    "unique_to_corp_2": {('you', 2), ('ice', 1), ('cream', 1), ('as', 2), ('much', 1), ('see', 2),
+                                         ('what', 1)},
                     "common_words": {
                         'like': {
                             'dunning': -0.006932415952972407,

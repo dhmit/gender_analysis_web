@@ -109,11 +109,11 @@ def dunning_total(corpus_1, corpus_2):
                 'count_corp2': counter2_wordcount
             }
         except ValueError:  # if word is not in counter_2
-            result["unique_to_corp_1"].add(word)
+            result["unique_to_corp_1"].add((word, counter1_wordcount))
 
     # consider words unique to corpus_2
     for word in counter_2:
         if word not in counter_1:
-            result["unique_to_corp_2"].add(word)
+            result["unique_to_corp_2"].add((word, counter_2[word]))
 
     return result
