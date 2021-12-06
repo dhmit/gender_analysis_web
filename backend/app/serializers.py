@@ -11,7 +11,9 @@ from .models import (
     Document,
     Corpus,
     ProximityAnalysis,
-    FrequencyAnalysis
+    FrequencyAnalysis,
+    DistinctivenessAnalysis
+
 )
 
 
@@ -90,3 +92,14 @@ class FrequencyAnalysisSerializer(serializers.ModelSerializer):
     class Meta:
         model = FrequencyAnalysis
         fields = ['id', 'corpus', 'genders', 'results']
+
+
+class DistinctivenessAnalysisSerializer(serializers.ModelSerializer):
+    """
+    Serializes a DistinctivenessAnalysis object
+    """
+
+    class Meta:
+        model = DistinctivenessAnalysis
+        fields = ['id', 'corpus_1', 'corpus_2', 'results']
+
