@@ -470,7 +470,6 @@ def add_distinctiveness_analysis(request):
     distinctiveness_analysis_obj, newly_created = \
         DistinctivenessAnalysis.objects.get_or_create(corpus_1=corpus_1, corpus_2=corpus_2)
     if not newly_created:  # assume the analysis already exists
-        print('old analysis found!')
         serializer = DistinctivenessAnalysisSerializer(distinctiveness_analysis_obj)
         return Response(serializer.data)
 
@@ -483,13 +482,10 @@ def add_distinctiveness_analysis(request):
         content = {'detail': f"{err}"}
         return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    fields = {
-        'corpus_1': corpus_1,
-        'corpus_2': corpus_2,
-        'results': results
-    }
-    distinctiveness_obj = DistinctivenessAnalysis.objects.create(**fields)
+    # modify the object from get_or_create
+    distinctiveness_analysis_obj.results = results
+    distinctiveness_analysis_obj.save()
 
-    serializer = DistinctivenessAnalysisSerializer(distinctiveness_obj)
+    serializer = DistinctivenessAnalysisSerializer(distinctiveness_analysis_obj)
     return Response(serializer.data)
 
